@@ -2,7 +2,6 @@ package com.ksqeib.ksapi.mysql;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import com.zaxxer.hikari.HikariConfig;
-import org.apache.logging.log4j.core.Logger;
 import org.bukkit.Bukkit;
 
 import java.io.BufferedReader;
@@ -16,7 +15,6 @@ import java.util.*;
 
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
-    private final Type param;
     private String tablename;
     private static ConnectionPool pool = null;
     private Boolean usual=true;
@@ -45,54 +43,54 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     private HashMap<String, Type> table = new HashMap<>();
 
 
-    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type) {
-        this.type = type;
-        this.tablename = tablename;
-        if (pool == null) {
-            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-            HikariConfig config = new HikariConfig();
-            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            ds.setUser(userName);
-            config.setUsername(userName);
-            ds.setPassword(password);
-            config.setPassword(password);
-            ds.setCharacterEncoding("UTF-8");
-            ds.setUseUnicode(true);
-            ds.setAutoReconnectForPools(true);
-            ds.setAutoReconnect(true);
-            ds.setAutoReconnectForConnectionPools(true);
-            config.setDataSource(ds);
-            pool = ConnectionPool.getPool(config);
-        }
-        param=null;
-        usual=true;
-        initusual();
-    }
-    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type,Boolean primary) {
-        this.type = type;
-        this.tablename = tablename;
-        if (pool == null) {
-            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-            HikariConfig config = new HikariConfig();
-            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            ds.setUser(userName);
-            config.setUsername(userName);
-            ds.setPassword(password);
-            config.setPassword(password);
-            ds.setCharacterEncoding("UTF-8");
-            ds.setUseUnicode(true);
-            ds.setAutoReconnectForPools(true);
-            ds.setAutoReconnect(true);
-            ds.setAutoReconnectForConnectionPools(true);
-            config.setDataSource(ds);
-            pool = ConnectionPool.getPool(config);
-        }
-        param=null;
-        this.usual=primary;
-        initusual();
-    }
+//    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type) {
+//        this.type = type;
+//        this.tablename = tablename;
+//        if (pool == null) {
+//            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+//            HikariConfig config = new HikariConfig();
+//            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+//            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+//            ds.setUser(userName);
+//            config.setUsername(userName);
+//            ds.setPassword(password);
+//            config.setPassword(password);
+//            ds.setCharacterEncoding("UTF-8");
+//            ds.setUseUnicode(true);
+//            ds.setAutoReconnectForPools(true);
+//            ds.setAutoReconnect(true);
+//            ds.setAutoReconnectForConnectionPools(true);
+//            config.setDataSource(ds);
+//            pool = ConnectionPool.getPool(config);
+//        }
+//        param=null;
+//        usual=true;
+//        initusual();
+//    }
+//    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type,Boolean primary) {
+//        this.type = type;
+//        this.tablename = tablename;
+//        if (pool == null) {
+//            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
+//            HikariConfig config = new HikariConfig();
+//            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+//            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+//            ds.setUser(userName);
+//            config.setUsername(userName);
+//            ds.setPassword(password);
+//            config.setPassword(password);
+//            ds.setCharacterEncoding("UTF-8");
+//            ds.setUseUnicode(true);
+//            ds.setAutoReconnectForPools(true);
+//            ds.setAutoReconnect(true);
+//            ds.setAutoReconnectForConnectionPools(true);
+//            config.setDataSource(ds);
+//            pool = ConnectionPool.getPool(config);
+//        }
+////        param=null;
+//        this.usual=primary;
+//        initusual();
+//    }
 
     public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type,Boolean primary,Type param) {
         this.type = type;
@@ -114,7 +112,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             config.setDataSource(ds);
             pool = ConnectionPool.getPool(config);
         }
-        this.param=param;
+//        this.param=param;
         this.usual=primary;
         initusual();
     }
@@ -131,7 +129,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
     }
 
-    private Connection createConnection() {
+    public Connection createConnection() {
         return this.pool.getConnection();
     }
 
@@ -169,7 +167,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         pstmt.close();
     }
 
-    public synchronized void checkDuan(){
+    public  void checkDuan(){
         List<String> duans=getColumnNames();
         ArrayList<String> needadd=new ArrayList<>();
         for(String name:table.keySet()){
@@ -182,7 +180,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
 
     }
-    public synchronized void addDuan(String name){
+    public  void addDuan(String name){
         Connection conn = null;
         PreparedStatement pstmt=null;
         try {
@@ -208,23 +206,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     }
 
-    public synchronized ResultSet doSelCommand(PreparedStatement ps) {
-        try {
-            return ps.executeQuery();
-        } catch (SQLException e) {
-            System.out.println("执行指令失败，以下为错误提示");
-            e.printStackTrace();
-        }finally {
-//            try {
-//                if(ps!=null)
-//                    ps.close();
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-        }
-        return null;
-    }
-    public synchronized ArrayList<T> loadlist(String key,Boolean loaddelete) {
+    public  ArrayList<T> loadlist(String key,Boolean loaddelete) {
         Connection conn = null;
         ArrayList<T>  out = new ArrayList<>();
         if(!has(key))return out;
@@ -285,7 +267,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public List<String> getColumnNames() {
         List<String> columnNames = new ArrayList<>();
         //与数据库的连接
-        Connection conn = getConnection();
+        Connection conn = createConnection();
         PreparedStatement pStemt = null;
         String tableSql = "SELECT * FROM " + tablename+ " LIMIT 1";
         try {
@@ -314,10 +296,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return columnNames;
     }
 
-    public Connection getConnection() {
-        return pool.getConnection();
-    }
-
     public static void closeConnection(Connection conn) {
         if(conn != null) {
             try {
@@ -328,7 +306,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
     }
 
-    public synchronized T load(String key, T def) {
+    public  T load(String key, T def) {
         Connection conn = null;
         Object result = def;
 
@@ -436,7 +414,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         return (T) result;
     }
-    public synchronized Object loadonepart(String key,String part){
+    public  Object loadonepart(String key,String part){
         Connection conn = null;
         Object result = null;
 
@@ -477,32 +455,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     }
 
-    public Field getFielddeep(String key, T value, int i) {
-        Field fi = null;
-        Class cl = null;
-        try {
-            cl = Class.forName(value.getClass().getTypeName());
-            fi = cl.getDeclaredField(key);
-        } catch (NoSuchFieldException nc) {
-            i++;
-            if (i != 3)
-                fi = getFielddeep(key, cl.getSuperclass(), i);
-        } catch (ClassNotFoundException e1) {
-        }
-        return fi;
-    }
-
-    public Field getFielddeep(String key, Class cl, int i) {
-        Field fi = null;
-        try {
-            fi = cl.getDeclaredField(key);
-        } catch (NoSuchFieldException nc) {
-            i++;
-            if (i != 3)
-                fi = getFielddeep(key, cl.getSuperclass(), i);
-        }
-        return fi;
-    }
 
     public String createInsert(String key, Set<String> keyset, HashMap<String, ByteArrayInputStream> binys) {
         String insertstring = "INSERT INTO %s(dbkey,";
@@ -540,7 +492,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         insertstring = String.format(insertstring, this.tablename);
         return insertstring;
     }
-    public synchronized void delpart(String key,String arg){
+    public  void delpart(String key,String arg){
         Connection conn = null;
         try {
             conn=this.createConnection();
@@ -564,7 +516,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
 
     }
-    public synchronized void saveone(String key, String arg, Object value) {
+    public  void saveone(String key, String arg, Object value) {
         Connection conn = null;
 
         try {
@@ -595,7 +547,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         }
     }
-    public synchronized void del(String key){
+    public  void del(String key){
         Connection conn = null;
         try {
              conn = this.createConnection();
@@ -617,7 +569,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
 
     }
-    public synchronized void save(String key, T value) {
+    public  void save(String key, T value) {
         Connection conn = null;
 
         try {
@@ -708,7 +660,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return keys;
     }
 
-    public synchronized boolean has(String key) {
+    public  boolean has(String key) {
         boolean result = false;
         Connection conn = null;
 
@@ -738,19 +690,19 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return result;
     }
 
-    public synchronized Object getsthbysth(String by, String type, Object sign,Class objtype) {
+    public  Object getsthbysth(String by, String type, Object sign,Class objtype) {
         Connection con=null;
         Object ret = null;
         PreparedStatement ps=null;
         if(sign==null)return sign;
         try {
-            con=getConnection();
+            con=createConnection();
             String s;
             s = "SELECT " + type + " FROM "+tablename+" WHERE "+by+" = ?";
             ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
             ps = con.prepareStatement(s);
             ps.setBinaryStream(1, biny);
-            ResultSet rs = doSelCommand(ps);
+            ResultSet rs =ps.executeQuery();
 
             if (rs.next()) {
                 InputStream input = rs.getBinaryStream(1);

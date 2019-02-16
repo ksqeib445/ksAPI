@@ -16,8 +16,12 @@
  *******************************************************************************/
 package com.ksqeib.ksapi.mysql;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,6 +35,7 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class KDatabase<T> {
+
     private static GsonBuilder builder = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
             .registerTypeAdapter(Location.class, new LocationSerializer())
@@ -46,13 +51,58 @@ public abstract class KDatabase<T> {
         }
     }
 
+    public abstract Object getsthbysth(String by, String type, Object sign, Class objtype);
+
+    public abstract void saveone(String key, String arg, Object value);
+
+    public abstract void delpart(String key, String arg);
+
+    public abstract Object loadonepart(String key, String part);
+
+    public abstract T keyload(String key, T def);
+
+    public Field getFielddeep(String key, T value, int i) {
+        Field fi = null;
+        Class cl = null;
+        try {
+            cl = Class.forName(value.getClass().getTypeName());
+            fi = cl.getDeclaredField(key);
+        } catch (NoSuchFieldException nc) {
+            i++;
+            if (i != 3)
+                fi = getFielddeep(key, cl.getSuperclass(), i);
+        } catch (ClassNotFoundException e1) {
+        }
+        return fi;
+    }
+
+    public Field getFielddeep(String key, Class cl, int i) {
+        Field fi = null;
+        try {
+            fi = cl.getDeclaredField(key);
+        } catch (NoSuchFieldException nc) {
+            i++;
+            if (i != 3)
+                fi = getFielddeep(key, cl.getSuperclass(), i);
+        }
+        return fi;
+    }
+
+    public abstract List<String> getColumnNames();
+
+    public abstract ArrayList<T> loadlist(String key, Boolean loaddelete);
+
+    public abstract void checkDuan();
+
+    public abstract void addDuan(String name);
+
+    public abstract Connection createConnection();
+
     /**
      * Deserialize the data from the database and return
      *
-     * @param key
-     *            the key of the data
-     * @param def
-     *            default value to be used if data was not found.
+     * @param key the key of the data
+     * @param def default value to be used if data was not found.
      * @return the deserialized data
      */
     public abstract T load(String key, T def);
@@ -60,19 +110,17 @@ public abstract class KDatabase<T> {
     /**
      * Serialize the data and put it into the database.
      *
-     * @param key
-     *            the key to pair the data with
-     * @param value
-     *            the data to be saved
+     * @param key   the key to pair the data with
+     * @param value the data to be saved
      */
     public abstract void save(String key, T value);
+
     public abstract void del(String key);
 
     /**
      * Check if the key exists in the database
      *
-     * @param key
-     *            the key to check
+     * @param key the key to check
      * @return true if exists; false if not
      */
     public abstract boolean has(String key);
