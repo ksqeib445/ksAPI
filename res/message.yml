@@ -1,0 +1,10 @@
+#基础
+mhead: '§cksAPI§7 >> §a'
+enable: '§a插件已启动！'
+disable: '§a插件已关闭！'
+reload: '§a插件重载完成！'
+load: '§a插件已加载！'
+nop: '&c&l您无权进行此操作！'
+iconsle: "&c此命令只能由玩家发出"
+subwrong: "&c参数错误！"
+wrong: "&e发生未知错误"
