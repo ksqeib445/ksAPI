@@ -37,10 +37,11 @@ public class Io {
     private File DataFile;
     private String databasepath;
     // 构造
-    public Io(JavaPlugin main,Boolean hasdata,Boolean hasconfig) {
+    public Io(JavaPlugin main,Boolean hasdata,Boolean hasconfig,Boolean closemessage) {
         this.plugin = main;
         this.hasData=hasdata;
         this.hasconfig=hasconfig;
+        this.closemessage=closemessage;
         init();
     }
     public Io(JavaPlugin main) {

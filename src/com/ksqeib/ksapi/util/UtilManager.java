@@ -20,7 +20,14 @@ public class UtilManager {
         plist.put(jp.getDescription().getName(),this);
     }
     public void createalwaysneed(Boolean hasdata,Boolean hasconfig){
-        createio(hasdata,hasconfig);
+        createio(hasdata,hasconfig,false);
+        createitemsr();
+        createtip();
+        createperm();
+    }
+
+    public void createalnomessagea(Boolean hasdata,Boolean hasconfig){
+        createio(hasdata,hasconfig,true);
         createitemsr();
         createtip();
         createperm();
@@ -32,8 +39,8 @@ public class UtilManager {
         createtip();
         createperm();
     }
-    public void createio(Boolean hasdata,Boolean hasconfig){
-        io=new Io(jp,hasdata,hasconfig);
+    public void createio(Boolean hasdata,Boolean hasconfig,Boolean clomes){
+        io=new Io(jp,hasdata,hasconfig,clomes);
     }
     public void createio(){
         io=new Io(jp);

@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-@SuppressWarnings("deprecation")
 public class Tip {
     private Io io;
     public Tip(Io io){
@@ -32,6 +31,7 @@ public class Tip {
             pl = (Player) p;
             isp = true;
         }
+        if(first==null)return;
         if(p==null)return;
         if (args != null)
             for (int i = 0; i < args.length; i++) {
