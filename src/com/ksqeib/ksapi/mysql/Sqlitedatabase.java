@@ -2,11 +2,13 @@ package com.ksqeib.ksapi.mysql;
 
 import org.bukkit.Bukkit;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 
 public class Sqlitedatabase<T> extends KDatabase<T> {
     private final Type type;
@@ -86,17 +88,16 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
             if (value != null) {
                 if (conn == null) return;
                 ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(value).getBytes(StandardCharsets.UTF_8));
-                boolean update=haspart(key,arg);
-                String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?)";
-                if(update) insertstring="UPDATE %s SET " + arg + "= ? WHERE dbkey = ?";
+//                String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?)";if(update)
+                String insertstring="UPDATE %s SET " + arg + "= ? WHERE dbkey = ?";
                 PreparedStatement pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
-                if(!update) {
-                    pstmt.setString(1, key);
-                    pstmt.setString(2, byteToStr(biny));
-                }else {
+//                if(!update) {
+//                    pstmt.setString(1, key);
+//                    pstmt.setString(2, byteToStr(biny));
+//                }else {
                     pstmt.setString(2, key);
                     pstmt.setString(1, byteToStr(biny));
-                }
+//                }
                 ///////
                 pstmt.executeUpdate();
                 pstmt.close();
@@ -338,34 +339,34 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         }
     }
 
-    public boolean haspart(String key,String name) {
-
-        boolean result = false;
-        Statement pstmt=null;
-        ResultSet rs=null;
-        try {
-            pstmt = conn.createStatement();
-            rs = pstmt.executeQuery("SELECT "+name+" FROM "+this.tablename+" WHERE dbkey = " +"\""+key+"\"");
-            if(rs.isClosed())return true;
-            rs.next();
-            result=rs.getString(1)!=null;
-            return result;
-        } catch (SQLException var15) {
-            var15.printStackTrace();
-        } finally {
-            try {
-                if(rs!=null)
-                rs.close();
-                if(pstmt!=null)
-                pstmt.close();
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
-        }
-
-        return result;
-    }
+//    public boolean haspart(String key,String name) {
+//
+//        boolean result = false;
+//        Statement pstmt=null;
+//        ResultSet rs=null;
+//        try {
+//            pstmt = conn.createStatement();
+//            rs = pstmt.executeQuery("SELECT "+name+" FROM "+this.tablename+" WHERE dbkey = " +"\""+key+"\"");
+//            if(rs.isClosed())return true;
+//            rs.next();
+//            result=rs.getString(1)!=null;
+//            return result;
+//        } catch (SQLException var15) {
+//            var15.printStackTrace();
+//        } finally {
+//            try {
+//                if(rs!=null)
+//                rs.close();
+//                if(pstmt!=null)
+//                pstmt.close();
+//            } catch (SQLException var14) {
+//                var14.printStackTrace();
+//            }
+//
+//        }
+//
+//        return result;
+//    }
 
     @Override
     public boolean has(String key) {
