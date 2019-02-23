@@ -15,7 +15,6 @@ import java.util.*;
 
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
-    private String tablename;
     private static ConnectionPool pool = null;
     private Boolean usual=true;
 
@@ -39,9 +38,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public HashMap<String, Type> getTable() {
         return table;
     }
-
-    private HashMap<String, Type> table = new HashMap<>();
-
 
 //    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type) {
 //        this.type = type;
@@ -131,19 +127,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     public Connection createConnection() {
         return this.pool.getConnection();
-    }
-
-    private void initTables(Class cl){
-        for (Field fi : cl.getDeclaredFields()) {
-            if (Modifier.isTransient((fi.getModifiers())))continue;
-            if(Modifier.isStatic(fi.getModifiers()))continue;
-            if(Modifier.isFinal(fi.getModifiers()))continue;
-                table.put(fi.getName(), fi.getGenericType());
-        }
-        if (cl.getSuperclass() != null) {
-            initTables(cl.getSuperclass());
-        }
-
     }
 
     private void initTable(Connection conn ) throws SQLException {
@@ -296,15 +279,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return columnNames;
     }
 
-    public static void closeConnection(Connection conn) {
-        if(conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public  T load(String key, T def) {
         Connection conn = null;
@@ -727,8 +701,5 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         }
         return ret;
-    }
-    public void clear(){
-
     }
 }

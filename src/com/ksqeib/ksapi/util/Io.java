@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Io {
     //ע文件列
-    private Hashtable<String, FileConfiguration> FileList;
+    private Hashtable<String, FileConfiguration> FileList=new Hashtable<>();
     private JavaPlugin plugin;
     public Boolean hasData=false;
     public Boolean hasconfig=true;

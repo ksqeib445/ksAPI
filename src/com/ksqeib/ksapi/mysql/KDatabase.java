@@ -16,14 +16,13 @@
  *******************************************************************************/
 package com.ksqeib.ksapi.mysql;
 
+import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.sql.SQLException;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,6 +35,8 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class KDatabase<T> {
 
+    protected HashMap<String, Type> table = new HashMap<>();
+    protected String tablename;
     private static GsonBuilder builder = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
             .registerTypeAdapter(Location.class, new LocationSerializer())
@@ -49,6 +50,43 @@ public abstract class KDatabase<T> {
             // Bukkit.getLogger().info("Serializer --
             // ["+clazz.getSimpleName()+", "+obj+"]");
         }
+    }
+
+    public static String byteToStr(ByteArrayInputStream biny) {
+        StringBuffer out = new StringBuffer();
+        try {
+            byte[] b = new byte[4096];
+            for (int n; (n = biny.read(b)) != -1; ) {
+                out.append(new String(b, 0, n));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return out.toString();
+    }
+
+    public static void closeConnection(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void initTables(Class cl) {
+        for (Field fi : cl.getDeclaredFields()) {
+            if (Modifier.isTransient((fi.getModifiers()))) continue;
+            if (Modifier.isStatic(fi.getModifiers())) continue;
+            if (Modifier.isFinal(fi.getModifiers())) continue;
+            table.put(fi.getName(), fi.getGenericType());
+        }
+        if (cl.getSuperclass() != null) {
+            initTables(cl.getSuperclass());
+        }
+
     }
 
     public abstract Object getsthbysth(String by, String type, Object sign, Class objtype);
@@ -133,12 +171,6 @@ public abstract class KDatabase<T> {
      * @return
      */
     public abstract Set<String> getKeys();
-
-    /**
-     * Clear all data in the database. <b> Use it carefully as it will
-     * immediately clear up the database</b>
-     */
-    public abstract void clear();
 
     private Gson gson;
 
