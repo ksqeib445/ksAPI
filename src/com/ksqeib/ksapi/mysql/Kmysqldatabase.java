@@ -286,7 +286,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
@@ -345,7 +346,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
@@ -394,7 +396,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
@@ -640,7 +643,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             result = rs.next();

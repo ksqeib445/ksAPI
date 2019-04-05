@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.util;
 
+import com.ksqeib.ksapi.loader.MainLoader;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;

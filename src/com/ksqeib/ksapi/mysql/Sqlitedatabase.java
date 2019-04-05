@@ -128,7 +128,8 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         Object result = null;
 
         try {
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
@@ -158,7 +159,8 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         Object result = def;
 
         try {
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
