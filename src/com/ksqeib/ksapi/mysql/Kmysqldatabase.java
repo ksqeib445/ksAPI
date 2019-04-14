@@ -16,7 +16,7 @@ import java.util.*;
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
     private static ConnectionPool pool = null;
-    private Boolean usual=true;
+    private Boolean usual = true;
 
 
     public Type getType() {
@@ -88,14 +88,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 //        initusual();
 //    }
 
-    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type,Boolean primary,Type param) {
+    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
         this.type = type;
         this.tablename = tablename;
         if (pool == null) {
             MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
             HikariConfig config = new HikariConfig();
-            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+            ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
+            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
             ds.setUser(userName);
             config.setUsername(userName);
             ds.setPassword(password);
@@ -109,10 +109,11 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             pool = ConnectionPool.getPool(config);
         }
 //        this.param=param;
-        this.usual=primary;
+        this.usual = primary;
         initusual();
     }
-    public void initusual(){
+
+    public void initusual() {
         Connection conn = this.createConnection();
         try {
             initTables(Class.forName(type.getTypeName()));
@@ -120,7 +121,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             checkDuan();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             closeConnection(conn);
         }
     }
@@ -129,9 +130,9 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return this.pool.getConnection();
     }
 
-    private void initTable(Connection conn ) throws SQLException {
+    private void initTable(Connection conn) throws SQLException {
         String createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128) PRIMARY KEY,";
-        if(!usual){
+        if (!usual) {
             createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128),";
         }
         int i = 0;
@@ -150,32 +151,33 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         pstmt.close();
     }
 
-    public  void checkDuan(){
-        List<String> duans=getColumnNames();
-        ArrayList<String> needadd=new ArrayList<>();
-        for(String name:table.keySet()){
-            if(!duans.contains(name)){
+    public void checkDuan() {
+        List<String> duans = getColumnNames();
+        ArrayList<String> needadd = new ArrayList<>();
+        for (String name : table.keySet()) {
+            if (!duans.contains(name)) {
                 needadd.add(name);
             }
         }
-        for(String name:needadd){
+        for (String name : needadd) {
             addDuan(name);
         }
 
     }
-    public  void addDuan(String name){
+
+    public void addDuan(String name) {
         Connection conn = null;
-        PreparedStatement pstmt=null;
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
-            pstmt = conn.prepareStatement(String.format("alter table %s ADD COLUMN "+name+" MEDIUMBLOB", this.tablename));
+            pstmt = conn.prepareStatement(String.format("alter table %s ADD COLUMN " + name + " MEDIUMBLOB", this.tablename));
             pstmt.executeUpdate();
             pstmt.close();
         } catch (SQLException var15) {
             var15.printStackTrace();
         } finally {
             try {
-                if(pstmt!=null){
+                if (pstmt != null) {
                     pstmt.close();
                 }
                 if (conn != null) {
@@ -189,17 +191,17 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     }
 
-    public  ArrayList<T> loadlist(String key,Boolean loaddelete) {
+    public ArrayList<T> loadlist(String key, Boolean loaddelete) {
         Connection conn = null;
-        ArrayList<T>  out = new ArrayList<>();
-        if(!has(key))return out;
+        ArrayList<T> out = new ArrayList<>();
+        if (!has(key)) return out;
         try {
             conn = this.createConnection();
             PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
-            Object result=null;
+            Object result = null;
             while (rs.next()) {
                 Class cl = Class.forName(type.getTypeName());
                 if (cl.getConstructors().length > 0) {
@@ -210,7 +212,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                             result = c.newInstance();
                         }
                 }
-                if(result==null)continue;
+                if (result == null) continue;
                 ///////
                 for (String keys : table.keySet()) {
                     //LOAD
@@ -220,16 +222,16 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
-                        if(obj==null)continue;
+                        if (obj == null) continue;
                         Field fi = getFielddeep(keys, cl, 0);
                         fi.setAccessible(true);
                         fi.set(result, obj);
                     }
                 }
-                out.add((T)result);
+                out.add((T) result);
             }
-            if(loaddelete)
-            del(key);
+            if (loaddelete)
+                del(key);
             pstmt.close();
         } catch (Exception var19) {
             var19.printStackTrace();
@@ -252,7 +254,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         //与数据库的连接
         Connection conn = createConnection();
         PreparedStatement pStemt = null;
-        String tableSql = "SELECT * FROM " + tablename+ " LIMIT 1";
+        String tableSql = "SELECT * FROM " + tablename + " LIMIT 1";
         try {
 
             pStemt = conn.prepareStatement(tableSql);
@@ -280,7 +282,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     }
 
 
-    public  T load(String key, T def) {
+    public T load(String key, T def) {
         Connection conn = null;
         Object result = def;
 
@@ -295,13 +297,13 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 Class cl = Class.forName(type.getTypeName());
                 if (cl.getConstructors().length > 0) {
                     //new Instance
-                    for (Constructor c : cl.getDeclaredConstructors()){
-                        if(c.getParameterCount()!=0)continue;
+                    for (Constructor c : cl.getDeclaredConstructors()) {
+                        if (c.getParameterCount() != 0) continue;
                         if (Modifier.isPrivate(c.getModifiers())) {
                             c.setAccessible(true);
                             result = c.newInstance();
-                        }else if(Modifier.isPublic(c.getModifiers())){
-                            result =c.newInstance();
+                        } else if (Modifier.isPublic(c.getModifiers())) {
+                            result = c.newInstance();
                         }
                     }
                 }
@@ -314,7 +316,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
-                        if(obj==null)continue;
+                        if (obj == null) continue;
                         Field fi = getFielddeep(keys, cl, 0);
                         fi.setAccessible(true);
                         fi.set(result, obj);
@@ -354,8 +356,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             if (rs.next()) {
                 Class cl = Class.forName(type.getTypeName());
 //                Class pa = Class.forName(param.getTypeName());
-                Method me=cl.getDeclaredMethod("fromkeyserizable",String.class);
-                result=me.invoke(cl,key);
+                Method me = cl.getDeclaredMethod("fromkeyserizable", String.class);
+                result = me.invoke(cl, key);
                 ///////
                 for (String keys : table.keySet()) {
                     //LOAD
@@ -365,7 +367,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
-                        if(obj==null)continue;
+                        if (obj == null) continue;
                         Field fi = getFielddeep(keys, cl, 0);
                         fi.setAccessible(true);
                         fi.set(result, obj);
@@ -390,26 +392,27 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         return (T) result;
     }
-    public  Object loadonepart(String key,String part){
+
+    public Object loadonepart(String key, String part) {
         Connection conn = null;
         Object result = null;
 
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
             if (rs.next()) {
                 ///////
-                    InputStream input = rs.getBinaryStream(part);
-                    if (input != null) {
-                        InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
-                        BufferedReader br = new BufferedReader(isr);
-                        String readed=br.readLine();
-                        if(readed==null)return null;
-                        result = this.deserialize(readed, table.get(part));
+                InputStream input = rs.getBinaryStream(part);
+                if (input != null) {
+                    InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
+                    BufferedReader br = new BufferedReader(isr);
+                    String readed = br.readLine();
+                    if (readed == null) return null;
+                    result = this.deserialize(readed, table.get(part));
 
                 }
             }
@@ -469,19 +472,19 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         insertstring = String.format(insertstring, this.tablename);
         return insertstring;
     }
-    public  void delpart(String key,String arg){
+
+    @Override
+    public void clearallpart(String partname) {
         Connection conn = null;
         try {
-            conn=this.createConnection();
-//                update 表名 set 字段=null where 字段=某值
-            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set "+arg+"=null WHERE dbkey = ?", this.tablename));
-            pstmt.setString(1, key);
+            conn = this.createConnection();
+            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=null", this.tablename));
             pstmt.executeUpdate();
             pstmt.close();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 if (conn != null) {
                     conn.close();
@@ -493,13 +496,39 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
 
     }
-    public  void saveone(String key, String arg, Object value) {
+
+    public void delpart(String key, String arg) {
+        Connection conn = null;
+        try {
+            conn = this.createConnection();
+//                update 表名 set 字段=null where 字段=某值
+            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + arg + "=null WHERE dbkey = ?", this.tablename));
+            pstmt.setString(1, key);
+            pstmt.executeUpdate();
+            pstmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException var14) {
+                var14.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public void saveone(String key, String arg, Object value) {
         Connection conn = null;
 
         try {
             conn = this.createConnection();
             if (value != null) {
-                if(conn==null)return;
+                if (conn == null) return;
                 ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(value).getBytes(StandardCharsets.UTF_8));
                 String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?) ON DUPLICATE KEY UPDATE " + arg + " = VALUES(" + arg + ")";
                 PreparedStatement pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
@@ -509,7 +538,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 pstmt.executeUpdate();
                 pstmt.close();
             } else {
-                Bukkit.getLogger().warning("Save wrong part "+arg+" at "+key);
+                Bukkit.getLogger().warning("Save wrong part " + arg + " at " + key);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -524,15 +553,16 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         }
     }
-    public  void del(String key){
+
+    public void del(String key) {
         Connection conn = null;
         try {
-             conn = this.createConnection();
+            conn = this.createConnection();
             PreparedStatement pstmt = conn.prepareStatement(String.format("DELETE FROM %s WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
             pstmt.executeUpdate();
             pstmt.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
@@ -546,7 +576,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
 
     }
-    public  void save(String key, T value) {
+
+    public void save(String key, T value) {
         Connection conn = null;
 
         try {
@@ -589,7 +620,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 pstmt.executeUpdate();
                 pstmt.close();
             } else {
-                Bukkit.getLogger().warning("Save wrong data "+key);
+                Bukkit.getLogger().warning("Save wrong data " + key);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -637,7 +668,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return keys;
     }
 
-    public  boolean has(String key) {
+    public boolean has(String key) {
         boolean result = false;
         Connection conn = null;
 
@@ -668,19 +699,19 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return result;
     }
 
-    public  Object getsthbysth(String by, String type, Object sign,Class objtype) {
-        Connection con=null;
+    public Object getsthbysth(String by, String type, Object sign, Class objtype) {
+        Connection con = null;
         Object ret = null;
-        PreparedStatement ps=null;
-        if(sign==null)return sign;
+        PreparedStatement ps = null;
+        if (sign == null) return sign;
         try {
-            con=createConnection();
+            con = createConnection();
             String s;
-            s = "SELECT " + type + " FROM "+tablename+" WHERE "+by+" = ?";
+            s = "SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ?";
             ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
             ps = con.prepareStatement(s);
             ps.setBinaryStream(1, biny);
-            ResultSet rs =ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 InputStream input = rs.getBinaryStream(1);
@@ -693,13 +724,13 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
-                if(ps!=null)
+                if (ps != null)
                     ps.close();
-                if(con != null)
+                if (con != null)
                     con.close();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

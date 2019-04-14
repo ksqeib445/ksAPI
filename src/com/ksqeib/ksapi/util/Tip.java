@@ -1,6 +1,5 @@
 package com.ksqeib.ksapi.util;
 
-import com.connorlinfoot.actionbarapi.ActionBarAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,6 +23,9 @@ public class Tip {
         send(musicc(Bukkit.getPlayer(uuid), m), Bukkit.getPlayer(uuid), args);
     }
 
+    public void sendAcb(){
+
+    }
     public void send(String first, CommandSender p, String args[]) {
         Player pl = null;
         Boolean isp = false;
@@ -43,7 +45,7 @@ public class Tip {
         } else if (first.startsWith("+")) {
             if (isp) {
 //                pl.sendActionBar(first.substring(1));
-                pl.sendRawMessage(first.substring(1));
+                ActionBar.sendActionBar(pl,first.substring(1));
             } else {
                 p.sendMessage(first.substring(1));
             }
@@ -79,7 +81,7 @@ public class Tip {
             //=判断
             p.sendMessage(first.substring(1));
         } else if (first.startsWith("+")) {
-            ActionBarAPI.sendActionBar(p,first.substring(1));
+            ActionBar.sendActionBar(p,first.substring(1));
 //            p.sendRawMessage(first.substring(1));
         } else if (first.startsWith("-")) {
             p.sendMessage(io.getMessage("mhead") + first.substring(1));

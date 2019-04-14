@@ -95,6 +95,8 @@ public abstract class KDatabase<T> {
 
     public abstract void delpart(String key, String arg);
 
+    public abstract void clearallpart(String partname);
+
     public abstract Object loadonepart(String key, String part);
 
     public abstract T keyload(String key, T def);

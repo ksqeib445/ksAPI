@@ -309,6 +309,18 @@ public class Io {
             return false;
         }
     }
+    public int randInt(int min, int max) {
+
+        int randomNum = rm.nextInt((max - min) + 1) + min;
+
+        return randomNum;
+    }
+
+    public boolean rand100(int prob) {
+        if (randInt(0, 100) <= prob) return true;
+
+        return false;
+    }
     //读取
     public static void loadintlist(ConcurrentHashMap<String, Integer> change, String list, FileConfiguration config) {
         MemorySection items = (MemorySection) config.get(list);

@@ -2,13 +2,13 @@ package com.ksqeib.ksapi.mysql;
 
 import org.bukkit.Bukkit;
 
-import java.awt.*;
 import java.io.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
-import java.util.List;
 
 public class Sqlitedatabase<T> extends KDatabase<T> {
     private final Type type;
@@ -44,7 +44,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
     public void initusual() {
         try {
             initDriver();
-            conn=createConnection();
+            conn = createConnection();
             initTables(Class.forName(type.getTypeName()));
 //            System.out.println("initedtable");
             this.initTable(conn);
@@ -89,14 +89,14 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
                 if (conn == null) return;
                 ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(value).getBytes(StandardCharsets.UTF_8));
 //                String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?)";if(update)
-                String insertstring="UPDATE %s SET " + arg + "= ? WHERE dbkey = ?";
+                String insertstring = "UPDATE %s SET " + arg + "= ? WHERE dbkey = ?";
                 PreparedStatement pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
 //                if(!update) {
 //                    pstmt.setString(1, key);
 //                    pstmt.setString(2, byteToStr(biny));
 //                }else {
-                    pstmt.setString(2, key);
-                    pstmt.setString(1, byteToStr(biny));
+                pstmt.setString(2, key);
+                pstmt.setString(1, byteToStr(biny));
 //                }
                 ///////
                 pstmt.executeUpdate();
@@ -113,14 +113,38 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
     public void delpart(String key, String arg) {
         try {
 //                update 表名 set 字段=null where 字段=某值
-            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set "+arg+"=null WHERE dbkey = ?", this.tablename));
+            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + arg + "=null WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
             pstmt.executeUpdate();
             pstmt.close();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void clearallpart(String partname) {
+        Connection conn = null;
+        try {
+            conn = this.createConnection();
+            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=null", this.tablename));
+            pstmt.executeUpdate();
+            pstmt.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException var14) {
+                var14.printStackTrace();
+            }
+
+        }
+
     }
 
     @Override
@@ -129,7 +153,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
 
         try {
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT "+part+" FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             ResultSet rs = pstmt.executeQuery();
             /////
@@ -139,8 +163,8 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
                 if (input != null) {
                     InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(isr);
-                    String readed=br.readLine();
-                    if(readed==null)return null;
+                    String readed = br.readLine();
+                    if (readed == null) return null;
                     result = this.deserialize(readed, table.get(part));
 
                 }
@@ -233,7 +257,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
 
     public String createInsert(String key, Set<String> keyset, HashMap<String, ByteArrayInputStream> binys) {
         String insertstring;
-        if(has(key)){
+        if (has(key)) {
             insertstring = "UPDATE %s SET ";
             int temp = 0;
             for (String keys : keyset) {
@@ -246,8 +270,8 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
                     insertstring += "= ? ";
                 }
             }
-            insertstring+="WHERE dbkey=?";
-        }else {
+            insertstring += "WHERE dbkey=?";
+        } else {
             insertstring = "INSERT INTO %s(dbkey,";
             int temp = 0;
             for (String keys : keyset) {
@@ -300,23 +324,23 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
                     binys.put(ser, new ByteArrayInputStream(al.get(ser).getBytes(StandardCharsets.UTF_8)));
                 }
                 //ADD!
-                if(binys.size()==0)return;
+                if (binys.size() == 0) return;
                 //变量名列表+二进制流列表
                 Set<String> keyset = binys.keySet();
 //                Bukkit.getLogger().warning(createInsert(key,keyset,binys));
-                String insert=createInsert(key, keyset, binys);
-                boolean update=has(key);
+                String insert = createInsert(key, keyset, binys);
+                boolean update = has(key);
                 PreparedStatement pstmt = conn.prepareStatement(insert);
-                if(!update)
-                pstmt.setString(1, key);
+                if (!update)
+                    pstmt.setString(1, key);
                 int c = 2;
-                if(update)c=1;
+                if (update) c = 1;
 //                循环放入二进制
                 for (String keys : keyset) {
                     pstmt.setString(c, byteToStr(binys.get(keys)));
                     c++;
                 }
-                if(update)pstmt.setString(c, key);
+                if (update) pstmt.setString(c, key);
                 ///////
                 pstmt.executeUpdate();
                 pstmt.close();
@@ -336,7 +360,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
             pstmt.setString(1, key);
             pstmt.executeUpdate();
             pstmt.close();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
