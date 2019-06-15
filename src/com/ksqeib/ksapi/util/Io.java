@@ -22,62 +22,73 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Io {
     //ע文件列
-    private Hashtable<String, FileConfiguration> FileList=new Hashtable<>();
+    private Hashtable<String, FileConfiguration> FileList = new Hashtable<>();
     private JavaPlugin plugin;
-    public Boolean hasData=false;
-    public Boolean hasconfig=true;
-    public FileConfiguration config;
-    public boolean closemessage=false;
-    public HashMap<String, String> mes = new HashMap<String, String>();
-    public String messagedir="message.yml";
+    public Boolean hasData = false;
     public Random rm = new Random();
-    public HashMap<String,FileConfiguration> configs=new HashMap<>();
+    public HashMap<String, FileConfiguration> configs = new HashMap<>();
+    public HashMap<String,Boolean> isinconfigs=new HashMap<>();
     //注册需要的参
 
     private File DataFile;
     private String databasepath;
+
     // 构造
-    public Io(JavaPlugin main,Boolean hasdata,Boolean hasconfig,Boolean closemessage) {
+    public Io(JavaPlugin main, Boolean hasdata) {
         this.plugin = main;
-        this.hasData=hasdata;
-        this.hasconfig=hasconfig;
-        this.closemessage=closemessage;
+        this.hasData = hasdata;
         init();
     }
+
     public Io(JavaPlugin main) {
         this.plugin = main;
     }
 
     public void init() {
-        if(hasconfig)
-        config = loadYamlFile("config.yml", true);
         //加载必要的文件
-        if(hasData) {
+        if (hasData) {
             FileList = new Hashtable();
             FileList.clear();
-            databasepath="data";
-            if(plugin.getConfig().getString("datapath")!=null)
-            databasepath = plugin.getConfig().getString("datapath");
+            databasepath = "data";
+            if (plugin.getConfig().getString("datapath") != null)
+                databasepath = plugin.getConfig().getString("datapath");
             createDir(databasepath);
             databasepath = DataFile.getAbsolutePath();
         }
-        if(!closemessage){
-            mes=getAll(loadYamlFile(messagedir,true));
+    }
+    public void reload(){
+        saveandcleardata();
+        for(Map.Entry<String,FileConfiguration> ac:configs.entrySet()){
+            try{
+                ac.setValue(loadYamlFile(ac.getKey() + ".yml", isinconfigs.get(ac.getKey())));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+    }
+    public void toStringListAndSave(HashMap<String, String> in, String name) {
+        Set<String> ins = in.keySet();
+        List<String> keys=new ArrayList<>(ins);
+        Collections.sort(keys);
+        for (String key : keys) {
+            loadData(name).set(key, new String[]{in.get(key)});
+        }
+        saveandcleardata();
+    }
 
+    public void loadaConfig(String in, Boolean isin) {
+        String name = in.toLowerCase();
+        configs.put(name, loadYamlFile(name + ".yml", isin));
+        isinconfigs.put(name,isin);
 
     }
 
-    public void loadaConfig(String in,Boolean isin){
-        String name=in.toLowerCase();
-        configs.put(name,loadYamlFile(name+".yml", isin));
-
-    }
-    public FileConfiguration getaConfig(String in){
-        String name=in.toLowerCase();
+    public FileConfiguration getaConfig(String in) {
+        String name = in.toLowerCase();
         return configs.get(name);
     }
-    public static void jsonCreate(JsonObject json, Class cl, JsonSerializationContext context, Object value){
+
+    public static void jsonCreate(JsonObject json, Class cl, JsonSerializationContext context, Object value) {
         HashMap<String, Type> table = new HashMap<>();
         try {
             Io.initTables(table, cl);
@@ -97,6 +108,7 @@ public class Io {
             Bukkit.getLogger().warning(value.getClass().getTypeName());
         }
     }
+
     public static Field getObjFielddeep(String key, Object value, int i) {
         Field fi = null;
         Class cl = null;
@@ -111,6 +123,7 @@ public class Io {
         }
         return fi;
     }
+
     public static Field getFielddeep(String key, Class cl, int i) {
         Field fi = null;
         try {
@@ -122,6 +135,7 @@ public class Io {
         }
         return fi;
     }
+
     public static void initTables(HashMap<String, Type> table, Class cl) {
         for (Field fi : cl.getDeclaredFields()) {
             if (!Modifier.isTransient((fi.getModifiers())) && !Modifier.isStatic(fi.getModifiers()))
@@ -131,7 +145,8 @@ public class Io {
             initTables(table, cl.getSuperclass());
         }
     }
-    public static void onekeySetField(Class cl, Object result, JsonObject json, JsonDeserializationContext context){
+
+    public static void onekeySetField(Class cl, Object result, JsonObject json, JsonDeserializationContext context) {
         try {
             HashMap<String, Type> table = new HashMap<>();
             initTables(table, cl);
@@ -139,17 +154,13 @@ public class Io {
                 //LOAD
                 Field fi = Io.getFielddeep(keys, cl, 0);
                 fi.setAccessible(true);
-                JsonElement obj=json.get(keys);
-                if(obj!=null)
+                JsonElement obj = json.get(keys);
+                if (obj != null)
                     fi.set(result, context.deserialize(obj, table.get(keys)));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public String getMessage(String str) {
-        return mes.get(str.replace("&", "§"));
     }
 
     private void createResouce(String path) {
@@ -191,7 +202,7 @@ public class Io {
         Boolean have = FileList.containsKey(data);
         if (!have) {
             //若列表里没有
-            ym = loadDataYaml(data+".yml");
+            ym = loadDataYaml(data + ".yml");
             FileList.put(data, ym);
         } else {
             //列表有
@@ -202,7 +213,7 @@ public class Io {
 
     private FileConfiguration loadDataYaml(String name) {
         //读取YAML
-        File fm = new File(DataFile,name);
+        File fm = new File(DataFile, name);
         return YamlConfiguration.loadConfiguration(fm);
     }
 
@@ -225,17 +236,22 @@ public class Io {
 
     public void disabled() {
         //保存
-        if(hasData){
-        Set<String> filekeyset = FileList.keySet();
-        for (String key : filekeyset) {
-            //遍历开撸
-            try {
-                FileList.get(key).save(new File(DataFile, key + ".yml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        saveandcleardata();
+    }
 
-        }
+    public void saveandcleardata() {
+        if (hasData) {
+            Set<String> filekeyset = FileList.keySet();
+            for (String key : filekeyset) {
+                //遍历开撸
+                try {
+                    FileList.get(key).save(new File(DataFile, key + ".yml"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            FileList.clear();
         }
     }
 
@@ -256,6 +272,17 @@ public class Io {
         for (String string : lis) {
             //获取全部样式
             hash.put(string, file.getString(string).replace("&", "§"));
+        }
+        return hash;
+    }
+
+    public static HashMap<String,List<String>> getAlllist(FileConfiguration file) {
+        //读取配置
+        Set<String> lis = file.getKeys(false);
+        HashMap<String, List<String>> hash = new HashMap<String,List<String>>();
+        for (String key : lis) {
+            //获取全部样式
+            hash.put(key, file.getStringList(key));
         }
         return hash;
     }
@@ -301,14 +328,15 @@ public class Io {
         }
     }
 
-    public boolean rand(double persent,double max){
-        double thistime=rm.nextDouble()*max;
-        if(thistime<persent){
+    public boolean rand(double persent, double max) {
+        double thistime = rm.nextDouble() * max;
+        if (thistime < persent) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
+
     public int randInt(int min, int max) {
 
         int randomNum = rm.nextInt((max - min) + 1) + min;
@@ -321,6 +349,14 @@ public class Io {
 
         return false;
     }
+
+    public static int getRandom(int min, int max) {
+        if (min == max) {
+            return 0;
+        }
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
+
     //读取
     public static void loadintlist(ConcurrentHashMap<String, Integer> change, String list, FileConfiguration config) {
         MemorySection items = (MemorySection) config.get(list);

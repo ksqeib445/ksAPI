@@ -2,30 +2,82 @@ package com.ksqeib.ksapi.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class Tip {
-    private Io io;
-    public Tip(Io io){
-        this.io=io;
+    public Boolean islist;
+    public HashMap<String, List<String>> lmMap;
+    public HashMap<String, String> mMap;
+    public FileConfiguration messagefile;
+    public boolean isnohead = false;
+
+    public Tip(Io io, boolean islist, String name) {
+        this.islist = islist;
+        messagefile = io.loadYamlFile(name, true);
+        init();
     }
+
+    public Tip(boolean islist, FileConfiguration messagefile) {
+        this.islist = islist;
+        this.messagefile = messagefile;
+        init();
+    }
+
+    public void init() {
+        if (islist) {
+            lmMap = Io.getAlllist(messagefile);
+        } else {
+            mMap = Io.getAll(messagefile);
+        }
+    }
+
+    public String getMessage(String m) {
+        if (islist) {
+            List<String> mes=lmMap.get(m);
+            if(mes.size()!=0){
+                return mes.get(0).replace("&", "§");
+            }else {
+                return "";
+            }
+        } else {
+            return mMap.get(m).replace("&", "§");
+        }
+    }
+
     public void getDnS(CommandSender p, String m, String args[]) {
-        send(io.getMessage(m), p, args);
+        if (!islist) {
+            send(getMessage(m), p, args);
+        } else {
+            for (String mes : lmMap.get(m)) {
+                send(mes, p, args);
+            }
+        }
     }
 
     public void getDnS(Player p, String m, String args[]) {
-        send(musicc(p, m), p, args);
+        if (islist) {
+            for (String mes : lmMap.get(m)) {
+                send(music(p, mes), p, args);
+            }
+        } else {
+            send(musicc(p, m), p, args);
+        }
     }
 
     public void getDnS(UUID uuid, String m, String args[]) {
-        send(musicc(Bukkit.getPlayer(uuid), m), Bukkit.getPlayer(uuid), args);
+        getDnS(Bukkit.getPlayer(uuid), m, args);
     }
 
-    public void sendAcb(){
+    public void sendAcb() {
 
     }
+
     public void send(String first, CommandSender p, String args[]) {
         Player pl = null;
         Boolean isp = false;
@@ -33,8 +85,8 @@ public class Tip {
             pl = (Player) p;
             isp = true;
         }
-        if(first==null)return;
-        if(p==null)return;
+        if (first == null) return;
+        if (p == null) return;
         if (args != null)
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
@@ -45,16 +97,16 @@ public class Tip {
         } else if (first.startsWith("+")) {
             if (isp) {
 //                pl.sendActionBar(first.substring(1));
-                ActionBar.sendActionBar(pl,first.substring(1));
+                ActionBar.sendActionBar(pl, first.substring(1));
             } else {
                 p.sendMessage(first.substring(1));
             }
         } else if (first.startsWith("!")) {
-            for(Player opl:Bukkit.getOnlinePlayers()){
-                music(opl,first.substring(1));
+            for (Player opl : Bukkit.getOnlinePlayers()) {
+                music(opl, first.substring(1));
             }
         } else if (first.startsWith("-")) {
-            p.sendMessage(io.getMessage("mhead") + first.substring(1));
+            sendwithhead(p, first.substring(1));
         } else {
             //判断title
             String bes[] = first.split("-;-");
@@ -65,13 +117,13 @@ public class Tip {
                     p.sendMessage(bes[3] + " " + bes[4]);
                 }
             } else {
-                p.sendMessage(io.getMessage("mhead") + first);
+                sendwithhead(p, first);
             }
         }
     }
 
     public void send(String first, Player p, String args[]) {
-        if(p==null)return;
+        if (p == null) return;
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
@@ -81,10 +133,10 @@ public class Tip {
             //=判断
             p.sendMessage(first.substring(1));
         } else if (first.startsWith("+")) {
-            ActionBar.sendActionBar(p,first.substring(1));
+            ActionBar.sendActionBar(p, first.substring(1));
 //            p.sendRawMessage(first.substring(1));
         } else if (first.startsWith("-")) {
-            p.sendMessage(io.getMessage("mhead") + first.substring(1));
+            sendwithhead(p, first.substring(1));
         } else if (first.startsWith("!")) {
             Bukkit.getServer()
                     .broadcastMessage(first.substring(1));
@@ -94,13 +146,31 @@ public class Tip {
             if (bes.length > 4) {
                 p.sendTitle(bes[3], bes[4], Integer.parseInt(bes[0]), Integer.parseInt(bes[1]), Integer.parseInt(bes[2]));
             } else {
-                p.sendMessage(io.getMessage("mhead") + first);
+                sendwithhead(p, first);
             }
         }
     }
-    public String musicc(Player p,String m){
-        return music(p,io.getMessage(m));
+
+    public void sendwithhead(CommandSender p, String in) {
+        if (isnohead) return;
+        if (islist) {
+            List<String> head = lmMap.get("mhead");
+            for (int i = 0; i < head.size(); i++) {
+                String get = head.get(i);
+                if (i == head.size() - 1) {
+                    get += in;
+                }
+                p.sendMessage(get);
+            }
+        } else {
+            p.sendMessage(getMessage("mhead") + in);
+        }
     }
+
+    public String musicc(Player p, String m) {
+        return music(p, getMessage(m));
+    }
+
     public String music(Player p, String nq) {
         String nh = nq;
         if (nq != null) {

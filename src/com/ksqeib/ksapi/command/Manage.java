@@ -1,6 +1,7 @@
 package com.ksqeib.ksapi.command;
 
 import com.ksqeib.ksapi.KsAPI;
+import com.ksqeib.ksapi.util.Io;
 import com.ksqeib.ksapi.util.Musicg;
 import com.ksqeib.ksapi.util.UtilManager;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public class Manage extends Command {
 
     @Override
     public boolean execute(CommandSender cms, String label, String[] args) {
+        Io io=KsAPI.um.getIo();
         if (cms.isOp()||cms.hasPermission("ksapi.manage")) {
             if (args.length > 0) {
                 switch (args[0]) {
@@ -33,6 +35,12 @@ public class Manage extends Command {
                         if (args.length >= 2) {
                             KsAPI.um.getTip().send("PL:" + KsAPI.instance.getName(), cms, null);
                             KsAPI.um.getTip().send("VER" + KsAPI.instance.getDescription().getVersion(), cms, null);
+                        }
+                        break;
+                    case "tsl":
+                        if(args.length==3){
+                            io.toStringListAndSave(io.getAll(io.loadData(args[1])),args[2]);
+                            System.out.println("sucess");
                         }
                         break;
                     case "reload":
