@@ -40,6 +40,9 @@ public class Tip {
     public String getMessage(String m) {
         if (islist) {
             List<String> mes=lmMap.get(m);
+            if(mes==null){
+                Bukkit.getLogger().warning("在读取语言"+m+"时发生了一个空指针！");
+            }
             if(mes.size()!=0){
                 return mes.get(0).replace("&", "§");
             }else {
@@ -47,6 +50,13 @@ public class Tip {
             }
         } else {
             return mMap.get(m).replace("&", "§");
+        }
+    }
+    public List<String> getMessageList(String m) {
+        if (islist) {
+            return lmMap.get(m);
+        } else {
+            return null;
         }
     }
 
@@ -73,7 +83,11 @@ public class Tip {
     public void getDnS(UUID uuid, String m, String args[]) {
         getDnS(Bukkit.getPlayer(uuid), m, args);
     }
-
+    public void broadcastMessage(String first, String args[]){
+        for(Player p:Bukkit.getOnlinePlayers()){
+            send(first,p,args);
+        }
+    }
     public void sendAcb() {
 
     }

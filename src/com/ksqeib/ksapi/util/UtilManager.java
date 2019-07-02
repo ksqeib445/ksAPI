@@ -19,6 +19,10 @@ public class UtilManager {
     Permission perm;
     @Getter
     Tip tip;
+    @Getter
+    MulNBT mulNBT;
+    @Getter
+    EntityManage entityManage;
 
     public UtilManager(JavaPlugin jp) {
         this.jp = jp;
@@ -47,6 +51,13 @@ public class UtilManager {
         io = new Io(jp);
     }
 
+    public void createmulNBT() {
+        mulNBT = new MulNBT();
+    }
+
+    public void createentityManage() {
+        entityManage = new EntityManage();
+    }
     public boolean createitemsr() {
         if (io != null) {
             itemsr = new ItemSR(io);
@@ -87,6 +98,9 @@ public class UtilManager {
     }
 
     public void createHelper(String command, FileConfiguration hy) {
+        if(perm==null){
+            createperm();
+        }
         helpers.put(command, new Helper(hy, perm));
     }
 

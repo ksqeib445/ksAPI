@@ -78,6 +78,7 @@ public class Manage extends Command {
                                     break;
                                 case "disio":
                                     KsAPI.um.getIo().disabled();
+                                    su = true;
                                     break;
                                 case "printmusic":
                                     Musicg.printlisttofile(KsAPI.um.getIo());

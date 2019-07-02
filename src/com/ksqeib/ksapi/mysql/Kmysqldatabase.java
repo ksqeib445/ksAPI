@@ -15,7 +15,7 @@ import java.util.*;
 
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
-    private static ConnectionPool pool = null;
+    private ConnectionPool pool = null;
     private Boolean usual = true;
 
 
@@ -27,7 +27,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return tablename;
     }
 
-    public static ConnectionPool getPool() {
+    public ConnectionPool getPool() {
         return pool;
     }
 
@@ -106,7 +106,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             ds.setAutoReconnect(true);
             ds.setAutoReconnectForConnectionPools(true);
             config.setDataSource(ds);
-            pool = ConnectionPool.getPool(config);
+            pool = new ConnectionPool(config);
         }
 //        this.param=param;
         this.usual = primary;
@@ -223,8 +223,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
                         if (obj == null) continue;
-                        Field fi = getFielddeep(keys, cl, 0);
-                        fi.setAccessible(true);
+                        Field fi = fitable.get(keys);
                         fi.set(result, obj);
                     }
                 }
@@ -317,8 +316,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
                         if (obj == null) continue;
-                        Field fi = getFielddeep(keys, cl, 0);
-                        fi.setAccessible(true);
+                        Field fi = fitable.get(keys);
                         fi.set(result, obj);
 
                     }
@@ -368,8 +366,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
                         if (obj == null) continue;
-                        Field fi = getFielddeep(keys, cl, 0);
-                        fi.setAccessible(true);
+                        Field fi = fitable.get(keys);
                         fi.set(result, obj);
 
                     }
@@ -587,9 +584,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 HashMap<String, String> al = new HashMap<>();
                 for (String keys : table.keySet()) {
                     //Load
-                    Field fi = getFielddeep(keys, value, 0);
+                    Field fi = fitable.get(keys);
                     if (fi != null) {
-                        fi.setAccessible(true);
                         Object obj = fi.get(value);
                         if (obj != null) {
                             al.put(fi.getName(), this.serialize(obj));

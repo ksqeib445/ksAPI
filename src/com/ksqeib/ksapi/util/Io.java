@@ -75,7 +75,7 @@ public class Io {
         }
         saveandcleardata();
     }
-
+//configs!
     public void loadaConfig(String in, Boolean isin) {
         String name = in.toLowerCase();
         configs.put(name, loadYamlFile(name + ".yml", isin));
@@ -330,7 +330,7 @@ public class Io {
 
     public boolean rand(double persent, double max) {
         double thistime = rm.nextDouble() * max;
-        if (thistime < persent) {
+        if (thistime <= persent) {
             return true;
         } else {
             return false;

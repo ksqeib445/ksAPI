@@ -17,6 +17,7 @@
 package com.ksqeib.ksapi.mysql;
 
 import java.io.ByteArrayInputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -26,16 +27,15 @@ import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.ksqeib.ksapi.mysql.serializer.ItemStackArraySerializer;
-import com.ksqeib.ksapi.mysql.serializer.ItemStackSerializer;
-import com.ksqeib.ksapi.mysql.serializer.LocationSerializer;
-import com.ksqeib.ksapi.mysql.serializer.UUIDSerializer;
+import com.ksqeib.ksapi.mysql.serializer.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class KDatabase<T> {
 
     protected HashMap<String, Type> table = new HashMap<>();
+    protected HashMap<String, Field> fitable = new HashMap<>();
     protected String tablename;
     private static GsonBuilder builder = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
@@ -43,7 +43,6 @@ public abstract class KDatabase<T> {
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
             .registerTypeAdapter(UUID.class, new UUIDSerializer());
-
     public static void registerTypeAdapter(Class<?> clazz, Object obj) {
         synchronized (builder) {
             builder.registerTypeAdapter(clazz, obj);
@@ -51,7 +50,6 @@ public abstract class KDatabase<T> {
             // ["+clazz.getSimpleName()+", "+obj+"]");
         }
     }
-
     public static String byteToStr(ByteArrayInputStream biny) {
         StringBuffer out = new StringBuffer();
         try {
@@ -81,7 +79,12 @@ public abstract class KDatabase<T> {
             if (Modifier.isTransient((fi.getModifiers()))) continue;
             if (Modifier.isStatic(fi.getModifiers())) continue;
             if (Modifier.isFinal(fi.getModifiers())) continue;
-            table.put(fi.getName(), fi.getGenericType());
+            KSeri zj= fi.getAnnotation(KSeri.class);
+            if(zj==null)continue;
+            String name=zj.value();
+            fi.setAccessible(true);
+            table.put(name, fi.getGenericType());
+            fitable.put(name,fi);
         }
         if (cl.getSuperclass() != null) {
             initTables(cl.getSuperclass());
