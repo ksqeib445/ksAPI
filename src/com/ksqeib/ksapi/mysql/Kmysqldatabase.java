@@ -39,55 +39,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return table;
     }
 
-//    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type) {
-//        this.type = type;
-//        this.tablename = tablename;
-//        if (pool == null) {
-//            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-//            HikariConfig config = new HikariConfig();
-//            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-//            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-//            ds.setUser(userName);
-//            config.setUsername(userName);
-//            ds.setPassword(password);
-//            config.setPassword(password);
-//            ds.setCharacterEncoding("UTF-8");
-//            ds.setUseUnicode(true);
-//            ds.setAutoReconnectForPools(true);
-//            ds.setAutoReconnect(true);
-//            ds.setAutoReconnectForConnectionPools(true);
-//            config.setDataSource(ds);
-//            pool = ConnectionPool.getPool(config);
-//        }
-//        param=null;
-//        usual=true;
-//        initusual();
-//    }
-//    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type,Boolean primary) {
-//        this.type = type;
-//        this.tablename = tablename;
-//        if (pool == null) {
-//            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-//            HikariConfig config = new HikariConfig();
-//            ds.setURL("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-//            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName+ "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-//            ds.setUser(userName);
-//            config.setUsername(userName);
-//            ds.setPassword(password);
-//            config.setPassword(password);
-//            ds.setCharacterEncoding("UTF-8");
-//            ds.setUseUnicode(true);
-//            ds.setAutoReconnectForPools(true);
-//            ds.setAutoReconnect(true);
-//            ds.setAutoReconnectForConnectionPools(true);
-//            config.setDataSource(ds);
-//            pool = ConnectionPool.getPool(config);
-//        }
-////        param=null;
-//        this.usual=primary;
-//        initusual();
-//    }
-
     public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
         this.type = type;
         this.tablename = tablename;
@@ -677,8 +628,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             result = rs.next();
             rs.close();
             pstmt.close();
-            boolean var7 = result;
-            return var7;
+            return result;
         } catch (SQLException var15) {
             var15.printStackTrace();
         } finally {
