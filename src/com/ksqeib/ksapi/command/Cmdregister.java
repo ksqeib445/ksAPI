@@ -10,7 +10,8 @@ import java.util.ArrayList;
 
 public class Cmdregister {
     public static CommandMap commandMap;
-    public static ArrayList<Command> clist=new ArrayList();
+    public static ArrayList<Command> clist = new ArrayList();
+
     public static void getCommandMap() {
         //反射获取commandmap
         try {
@@ -22,8 +23,9 @@ public class Cmdregister {
             e.printStackTrace();
         }
     }
-    public static void registercmd(JavaPlugin jp, Command cmd){
-        commandMap.register(jp.getDescription().getName(),cmd);
+
+    public static void registercmd(JavaPlugin jp, Command cmd) {
+        commandMap.register(jp.getDescription().getName(), cmd);
         clist.add(cmd);
     }
 

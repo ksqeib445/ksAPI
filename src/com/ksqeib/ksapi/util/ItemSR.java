@@ -8,11 +8,13 @@ import java.util.List;
 public class ItemSR {
     Io io;
     public static ItemSR instanse;
-    public ItemSR(Io io){
-        this.io=io;
-        instanse=this;
+
+    public ItemSR(Io io) {
+        this.io = io;
+        instanse = this;
     }
-    public ItemStack rep(ItemStack oit, String args[]) {
+
+    public ItemStack rep(ItemStack oit, String[] args) {
         ItemMeta im = oit.getItemMeta();
         //设定名字替换
         if (im.hasDisplayName()) {
@@ -32,23 +34,23 @@ public class ItemSR {
         return oit;
     }
 
-    String reps(String str, String args[]) {
+    String reps(String str, String[] args) {
         String rp;
-        if(str==null){
-            rp="wrong";
-        }else {
-            rp = str.replace("&","§");
+        if (str == null) {
+            rp = "wrong";
+        } else {
+            rp = str.replace("&", "§");
 //            rp =rp.replace(true+"",Kingdoms.getLang().getmes("open")).replace(false+"",Kingdoms.getLang().getmes("close"));
 //            rp=rp.replace("true",Kingdoms.getLang().getmes("open")).replace("false",Kingdoms.getLang().getmes("close"));
         }
-        if(args!=null)
-        for (int i = 0; i < args.length; i++) {
-            rp = rp.replace("{" + i + "}", args[i]);
-        }
+        if (args != null)
+            for (int i = 0; i < args.length; i++) {
+                rp = rp.replace("{" + i + "}", args[i]);
+            }
         return rp;
     }
 
-    ItemStack[] repmany(ItemStack[] items, String args[]) {
+    ItemStack[] repmany(ItemStack[] items, String[] args) {
         int many = items.length;
         ItemStack[] repditems = new ItemStack[many];
         for (int i = 0; i < many; i++) {

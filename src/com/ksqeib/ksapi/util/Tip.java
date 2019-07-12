@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -39,19 +38,20 @@ public class Tip {
 
     public String getMessage(String m) {
         if (islist) {
-            List<String> mes=lmMap.get(m);
-            if(mes==null){
-                Bukkit.getLogger().warning("在读取语言"+m+"时发生了一个空指针！");
+            List<String> mes = lmMap.get(m);
+            if (mes == null) {
+                Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
             }
-            if(mes.size()!=0){
+            if (mes.size() != 0) {
                 return mes.get(0).replace("&", "§");
-            }else {
+            } else {
                 return "";
             }
         } else {
             return mMap.get(m).replace("&", "§");
         }
     }
+
     public List<String> getMessageList(String m) {
         if (islist) {
             return lmMap.get(m);
@@ -60,7 +60,7 @@ public class Tip {
         }
     }
 
-    public void getDnS(CommandSender p, String m, String args[]) {
+    public void getDnS(CommandSender p, String m, String[] args) {
         if (!islist) {
             send(getMessage(m), p, args);
         } else {
@@ -70,7 +70,7 @@ public class Tip {
         }
     }
 
-    public void getDnS(Player p, String m, String args[]) {
+    public void getDnS(Player p, String m, String[] args) {
         if (islist) {
             for (String mes : lmMap.get(m)) {
                 send(music(p, mes), p, args);
@@ -80,19 +80,21 @@ public class Tip {
         }
     }
 
-    public void getDnS(UUID uuid, String m, String args[]) {
+    public void getDnS(UUID uuid, String m, String[] args) {
         getDnS(Bukkit.getPlayer(uuid), m, args);
     }
-    public void broadcastMessage(String first, String args[]){
-        for(Player p:Bukkit.getOnlinePlayers()){
-            send(first,p,args);
+
+    public void broadcastMessage(String first, String[] args) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            send(first, p, args);
         }
     }
+
     public void sendAcb() {
 
     }
 
-    public void send(String first, CommandSender p, String args[]) {
+    public void send(String first, CommandSender p, String[] args) {
         Player pl = null;
         Boolean isp = false;
         if (p instanceof Player) {
@@ -123,7 +125,7 @@ public class Tip {
             sendwithhead(p, first.substring(1));
         } else {
             //判断title
-            String bes[] = first.split("-;-");
+            String[] bes = first.split("-;-");
             if (bes.length > 4) {
                 if (isp) {
                     pl.sendTitle(bes[3], bes[4], Integer.parseInt(bes[0]), Integer.parseInt(bes[1]), Integer.parseInt(bes[2]));
@@ -136,7 +138,7 @@ public class Tip {
         }
     }
 
-    public void send(String first, Player p, String args[]) {
+    public void send(String first, Player p, String[] args) {
         if (p == null) return;
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
@@ -156,7 +158,7 @@ public class Tip {
                     .broadcastMessage(first.substring(1));
         } else {
             //判断title
-            String bes[] = first.split("-;-");
+            String[] bes = first.split("-;-");
             if (bes.length > 4) {
                 p.sendTitle(bes[3], bes[4], Integer.parseInt(bes[0]), Integer.parseInt(bes[1]), Integer.parseInt(bes[2]));
             } else {
@@ -169,15 +171,21 @@ public class Tip {
         if (isnohead) return;
         if (islist) {
             List<String> head = lmMap.get("mhead");
-            for (int i = 0; i < head.size(); i++) {
-                String get = head.get(i);
-                if (i == head.size() - 1) {
-                    get += in;
+            if (head == null) {
+                p.sendMessage(in);
+            } else
+                for (int i = 0; i < head.size(); i++) {
+                    String get = head.get(i);
+                    if (i == head.size() - 1) {
+                        get += in;
+                    }
+                    p.sendMessage(get);
                 }
-                p.sendMessage(get);
-            }
         } else {
-            p.sendMessage(getMessage("mhead") + in);
+            if (getMessage("mhead") == null) {
+                p.sendMessage(in);
+            } else
+                p.sendMessage(getMessage("mhead") + in);
         }
     }
 
@@ -188,7 +196,7 @@ public class Tip {
     public String music(Player p, String nq) {
         String nh = nq;
         if (nq != null) {
-            String nqs[] = nq.split("=.=");
+            String[] nqs = nq.split("=.=");
             if (nqs != null) {
                 if (nqs.length > 3) {
                     p.playSound(p.getLocation(), Musicg.getSound(nqs[0]), Float.parseFloat(nqs[1]), Float.parseFloat(nqs[2]));

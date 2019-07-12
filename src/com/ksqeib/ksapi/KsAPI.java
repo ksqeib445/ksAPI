@@ -20,6 +20,7 @@ public class KsAPI extends JavaPlugin {
     public static KsAPI instance;
     public static int serverVersion;
     public static String serververStr;
+
     @Override
     public void onEnable() {
         init();
@@ -29,10 +30,10 @@ public class KsAPI extends JavaPlugin {
 
     public void init() {
 //初始化
-        String[] vercalc=Bukkit.getBukkitVersion().split("-");
-        String[] vercalc2=vercalc[0].split("\\.");
-        String[] vercalc3=vercalc[1].split("\\.");
-        serververStr="v"+vercalc2[0]+"_"+vercalc2[1]+"_R"+vercalc3[1];
+        String[] vercalc = Bukkit.getBukkitVersion().split("-");
+        String[] vercalc2 = vercalc[0].split("\\.");
+        String[] vercalc3 = vercalc[1].split("\\.");
+        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
         //加载
         try {
             serverVersion = getServerVersionType();

@@ -175,7 +175,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
             var19.printStackTrace();
         }
 
-        return (T) result;
+        return result;
     }
 
     @Override

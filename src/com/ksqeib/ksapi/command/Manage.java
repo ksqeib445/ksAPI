@@ -25,8 +25,8 @@ public class Manage extends Command {
 
     @Override
     public boolean execute(CommandSender cms, String label, String[] args) {
-        Io io=KsAPI.um.getIo();
-        if (cms.isOp()||cms.hasPermission("ksapi.manage")) {
+        Io io = KsAPI.um.getIo();
+        if (cms.isOp() || cms.hasPermission("ksapi.manage")) {
             if (args.length > 0) {
                 switch (args[0]) {
                     default:
@@ -38,8 +38,8 @@ public class Manage extends Command {
                         }
                         break;
                     case "tsl":
-                        if(args.length==3){
-                            io.toStringListAndSave(io.getAll(io.loadData(args[1])),args[2]);
+                        if (args.length == 3) {
+                            io.toStringListAndSave(Io.getAll(io.loadData(args[1])), args[2]);
                             System.out.println("sucess");
                         }
                         break;
@@ -48,17 +48,21 @@ public class Manage extends Command {
                             if (UtilManager.plist.containsKey(args[1])) {
                                 try {
                                     Class<?> c = UtilManager.plist.get(args[1]).jp.getClass();
-                                    Method me=c.getMethod("reload");
-                                    if(me==null){
-                                        Bukkit.getConsoleSender().sendMessage("该插件可能不支持重载");
-                                    }else {
-                                       me .invoke(UtilManager.plist.get(args[1]).jp);
-                                       Bukkit.getConsoleSender().sendMessage(args[1]+"插件重载成功");
-                                    }
+                                    Method me = c.getMethod("reload");
+                                    me.invoke(UtilManager.plist.get(args[1]).jp);
+                                    cms.sendMessage(args[1] + "插件重载成功");
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    cms.sendMessage("该插件可能不支持重载");
                                 }
+                            } else {
+                                cms.sendMessage("插件名称错误");
                             }
+                        }
+                        break;
+                    case "plugins":
+                        cms.sendMessage("装载的ksAPI插件有");
+                        for (String name : UtilManager.plist.keySet()) {
+                            cms.sendMessage(name);
                         }
                         break;
                     case "debug":
@@ -100,7 +104,7 @@ public class Manage extends Command {
                                     su = true;
                                     break;
                                 case "senddmes":
-                                    String argss[] = new String[args.length - 4];
+                                    String[] argss = new String[args.length - 4];
                                     for (int i = 0; i < argss.length; i++) {
                                         argss[i] = args[i + 4];
                                     }

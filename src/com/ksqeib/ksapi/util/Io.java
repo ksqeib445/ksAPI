@@ -27,7 +27,7 @@ public class Io {
     public Boolean hasData = false;
     public Random rm = new Random();
     public HashMap<String, FileConfiguration> configs = new HashMap<>();
-    public HashMap<String,Boolean> isinconfigs=new HashMap<>();
+    public HashMap<String, Boolean> isinconfigs = new HashMap<>();
     //注册需要的参
 
     private File DataFile;
@@ -56,30 +56,33 @@ public class Io {
             databasepath = DataFile.getAbsolutePath();
         }
     }
-    public void reload(){
+
+    public void reload() {
         saveandcleardata();
-        for(Map.Entry<String,FileConfiguration> ac:configs.entrySet()){
-            try{
+        for (Map.Entry<String, FileConfiguration> ac : configs.entrySet()) {
+            try {
                 ac.setValue(loadYamlFile(ac.getKey() + ".yml", isinconfigs.get(ac.getKey())));
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
     public void toStringListAndSave(HashMap<String, String> in, String name) {
         Set<String> ins = in.keySet();
-        List<String> keys=new ArrayList<>(ins);
+        List<String> keys = new ArrayList<>(ins);
         Collections.sort(keys);
         for (String key : keys) {
             loadData(name).set(key, new String[]{in.get(key)});
         }
         saveandcleardata();
     }
-//configs!
+
+    //configs!
     public void loadaConfig(String in, Boolean isin) {
         String name = in.toLowerCase();
         configs.put(name, loadYamlFile(name + ".yml", isin));
-        isinconfigs.put(name,isin);
+        isinconfigs.put(name, isin);
 
     }
 
@@ -258,11 +261,7 @@ public class Io {
     public static boolean isWindows() {
         Properties ppt = System.getProperties();
         String systemname = ppt.getProperty("os.name");
-        if (systemname.contains("Windows")) {
-            return true;
-        } else {
-            return false;
-        }
+        return systemname.contains("Windows");
     }
 
     public static HashMap<String, String> getAll(FileConfiguration file) {
@@ -276,10 +275,10 @@ public class Io {
         return hash;
     }
 
-    public static HashMap<String,List<String>> getAlllist(FileConfiguration file) {
+    public static HashMap<String, List<String>> getAlllist(FileConfiguration file) {
         //读取配置
         Set<String> lis = file.getKeys(false);
-        HashMap<String, List<String>> hash = new HashMap<String,List<String>>();
+        HashMap<String, List<String>> hash = new HashMap<String, List<String>>();
         for (String key : lis) {
             //获取全部样式
             hash.put(key, file.getStringList(key));
@@ -330,11 +329,7 @@ public class Io {
 
     public boolean rand(double persent, double max) {
         double thistime = rm.nextDouble() * max;
-        if (thistime <= persent) {
-            return true;
-        } else {
-            return false;
-        }
+        return thistime <= persent;
     }
 
     public int randInt(int min, int max) {
@@ -345,9 +340,7 @@ public class Io {
     }
 
     public boolean rand100(int prob) {
-        if (randInt(0, 100) <= prob) return true;
-
-        return false;
+        return randInt(0, 100) <= prob;
     }
 
     public static int getRandom(int min, int max) {

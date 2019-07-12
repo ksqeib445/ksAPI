@@ -58,6 +58,7 @@ public class UtilManager {
     public void createentityManage() {
         entityManage = new EntityManage();
     }
+
     public boolean createitemsr() {
         if (io != null) {
             itemsr = new ItemSR(io);
@@ -76,7 +77,7 @@ public class UtilManager {
 
     public boolean createtip(boolean islist, FileConfiguration messagefile) {
         if (messagefile != null) {
-            tip = new Tip( islist, messagefile);
+            tip = new Tip(islist, messagefile);
             return true;
         }
         return false;
@@ -98,7 +99,7 @@ public class UtilManager {
     }
 
     public void createHelper(String command, FileConfiguration hy) {
-        if(perm==null){
+        if (perm == null) {
             createperm();
         }
         helpers.put(command, new Helper(hy, perm));

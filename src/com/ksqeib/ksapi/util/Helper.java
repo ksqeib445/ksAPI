@@ -9,15 +9,18 @@ public class Helper {
 
     public FileConfiguration hY;
     private Permission pe;
-    public Helper (FileConfiguration hY,Permission pe){
-        this.hY=hY;
-        this.pe=pe;
+
+    public Helper(FileConfiguration hY, Permission pe) {
+        this.hY = hY;
+        this.pe = pe;
     }
-    public void sendno(CommandSender cms,String label){
+
+    public void sendno(CommandSender cms, String label) {
         cms.sendMessage(hY.getString("help.head"));
         cms.sendMessage(hY.getString("help.start") + label + hY.getString("help.help"));
         cms.sendMessage(hY.getString("help.last"));
     }
+
     //打印帮助方法
     public void SendHelp(List<String> hsl, CommandSender cms, String label) {
         for (int i = 0; i < hsl.size(); i++) {

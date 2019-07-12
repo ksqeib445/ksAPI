@@ -16,21 +16,19 @@
  *******************************************************************************/
 package com.ksqeib.ksapi.mysql;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.ksqeib.ksapi.mysql.serializer.*;
+import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
+
 import java.io.ByteArrayInputStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.ksqeib.ksapi.mysql.serializer.*;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 
 public abstract class KDatabase<T> {
 
@@ -43,6 +41,7 @@ public abstract class KDatabase<T> {
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
             .registerTypeAdapter(UUID.class, new UUIDSerializer());
+
     public static void registerTypeAdapter(Class<?> clazz, Object obj) {
         synchronized (builder) {
             builder.registerTypeAdapter(clazz, obj);
@@ -50,6 +49,7 @@ public abstract class KDatabase<T> {
             // ["+clazz.getSimpleName()+", "+obj+"]");
         }
     }
+
     public static String byteToStr(ByteArrayInputStream biny) {
         StringBuffer out = new StringBuffer();
         try {
@@ -79,12 +79,12 @@ public abstract class KDatabase<T> {
             if (Modifier.isTransient((fi.getModifiers()))) continue;
             if (Modifier.isStatic(fi.getModifiers())) continue;
             if (Modifier.isFinal(fi.getModifiers())) continue;
-            KSeri zj= fi.getAnnotation(KSeri.class);
-            if(zj==null)continue;
-            String name=zj.value();
+            KSeri zj = fi.getAnnotation(KSeri.class);
+            if (zj == null) continue;
+            String name = zj.value();
             fi.setAccessible(true);
             table.put(name, fi.getGenericType());
-            fitable.put(name,fi);
+            fitable.put(name, fi);
         }
         if (cl.getSuperclass() != null) {
             initTables(cl.getSuperclass());

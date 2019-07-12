@@ -16,12 +16,12 @@
  *******************************************************************************/
 package com.ksqeib.ksapi.mysql.serializer;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+
+import java.lang.reflect.Type;
 
 
 public class LocationSerializer implements Serializer<Location> {

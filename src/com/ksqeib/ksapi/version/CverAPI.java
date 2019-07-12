@@ -30,7 +30,7 @@ public class CverAPI {
 
     //优化完成
     public static String getFileVersion() {
-        if (KsAPI.serverVersion ==3) {
+        if (KsAPI.serverVersion == 3) {
             return "-1_9";
         } else {
             return "-1_8";
@@ -39,7 +39,7 @@ public class CverAPI {
 
     //优化完成
     public static ItemStack getItemInHand(LivingEntity p) {
-        if (KsAPI.serverVersion==3 && p.getEquipment() != null) {
+        if (KsAPI.serverVersion == 3 && p.getEquipment() != null) {
             return p.getEquipment().getItemInMainHand();
         }
         if (p.getType() == EntityType.PLAYER && p.getEquipment() != null) {
@@ -50,7 +50,7 @@ public class CverAPI {
     }
 
     public static ItemStack getItemInOffHand(LivingEntity p) {
-        if (KsAPI.serverVersion==3) {
+        if (KsAPI.serverVersion == 3) {
             return p.getEquipment().getItemInOffHand();
         }
         return new ItemStack(Material.AIR);
@@ -58,7 +58,7 @@ public class CverAPI {
 
     //优化完成
     public static void setItemInHand(Player p, ItemStack i) {
-        if (KsAPI.serverVersion==3) {
+        if (KsAPI.serverVersion == 3) {
             p.getInventory().setItemInMainHand(i);
         } else {
             p.getInventory().setItemInHand(i);
@@ -67,7 +67,7 @@ public class CverAPI {
 
     //优化完成
     public static double getMaxHealth(LivingEntity p) {
-        if (KsAPI.serverVersion==3) {
+        if (KsAPI.serverVersion == 3) {
             return p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getBaseValue();
         }
         return p.getMaxHealth();
@@ -75,7 +75,7 @@ public class CverAPI {
 
     //优化完成
     public static void setMaxHealth(LivingEntity p, double m) {
-        if (KsAPI.serverVersion==3) {
+        if (KsAPI.serverVersion == 3) {
             p.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(m);
         } else {
             p.setMaxHealth(m);

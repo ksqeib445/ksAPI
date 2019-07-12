@@ -15,6 +15,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 package com.ksqeib.ksapi.mysql.serializer;
+
 import com.google.gson.*;
 
 import java.lang.reflect.Type;

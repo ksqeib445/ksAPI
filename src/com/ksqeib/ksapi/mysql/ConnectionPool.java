@@ -11,10 +11,11 @@ public class ConnectionPool {
     public ConnectionPool(HikariConfig config) {
         this.ds = new HikariDataSource(config);
     }
-    public Connection getConnection(){
+
+    public Connection getConnection() {
         try {
             return this.ds.getConnection();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

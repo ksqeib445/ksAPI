@@ -4,7 +4,7 @@ import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.entity.Entity;
 
 public class EntityManage {
-    public Class getCraftWorldClass(){
+    public Class getCraftWorldClass() {
         try {
             return Class.forName("org.bukkit.craftbukkit." + KsAPI.serververStr + ".CraftWorld");
         } catch (ClassNotFoundException e) {
@@ -12,15 +12,17 @@ public class EntityManage {
             return null;
         }
     }
-    public Class getEntityClass(String EntityName){
+
+    public Class getEntityClass(String EntityName) {
         try {
-            return Class.forName("net.minecraft.server." + KsAPI.serververStr + "."+EntityName);
+            return Class.forName("net.minecraft.server." + KsAPI.serververStr + "." + EntityName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
-    public Class getGenericAttributesClass(){
+
+    public Class getGenericAttributesClass() {
         try {
             return Class.forName("net.minecraft.server." + KsAPI.serververStr + ".GenericAttributes");
         } catch (ClassNotFoundException e) {
@@ -29,7 +31,7 @@ public class EntityManage {
         }
     }
 
-    public Class getMinecraftKeyClass(){
+    public Class getMinecraftKeyClass() {
         try {
             return Class.forName("net.minecraft.server." + KsAPI.serververStr + ".MinecraftKey");
         } catch (ClassNotFoundException e) {
@@ -38,7 +40,7 @@ public class EntityManage {
         }
     }
 
-    public Class getattributeJumpStrengthClass(){
+    public Class getattributeJumpStrengthClass() {
         try {
             return Class.forName("net.minecraft.server." + KsAPI.serververStr + ".EntityHorseAbstract.attributeJumpStrength");
         } catch (ClassNotFoundException e) {
@@ -47,11 +49,11 @@ public class EntityManage {
         }
     }
 
-    public Entity getBukkitEntity(Object object,String entityname){
+    public Entity getBukkitEntity(Object object, String entityname) {
 
         Entity obj = null;
         try {
-            obj = (Entity)getEntityClass(entityname).getMethod("getBukkitEntity").invoke(object);
+            obj = (Entity) getEntityClass(entityname).getMethod("getBukkitEntity").invoke(object);
         } catch (Exception e2) {
             e2.printStackTrace();
         }

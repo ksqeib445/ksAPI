@@ -379,7 +379,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
         }
 
-        return (T) result;
+        return result;
 
     }
 
