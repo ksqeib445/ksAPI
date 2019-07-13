@@ -10,17 +10,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Map;
 
 public class Manage extends Command {
     public Manage(String name) {
         super(name);
-    }
-
-    public Manage(String name, String doc, String usage, List<String> alies) {
-        super(name, doc, usage, alies);
     }
 
     @Override
@@ -65,6 +62,35 @@ public class Manage extends Command {
                             cms.sendMessage(name);
                         }
                         break;
+                    case "commands":
+                        cms.sendMessage("通过ksAPI注册的指令有");
+                        cms.sendMessage("==============================================================");
+                        for (Map.Entry<JavaPlugin,Command> entry : Cmdregister.clist.entrySet()) {
+                            cms.sendMessage("注册插件:" + entry.getKey().getDescription().getName()+" VER:"+entry.getKey().getDescription().getVersion());
+                            Command c=entry.getValue();
+                            cms.sendMessage("名称:" + c.getName());
+                            if(c.getAliases()!=null&&c.getAliases().size()!=0){
+                                cms.sendMessage("别名:");
+                                for(String ali:c.getAliases()){
+                                    cms.sendMessage(ali);
+                                }
+                            }
+                            if(c.getDescription()!=null&&c.getDescription()!="")
+                            cms.sendMessage("描述:" + c.getDescription());
+                            if(c.getLabel()!=null)
+                            cms.sendMessage("Label:" + c.getLabel());
+                            if(c.getUsage()!=null)
+                            cms.sendMessage("用法:" + c.getUsage());
+                            if(c.getPermission()!=null)
+                            cms.sendMessage("权限:" + c.getPermission());
+                            if(c.getPermissionMessage()!=null)
+                            cms.sendMessage("权限信息:" + c.getPermissionMessage());
+                            if(c.getTimingName()!=null)
+                            cms.sendMessage("TimingName:" + c.getTimingName());
+                            cms.sendMessage("==============================================================");
+
+                        }
+                        break;
                     case "debug":
                         if (args.length >= 2) {
                             Player p = null;
@@ -101,22 +127,6 @@ public class Manage extends Command {
                                     for (int i = 0; i < inv.getSize(); i++) {
                                         yaml.set(i + "", inv.getItem(i));
                                     }
-                                    su = true;
-                                    break;
-                                case "senddmes":
-                                    String[] argss = new String[args.length - 4];
-                                    for (int i = 0; i < argss.length; i++) {
-                                        argss[i] = args[i + 4];
-                                    }
-                                    KsAPI.um.getTip().send(KsAPI.um.getTip().musicc(snedp, args[2].replace("&", "§")), snedp, argss);
-                                    su = true;
-                                    break;
-                                case "sendmes":
-                                    String sends = args[2];
-                                    for (int i = 4; i < args.length; i++) {
-                                        sends = sends + " " + args[i];
-                                    }
-                                    KsAPI.um.getTip().send(KsAPI.um.getTip().music(snedp, sends.replace("&", "§")), snedp, null);
                                     su = true;
                                     break;
                             }

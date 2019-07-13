@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.util;
 
+import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -40,12 +41,14 @@ public class ItemSR {
             rp = "wrong";
         } else {
             rp = str.replace("&", "§");
-//            rp =rp.replace(true+"",Kingdoms.getLang().getmes("open")).replace(false+"",Kingdoms.getLang().getmes("close"));
-//            rp=rp.replace("true",Kingdoms.getLang().getmes("open")).replace("false",Kingdoms.getLang().getmes("close"));
         }
         if (args != null)
             for (int i = 0; i < args.length; i++) {
-                rp = rp.replace("{" + i + "}", args[i]);
+                if (args[i] == null) {
+                    rp = rp.replace("{" + i + "}", "null");
+                } else {
+                    rp = rp.replace("{" + i + "}", args[i]);
+                }
             }
         return rp;
     }
