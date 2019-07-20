@@ -113,7 +113,39 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         for (String name : needadd) {
             addDuan(name);
         }
+//        for (String name : table.keySet()) {
+//            duans.remove(name);
+//        }
+//        duans.remove("dbkey");
+//        for (String willdel : duans) {
+//            delDuan(willdel);
+//        }
 
+    }
+
+    public void delDuan(String name) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = this.createConnection();
+            pstmt = conn.prepareStatement(String.format("alter table %s drop COLUMN " + name, this.tablename));
+            pstmt.executeUpdate();
+            pstmt.close();
+        } catch (SQLException var15) {
+            var15.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException var14) {
+                var14.printStackTrace();
+            }
+
+        }
     }
 
     public void addDuan(String name) {

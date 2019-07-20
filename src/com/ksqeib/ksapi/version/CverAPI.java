@@ -96,7 +96,7 @@ public class CverAPI {
 
     public static List<ItemStack> removeDurability(List<ItemStack> items) {
         for (ItemStack item : items) {
-            if (!item.getItemMeta().spigot().isUnbreakable()) {
+            if (!item.getItemMeta().isUnbreakable()) {
                 short nj = item.getDurability();
                 if (nj - 1 > 0) {
                     item.setDurability((short) (nj - 1));

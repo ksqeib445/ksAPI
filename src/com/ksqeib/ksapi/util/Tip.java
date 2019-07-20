@@ -15,19 +15,14 @@ public class Tip {
     public HashMap<String, String> mMap;
     public FileConfiguration messagefile;
     public boolean isnohead = false;
+    public Io io;
 
     public Tip(Io io, boolean islist, String name) {
+        this.io=io;
         this.islist = islist;
         messagefile = io.loadYamlFile(name, true);
         init();
     }
-
-    public Tip(boolean islist, FileConfiguration messagefile) {
-        this.islist = islist;
-        this.messagefile = messagefile;
-        init();
-    }
-
     public void init() {
         if (islist) {
             lmMap = Io.getAlllist(messagefile);
@@ -54,17 +49,26 @@ public class Tip {
 
     public List<String> getMessageList(String m) {
         if (islist) {
-            return lmMap.get(m);
-        } else {
-            return null;
+            if(lmMap==null){
+                Bukkit.getLogger().warning("严重！插件似乎未初始化完成！");
+                new Exception().printStackTrace();
+                return null;
+            }
+            List<String> strings=lmMap.get(m);
+            if(strings==null){
+                Bukkit.getLogger().warning("在读取列表语言"+m+"时发生了错误");
+            }else {
+                return strings;
+            }
         }
+        return null;
     }
 
     public void getDnS(CommandSender p, String m, String[] args) {
         if (!islist) {
             send(getMessage(m), p, args);
         } else {
-            for (String mes : lmMap.get(m)) {
+            for (String mes :getMessageList(m)) {
                 send(mes, p, args);
             }
         }
@@ -72,7 +76,7 @@ public class Tip {
 
     public void getDnS(Player p, String m, String[] args) {
         if (islist) {
-            for (String mes : lmMap.get(m)) {
+            for (String mes : getMessageList(m)) {
                 send(music(p, mes), p, args);
             }
         } else {
@@ -88,10 +92,6 @@ public class Tip {
         for (Player p : Bukkit.getOnlinePlayers()) {
             send(first, p, args);
         }
-    }
-
-    public void sendAcb() {
-
     }
 
     public void send(String first, CommandSender p, String[] args) {
@@ -205,5 +205,8 @@ public class Tip {
             }
         }
         return nh;
+    }
+    public void reload(){
+        messagefile=io.loadYamlFile(messagefile.getCurrentPath(),true );
     }
 }

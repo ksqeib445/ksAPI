@@ -75,14 +75,6 @@ public class UtilManager {
         return false;
     }
 
-    public boolean createtip(boolean islist, FileConfiguration messagefile) {
-        if (messagefile != null) {
-            tip = new Tip(islist, messagefile);
-            return true;
-        }
-        return false;
-    }
-
     public void createperm() {
         perm = new Permission(jp);
     }
@@ -107,5 +99,10 @@ public class UtilManager {
 
     public Helper getHelper(String command) {
         return helpers.get(command);
+    }
+
+    public void reload(){
+        if(io!=null)io.reload();
+        if(tip!=null)tip.reload();
     }
 }
