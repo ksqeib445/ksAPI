@@ -5,6 +5,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Field;
 
+/**
+ * 暴力的nbt管理类，不多 bb
+ */
 public class MulNBT {
 
     public Class<?> getNBTTagCompoundClass() {

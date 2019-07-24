@@ -7,6 +7,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 
+/**
+ * 对工具类进行管理！务必使用！
+ */
 public class UtilManager {
     public static HashMap<String, UtilManager> plist = new HashMap<>();
     public JavaPlugin jp;
@@ -24,18 +27,30 @@ public class UtilManager {
     @Getter
     EntityManage entityManage;
 
+    /**
+     *构造方法
+     * @param jp 插件主类
+     */
     public UtilManager(JavaPlugin jp) {
         this.jp = jp;
         plist.put(jp.getDescription().getName(), this);
     }
 
+    /**
+     * 创建快速开发总是需要的
+     * 会创建 Io ItemSR Tip(默认加载message.ymk Permission
+     * @param hasdata io是否有目录树数据
+     */
     public void createalwaysneed(Boolean hasdata) {
         createio(hasdata);
         createitemsr();
         createtip(false, "message.yml");
         createperm();
     }
-
+    /**
+     * 创建快速开发总是需要的
+     * 会创建 Io(没有目录树数据) ItemSR Tip(默认加载message.ymk Permission
+     */
     public void createalwaysneed() {
         createio(false);
         createitemsr();
@@ -43,22 +58,40 @@ public class UtilManager {
         createperm();
     }
 
+    /**
+     * 创建一个Io
+     * @param hasdata 是否有目录树数据
+     */
     public void createio(Boolean hasdata) {
         io = new Io(jp, hasdata);
     }
 
+    /**
+     * 创建一个io(没有目录树数据)
+     */
+    @Deprecated
     public void createio() {
         io = new Io(jp);
     }
 
+    /**
+     * 创建NBT管理类
+     */
     public void createmulNBT() {
         mulNBT = new MulNBT();
     }
 
+    /**
+     * 创建实体管理类
+     */
     public void createentityManage() {
         entityManage = new EntityManage();
     }
 
+    /**
+     * 创建物品管理类
+     * @return 是否创建成功(没有io会创建失败)
+     */
     public boolean createitemsr() {
         if (io != null) {
             itemsr = new ItemSR(io);
@@ -66,7 +99,10 @@ public class UtilManager {
         }
         return false;
     }
-
+    /**
+     * 创建提示信息管理类
+     * @return 是否创建成功(没有io会创建失败)
+     */
     public boolean createtip(boolean islist, String name) {
         if (io != null) {
             tip = new Tip(io, islist, name);
@@ -75,21 +111,18 @@ public class UtilManager {
         return false;
     }
 
+    /**
+     * 创建权限管理类
+     */
     public void createperm() {
         perm = new Permission(jp);
     }
 
-    public void initsql() {
-
-        new BukkitRunnable() {
-
-            @Override
-            public void run() {
-                //待写
-            }
-        }.runTaskAsynchronously(jp);
-    }
-
+    /**
+     * 创建一个帮助者
+     * @param command 命令名称
+     * @param hy help.yml
+     */
     public void createHelper(String command, FileConfiguration hy) {
         if (perm == null) {
             createperm();
@@ -97,10 +130,18 @@ public class UtilManager {
         helpers.put(command, new Helper(hy, perm));
     }
 
+    /**
+     * 获取一个帮助者
+     * @param command 命令名称
+     * @return 帮助者
+     */
     public Helper getHelper(String command) {
         return helpers.get(command);
     }
 
+    /**
+     * 重载全部可以重载的工具类
+     */
     public void reload(){
         if(io!=null)io.reload();
         if(tip!=null)tip.reload();

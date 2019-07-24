@@ -3,6 +3,9 @@ package com.ksqeib.ksapi.util;
 import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.entity.Entity;
 
+/**
+ * 实体管理类，还没完工
+ */
 public class EntityManage {
     public Class getCraftWorldClass() {
         try {

@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Cmdregister {
-    public static CommandMap commandMap;
-    public static HashMap<JavaPlugin,Command> clist = new HashMap<>();
+    private static CommandMap commandMap;
+    private static HashMap<JavaPlugin,Command> clist = new HashMap<>();
 
-    public static void getCommandMap() {
+    /**
+     * 刷新内部commandMap
+     */
+    public static void refCommandMap() {
         //反射获取commandmap
         try {
             final Class<?> c = Bukkit.getServer().getClass();
@@ -26,10 +29,21 @@ public class Cmdregister {
         }
     }
 
+    /**
+     * 注册一个指令
+     * @param jp 插件主类
+     * @param cmd 命令
+     */
     public static void registercmd(JavaPlugin jp, Command cmd) {
         commandMap.register(jp.getDescription().getName(), cmd);
         clist.put(jp,cmd);
     }
 
-
+    /**
+     * 获取所有通过ksAPI注册的指令列表
+     * @return 指令列表
+     */
+    public static HashMap<JavaPlugin, Command> getClist() {
+        return clist;
+    }
 }

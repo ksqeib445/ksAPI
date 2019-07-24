@@ -5,24 +5,38 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
 
+/**
+ * 帮助者，制作一个好看的帮助页面，详情参考其他实现插件
+ */
 public class Helper {
 
     public FileConfiguration hY;
     private Permission pe;
 
-    public Helper(FileConfiguration hY, Permission pe) {
+    protected Helper(FileConfiguration hY, Permission pe) {
         this.hY = hY;
         this.pe = pe;
     }
 
+    /**
+     * 发送无任何指令时的帮助
+     *
+     * @param cms   发送者
+     * @param label 命令label
+     */
     public void sendno(CommandSender cms, String label) {
         cms.sendMessage(hY.getString("help.head"));
         cms.sendMessage(hY.getString("help.start") + label + hY.getString("help.help"));
         cms.sendMessage(hY.getString("help.last"));
     }
 
-    //打印帮助方法
-    public void SendHelp(List<String> hsl, CommandSender cms, String label) {
+    /**
+     * 打印帮助
+     * @param hsl 不记得了
+     * @param cms 发送者
+     * @param label label
+     */
+    private void SendHelp(List<String> hsl, CommandSender cms, String label) {
         for (int i = 0; i < hsl.size(); i++) {
             //隔一行一送
             if (!((i % 2) == 0)) {
@@ -36,7 +50,12 @@ public class Helper {
         }
     }
 
-    //打印页码
+    /**
+     * 发送页码
+     * @param page 页码
+     * @param leng 最大页码
+     * @param cms 发送者
+     */
     private void PageSend(int page, int leng, CommandSender cms) {
         String str = hY.getString("help.page");
         String bstr = str.replace("[pagenow]", page + "").replace("[maxpage]", leng + "");
@@ -44,7 +63,12 @@ public class Helper {
 
     }
 
-    //打印帮助页
+    /**
+     * 发送帮助页
+     * @param cms 发送者
+     * @param label label
+     * @param args 子参数(第二个参数为页码，第一个参数通常为help)
+     */
     public void HelpPage(CommandSender cms, String label, String[] args) {
 
         cms.sendMessage(hY.getString("help.head"));

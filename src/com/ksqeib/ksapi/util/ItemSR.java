@@ -6,15 +6,28 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
+/**
+ * 对物品中的{0} {1} {2}进行替换
+ */
 public class ItemSR {
     Io io;
     public static ItemSR instanse;
 
-    public ItemSR(Io io) {
+    /**
+     * 构造方法
+     * @param io 需要一个io
+     */
+    protected ItemSR(Io io) {
         this.io = io;
         instanse = this;
     }
 
+    /**
+     * 进行替换
+     * @param oit 物品
+     * @param args 参数
+     * @return 替换好的物品
+     */
     public ItemStack rep(ItemStack oit, String[] args) {
         ItemMeta im = oit.getItemMeta();
         //设定名字替换
@@ -35,7 +48,7 @@ public class ItemSR {
         return oit;
     }
 
-    String reps(String str, String[] args) {
+    private String reps(String str, String[] args) {
         String rp;
         if (str == null) {
             rp = "wrong";
@@ -53,7 +66,13 @@ public class ItemSR {
         return rp;
     }
 
-    ItemStack[] repmany(ItemStack[] items, String[] args) {
+    /**
+     * 替换一组物品
+     * @param items 物品列表
+     * @param args 参数
+     * @return 替换好的物品列表
+     */
+    public ItemStack[] repmany(ItemStack[] items, String[] args) {
         int many = items.length;
         ItemStack[] repditems = new ItemStack[many];
         for (int i = 0; i < many; i++) {

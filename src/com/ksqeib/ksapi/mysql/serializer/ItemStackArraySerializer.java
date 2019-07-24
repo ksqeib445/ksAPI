@@ -5,6 +5,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Type;
 
+/**
+ * 物品列表序列化专家(雾)
+ */
 public class ItemStackArraySerializer implements Serializer<ItemStack[]> {
 
     @Override

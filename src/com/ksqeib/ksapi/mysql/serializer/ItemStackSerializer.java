@@ -7,7 +7,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Type;
-
+/**
+ * 物品序列化专家(雾)
+ */
 public class ItemStackSerializer implements Serializer<ItemStack> {
 
     @Override

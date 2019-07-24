@@ -23,7 +23,9 @@ import org.bukkit.World;
 
 import java.lang.reflect.Type;
 
-
+/**
+ * 坐标序列化专家(雾)
+ */
 public class LocationSerializer implements Serializer<Location> {
     @Override
     public JsonElement serialize(Location arg0, Type arg1, JsonSerializationContext arg2) {

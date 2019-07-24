@@ -20,8 +20,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
+/**
+ * 专门用来操纵yaml的类
+ */
 public class Io {
-    //ע文件列
     private Hashtable<String, FileConfiguration> FileList = new Hashtable<>();
     private JavaPlugin plugin;
     public Boolean hasData = false;
@@ -33,17 +35,28 @@ public class Io {
     private File DataFile;
     private String databasepath;
 
-    // 构造
-    public Io(JavaPlugin main, Boolean hasdata) {
+    /**
+     * 构造方法
+     * @param main 插件主类
+     * @param hasdata 是否有目录树数据
+     */
+    protected Io(JavaPlugin main, Boolean hasdata) {
         this.plugin = main;
         this.hasData = hasdata;
         init();
     }
 
-    public Io(JavaPlugin main) {
+    /**
+     * 构造方法
+     * @param main 插件主类
+     */
+    protected Io(JavaPlugin main) {
         this.plugin = main;
     }
 
+    /**
+     * 初始化，如果你使用有目录树数据务必调用
+     */
     public void init() {
         //加载必要的文件
         if (hasData) {
@@ -57,6 +70,9 @@ public class Io {
         }
     }
 
+    /**
+     * 重载全部配置文件
+     */
     public void reload() {
         saveandcleardata();
         for (Map.Entry<String, FileConfiguration> ac : configs.entrySet()) {
@@ -68,6 +84,11 @@ public class Io {
         }
     }
 
+    /**
+     * 把String变成StringList并且保存，用于旧的消息文件更新
+     * @param in 进去的不是List的数据
+     * @param name 目录树数据名称
+     */
     public void toStringListAndSave(HashMap<String, String> in, String name) {
         Set<String> ins = in.keySet();
         List<String> keys = new ArrayList<>(ins);
@@ -78,7 +99,11 @@ public class Io {
         saveandcleardata();
     }
 
-    //configs!
+    /**
+     * 加载一个配置文件 会自动在后面添加.yml
+     * @param in 配置名
+     * @param isin 是否存在于jar包插件内
+     */
     public void loadaConfig(String in, Boolean isin) {
         String name = in.toLowerCase();
         configs.put(name, loadYamlFile(name + ".yml", isin));
@@ -86,11 +111,23 @@ public class Io {
 
     }
 
+    /**
+     * 获取一个配置文件
+     * @param in 配置名
+     * @return 配置FileConfiguration
+     */
     public FileConfiguration getaConfig(String in) {
         String name = in.toLowerCase();
         return configs.get(name);
     }
 
+    /**
+     * 创建json,反射序列号专用的
+     * @param json
+     * @param cl
+     * @param context
+     * @param value
+     */
     public static void jsonCreate(JsonObject json, Class cl, JsonSerializationContext context, Object value) {
         HashMap<String, Type> table = new HashMap<>();
         try {
@@ -198,6 +235,11 @@ public class Io {
 
     }
 
+    /**
+     * 加载一个目录树数据
+     * @param data 目录树数据id
+     * @return
+     */
     public FileConfiguration loadData(String data) {
         //加载数据的方法
         FileConfiguration ym;
@@ -220,6 +262,10 @@ public class Io {
         return YamlConfiguration.loadConfiguration(fm);
     }
 
+    /**
+     * 获取全部已经加载的目录树数据列表
+     * @return 目录树数据列表
+     */
     public List<String> getDataList() {
 
         File[] fileList = DataFile.listFiles();
@@ -237,11 +283,17 @@ public class Io {
         return nameList;
     }
 
+    /**
+     * 使用目录树储存时务必调用
+     */
     public void disabled() {
         //保存
         saveandcleardata();
     }
 
+    /**
+     * 保存全部目录树数据并且清除缓存
+     */
     public void saveandcleardata() {
         if (hasData) {
             Set<String> filekeyset = FileList.keySet();
@@ -258,12 +310,21 @@ public class Io {
         }
     }
 
+    /**
+     * 是不是windows系统
+     * @return 是不是
+     */
     public static boolean isWindows() {
         Properties ppt = System.getProperties();
         String systemname = ppt.getProperty("os.name");
         return systemname.contains("Windows");
     }
 
+    /**
+     * 获取一个列表的String
+     * @param file 目标
+     * @return
+     */
     public static HashMap<String, String> getAll(FileConfiguration file) {
         //读取配置
         Set<String> lis = file.getKeys(false);
@@ -274,7 +335,11 @@ public class Io {
         }
         return hash;
     }
-
+    /**
+     * 获取一个列表的StringList
+     * @param file 目标
+     * @return
+     */
     public static HashMap<String, List<String>> getAlllist(FileConfiguration file) {
         //读取配置
         Set<String> lis = file.getKeys(false);

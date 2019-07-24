@@ -2,6 +2,7 @@ package com.ksqeib.ksapi;
 
 import com.ksqeib.ksapi.command.Cmdregister;
 import com.ksqeib.ksapi.command.Manage;
+import com.ksqeib.ksapi.gui.InteractiveGUIManager;
 import com.ksqeib.ksapi.util.ActionBar;
 import com.ksqeib.ksapi.util.UtilManager;
 import org.bukkit.Bukkit;
@@ -44,9 +45,10 @@ public class KsAPI extends JavaPlugin {
         um = new UtilManager(this);
         um.createalwaysneed(true);
         um.createmulNBT();
-        Cmdregister.getCommandMap();
-        Cmdregister.commandMap.register(getDescription().getName(), new Manage("ksapi"));
+        Cmdregister.refCommandMap();
+        Cmdregister.registercmd(this, new Manage("ksapi"));
         instance = this;
+        getServer().getPluginManager().registerEvents(new InteractiveGUIManager(),this);
         if (pm.getPlugin("ActionBarAPI") != null) ActionBar.on = true;
         new BukkitRunnable() {
 

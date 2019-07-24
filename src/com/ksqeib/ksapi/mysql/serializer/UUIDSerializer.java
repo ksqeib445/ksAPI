@@ -21,7 +21,9 @@ import com.google.gson.*;
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-
+/**
+ * UUID序列化专家(雾)
+ */
 public class UUIDSerializer implements Serializer<UUID> {
 
     @Override

@@ -8,26 +8,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.*;
 import java.nio.charset.Charset;
 
+/**
+ * UTF-8格式的配置文件（就是多了几句话而已）
+ */
 public class Utf8YamlConfiguration extends YamlConfiguration {
 
     public static Charset UTF8_CHARSET = Charset.forName("UTF-8");
-
-    /*
-     * @Override public void load(InputStream stream) throws IOException,
-     * InvalidConfigurationException { Validate.notNull(stream,
-     * "Stream cannot be null");
-     *
-     * InputStreamReader reader = new InputStreamReader(stream, UTF8_CHARSET);
-     * StringBuilder builder = new StringBuilder(); BufferedReader input = new
-     * BufferedReader(reader);
-     *
-     * try { String line;
-     *
-     * while ((line = input.readLine()) != null) { builder.append(line);
-     * builder.append('\n'); } } finally { input.close(); }
-     *
-     * loadFromString(builder.toString()); }
-     */
 
     @Override
     public void load(File file) throws IOException, InvalidConfigurationException {

@@ -79,7 +79,7 @@ public class Manage extends Command {
                     case "commands":
                         cms.sendMessage("通过ksAPI注册的指令有");
                         cms.sendMessage("§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l ");
-                        for (Map.Entry<JavaPlugin, Command> entry : Cmdregister.clist.entrySet()) {
+                        for (Map.Entry<JavaPlugin, Command> entry : Cmdregister.getClist().entrySet()) {
                             cms.sendMessage(ChatColor.GOLD + "注册插件:" + ChatColor.GRAY + entry.getKey().getDescription().getName() + ChatColor.GOLD + " VER:" + ChatColor.DARK_GRAY + entry.getKey().getDescription().getVersion());
                             Command c = entry.getValue();
                             String name = c.getName();

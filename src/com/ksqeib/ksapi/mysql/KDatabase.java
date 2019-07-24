@@ -30,6 +30,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
+/**
+ * 数据库爹类(雾)
+ * @param <T> 储存的东西的反省
+ */
 public abstract class KDatabase<T> {
 
     protected HashMap<String, Type> table = new HashMap<>();
@@ -42,14 +46,22 @@ public abstract class KDatabase<T> {
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
             .registerTypeAdapter(UUID.class, new UUIDSerializer());
 
+    /**
+     * 注册序列化专家
+     * @param clazz 要序列化的类
+     * @param obj 序列化用的类
+     */
     public static void registerTypeAdapter(Class<?> clazz, Object obj) {
         synchronized (builder) {
             builder.registerTypeAdapter(clazz, obj);
-            // Bukkit.getLogger().info("Serializer --
-            // ["+clazz.getSimpleName()+", "+obj+"]");
         }
     }
 
+    /**
+     * 将字节变成String
+     * @param biny 字节
+     * @return String
+     */
     public static String byteToStr(ByteArrayInputStream biny) {
         StringBuffer out = new StringBuffer();
         try {
@@ -64,6 +76,10 @@ public abstract class KDatabase<T> {
         return out.toString();
     }
 
+    /**
+     * 关闭连接
+     * @param conn 连接
+     */
     public static void closeConnection(Connection conn) {
         if (conn != null) {
             try {
@@ -74,6 +90,10 @@ public abstract class KDatabase<T> {
         }
     }
 
+    /**
+     * 初始化表
+     * @param cl 储存用的类
+     */
     protected void initTables(Class cl) {
         for (Field fi : cl.getDeclaredFields()) {
             if (Modifier.isTransient((fi.getModifiers()))) continue;
@@ -92,18 +112,60 @@ public abstract class KDatabase<T> {
 
     }
 
+    /**
+     * 通过某个id获取某种东西
+     * @param by 第一个id
+     * @param type 第一个数据
+     * @param sign 第二个id
+     * @param objtype 读出来的数据类型
+     * @return
+     */
     public abstract Object getsthbysth(String by, String type, Object sign, Class objtype);
 
+    /**
+     * 保存单个数据
+     * @param key 数据库id
+     * @param arg 数据id
+     * @param value 数据
+     */
     public abstract void saveone(String key, String arg, Object value);
 
+    /**
+     * 删除单段数据
+     * @param key 数据库id
+     * @param arg 数据id
+     */
     public abstract void delpart(String key, String arg);
 
+    /**
+     * 清除所有 该id字段
+     * @param partname id
+     */
     public abstract void clearallpart(String partname);
 
+    /**
+     * 加载一个字段
+     * @param key 数据库id
+     * @param part 字段id
+     * @return
+     */
     public abstract Object loadonepart(String key, String part);
 
+    /**
+     * 使用key加载 要求储存类必须实现 fromkeyserizable(String)
+     * @param key key
+     * @param def 读取不到的默认数据
+     * @return
+     */
     public abstract T keyload(String key, T def);
 
+    /**
+     * 反射一级一级获取一个field
+     * @param key
+     * @param value
+     * @param i
+     * @return
+     */
     public Field getFielddeep(String key, T value, int i) {
         Field fi = null;
         Class cl = null;
@@ -118,7 +180,13 @@ public abstract class KDatabase<T> {
         }
         return fi;
     }
-
+    /**
+     * 反射一级一级获取一个field
+     * @param key
+     * @param cl
+     * @param i
+     * @return
+     */
     public Field getFielddeep(String key, Class cl, int i) {
         Field fi = null;
         try {
@@ -131,14 +199,35 @@ public abstract class KDatabase<T> {
         return fi;
     }
 
+    /**
+     * 获取数据库字段列表
+     * @return 字段列表
+     */
     public abstract List<String> getColumnNames();
 
+    /**
+     * 加载一组数据
+     * @param key 数据酷id
+     * @param loaddelete 加载后是否删除
+     * @return
+     */
     public abstract ArrayList<T> loadlist(String key, Boolean loaddelete);
 
+    /**
+     * 检查字段
+     */
     public abstract void checkDuan();
 
+    /**
+     * 添加字段
+     * @param name 字段名
+     */
     public abstract void addDuan(String name);
 
+    /**
+     * 创建连接
+     * @return 连接
+     */
     public abstract Connection createConnection();
 
     /**
