@@ -244,10 +244,11 @@ public class Tip {
                     p.sendMessage(get);
                 }
         } else {
-            if (getMessage("mhead") == null) {
+            String head=mMap.get("mhead");
+            if (head == null) {
                 p.sendMessage(in);
             } else
-                p.sendMessage(getMessage("mhead") + in);
+                p.sendMessage(head + in);
         }
     }
 

@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  * 权限管理类，似乎废弃了
  */
 public class Permission {
-    public String pluginn = "插件名";
+    public String pluginn;
     String oppage = "oppage";
 
     protected Permission(JavaPlugin jp) {

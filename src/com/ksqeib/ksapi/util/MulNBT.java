@@ -8,7 +8,26 @@ import java.lang.reflect.Field;
 /**
  * 暴力的nbt管理类，不多 bb
  */
-public class MulNBT {
+public class MulNBT<T> {
+
+    public Class<?> getNBTClass(String name) {
+        try {
+            return Class.forName("net.minecraft.server." + KsAPI.serververStr + ".NBTTagCompound");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Object getNBTClassInstance(String name){
+        Object obj = null;
+        try {
+            obj = getNBTClass(name).newInstance();
+        } catch (ReflectiveOperationException e2) {
+            e2.printStackTrace();
+        }
+        return obj;
+    }
 
     public Class<?> getNBTTagCompoundClass() {
         try {
@@ -152,6 +171,12 @@ public class MulNBT {
         }
     }
 
+    /**
+     *
+     * @param obj ComPound
+     * @param dataName 物品名
+     * @param data 一个NBTTag
+     */
     public void compoundset(Object obj, String dataName, Object data) {
         try {
             getNBTTagCompoundClass().getMethod("set", String.class, getNBTBaseClass()).invoke(obj, dataName, data);
@@ -178,11 +203,31 @@ public class MulNBT {
         }
     }
 
+    public Object createNBTByType(float var1,Class type) {
+        String aftertype=type.getTypeName();
+        try {
+            return getNBTClass("NBTTag"+aftertype).getConstructor(type).newInstance(var1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public String getNBTTagString(Object obj) {
         try {
             Field fi = getNBTTagStringClass().getDeclaredField("data");
             fi.setAccessible(true);
             return (String) (fi.get(obj));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public Object getNBTTagData(Object obj) {
+        try {
+            Field fi = obj.getClass().getDeclaredField("data");
+            fi.setAccessible(true);
+            return fi.get(obj);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -207,6 +252,17 @@ public class MulNBT {
         nmsItemsetTag(nmsItem, compound);
         return asBukkitCopy(nmsItem);
     }
+
+    public ItemStack addNBTdata(ItemStack item, String id, String data,Class type) {
+        Object nmsItem = asNMSCopy(item);
+        Object compound = (nmsItemhasTag(nmsItem)) ? nmsItemgetTag(nmsItem)
+                : getNBTTagCompoundInstance();
+
+        compoundset(compound, id, createNBTTagString(data));
+        nmsItemsetTag(nmsItem, compound);
+        return asBukkitCopy(nmsItem);
+    }
+
 
     public String getNBTdataStr(ItemStack item, String type) {
         Object nmsItem = asNMSCopy(item);

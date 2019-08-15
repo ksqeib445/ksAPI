@@ -26,6 +26,8 @@ public class UtilManager {
     MulNBT mulNBT;
     @Getter
     EntityManage entityManage;
+    @Getter
+    InventoryControl inventoryControl;
 
     /**
      *构造方法
@@ -80,6 +82,8 @@ public class UtilManager {
     public void createmulNBT() {
         mulNBT = new MulNBT();
     }
+
+    public void createinvControl(){inventoryControl=new InventoryControl();}
 
     /**
      * 创建实体管理类

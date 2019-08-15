@@ -14,6 +14,7 @@ public class InteractiveGUI {
     private HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
 
     public InteractiveGUI(String name, int size) {
+        if(name==null||size==0)return;
         inventory = Bukkit.createInventory(null, size,
                 name);
     }
@@ -54,5 +55,7 @@ public class InteractiveGUI {
         return lactions.get(slot);
     }
 
-
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
 }
