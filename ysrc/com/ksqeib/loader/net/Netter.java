@@ -1,12 +1,13 @@
-package com.ksqeib.ksapi.loader.net;
+package com.ksqeib.loader.net;
 
-import com.ksqeib.ksapi.loader.MainLoader;
+import com.ksqeib.loader.MainLoader;
 import org.bukkit.Bukkit;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class Netter extends NP {
     private final static byte[] PROTOCOL_HEAD_ACK = {0x23, 0x04, 0x01, 0x34, 0x51, 0x33, 0x35, 0x18};
@@ -47,11 +48,14 @@ public class Netter extends NP {
 
         //发起连接
         ml.stat = 2;
+        socket=new Socket();
+
+        SocketAddress addr = new InetSocketAddress(host, port);
         try {
-            socket = new Socket(host, port);
+            socket.connect(addr,400);
         } catch (IOException e) {
             //失败文本
-            Bukkit.getLogger().log(Level.OFF, "验证服务器连接失败！");
+//            Bukkit.getLogger().warning("验证服务器连接失败！");
             return false;
         }
 
@@ -69,7 +73,7 @@ public class Netter extends NP {
         //测试协议
         if (!Ack(PROTOCOL_HEAD_ACK)) {
             ml.stat = 3;
-//            window.setErrorText("协议测试未通过，请检查端口是否被占用或者设置正确！" + "协议错误");
+//            System.("协议测试未通过，请检查端口是否被占用或者设置正确！" + "协议错误");
             return false;
         }
 
@@ -87,6 +91,7 @@ public class Netter extends NP {
         }
 
         ml.stat = 5;
+        writeString(ml.mconfig.teststr);
         mainClass = readString();
 
         //接收文件长度

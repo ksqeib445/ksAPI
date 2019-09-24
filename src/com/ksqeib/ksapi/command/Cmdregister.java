@@ -1,6 +1,7 @@
 package com.ksqeib.ksapi.command;
 
 import com.google.common.collect.HashBiMap;
+import net.minecraft.server.v1_12_R1.MethodProfiler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
@@ -35,7 +36,7 @@ public class Cmdregister {
      * @param cmd 命令
      */
     public static void registercmd(JavaPlugin jp, Command cmd) {
-        commandMap.register(jp.getDescription().getName(), cmd);
+        commandMap.register(jp.getName(), cmd);
         clist.put(jp,cmd);
     }
 

@@ -15,6 +15,7 @@ import java.util.*;
 
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
+    private static HashMap<MysqlConnectobj,ConnectionPool> connectionPools=new HashMap<>();
     private ConnectionPool pool = null;
     private Boolean usual = true;
 
@@ -38,26 +39,37 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public HashMap<String, Type> getTable() {
         return table;
     }
-
-    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
-        this.type = type;
-        this.tablename = tablename;
-        if (pool == null) {
+    private static ConnectionPool getPool(MysqlConnectobj mysqlConnectobj){
+        if(connectionPools.containsKey(mysqlConnectobj)){
+            return connectionPools.get(mysqlConnectobj);
+        }else {
             MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
             HikariConfig config = new HikariConfig();
-            ds.setURL("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            config.setJdbcUrl("jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false");
-            ds.setUser(userName);
-            config.setUsername(userName);
-            ds.setPassword(password);
-            config.setPassword(password);
+            ds.setURL(mysqlConnectobj.url);
+            config.setJdbcUrl(mysqlConnectobj.url);
+            ds.setUser(mysqlConnectobj.username);
+            config.setUsername(mysqlConnectobj.username);
+            ds.setPassword(mysqlConnectobj.passwd);
+            config.setPassword(mysqlConnectobj.passwd);
             ds.setCharacterEncoding("UTF-8");
             ds.setUseUnicode(true);
             ds.setAutoReconnectForPools(true);
             ds.setAutoReconnect(true);
             ds.setAutoReconnectForConnectionPools(true);
             config.setDataSource(ds);
-            pool = new ConnectionPool(config);
+            ConnectionPool pool = new ConnectionPool(config);
+            connectionPools.put(mysqlConnectobj,pool);
+            return pool;
+        }
+    }
+
+    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
+        this.type = type;
+        this.tablename = tablename;
+        if (pool == null) {
+            String url="jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+            MysqlConnectobj mysqlConnectobj=new MysqlConnectobj(url,password,userName);
+            pool = getPool(mysqlConnectobj);
         }
 //        this.param=param;
         this.usual = primary;
@@ -417,40 +429,40 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
 
     public String createInsert(String key, Set<String> keyset, HashMap<String, ByteArrayInputStream> binys) {
-        String insertstring = "INSERT INTO %s(dbkey,";
+        StringBuilder stringBuilder=new StringBuilder("INSERT INTO %s(dbkey,");
         int temp = 0;
         for (String keys : keyset) {
             //初始化数据列表
-            insertstring = insertstring + keys;
+            stringBuilder.append(keys);
             temp++;
             if (temp != binys.size()) {
-                insertstring += ",";
+                stringBuilder.append(",");
             } else {
-                insertstring += ") VALUES (?,";
+                stringBuilder.append(") VALUES (?,");
             }
         }
         for (int i = 0; i < keyset.size(); i++) {
             //初始化数据列表
-            insertstring = insertstring + "?";
+            stringBuilder.append("?");
             if (i != binys.size() - 1) {
-                insertstring += ",";
+                stringBuilder.append(",");
             } else {
-                insertstring += ") ON DUPLICATE KEY UPDATE ";
+                stringBuilder.append(") ON DUPLICATE KEY UPDATE ");
             }
         }
         int q = 0;
         for (String keys : keyset) {
             //初始化数据列表
             q++;
-            insertstring = insertstring + keys + " = VALUES(" + keys + ")";
+            stringBuilder.append(keys);
+            stringBuilder.append(" = VALUES(");
+            stringBuilder.append(keys);
+            stringBuilder.append(")");
             if (q != binys.size()) {
-                insertstring += ",";
-            } else {
-                insertstring += "";
+                stringBuilder.append(",");
             }
         }
-        insertstring = String.format(insertstring, this.tablename);
-        return insertstring;
+        return String.format(stringBuilder.toString(), this.tablename);
     }
 
     @Override
@@ -571,7 +583,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                     if (fi != null) {
                         Object obj = fi.get(value);
                         if (obj != null) {
-                            al.put(fi.getName(), this.serialize(obj));
+                            al.put(getKey(fi), this.serialize(obj));
                         }
                     }
 
@@ -684,10 +696,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         if (sign == null) return sign;
         try {
             con = createConnection();
-            String s;
-            s = "SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ?";
             ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
-            ps = con.prepareStatement(s);
+            ps = con.prepareStatement("SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ?");
             ps.setBinaryStream(1, biny);
             ResultSet rs = ps.executeQuery();
 

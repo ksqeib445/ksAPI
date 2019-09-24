@@ -1,4 +1,4 @@
-package com.ksqeib.ksapi.loader.memory;
+package com.ksqeib.loader.memory;
 
 public class MConfig {
     public String host;

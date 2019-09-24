@@ -111,6 +111,9 @@ public abstract class KDatabase<T> {
         }
 
     }
+    public Field getFieldByMap(String name){
+        return fitable.get(name);
+    }
 
     /**
      * 通过某个id获取某种东西
@@ -179,6 +182,15 @@ public abstract class KDatabase<T> {
         } catch (ClassNotFoundException e1) {
         }
         return fi;
+    }
+    public String getKey(Field value){
+        String key="";
+        for (Map.Entry<String, Field> entry : fitable.entrySet()) {
+            if(value.equals(entry.getValue())){
+                key=entry.getKey();
+            }
+        }
+        return key;
     }
     /**
      * 反射一级一级获取一个field

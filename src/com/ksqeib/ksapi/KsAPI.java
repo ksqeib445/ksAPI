@@ -3,8 +3,10 @@ package com.ksqeib.ksapi;
 import com.ksqeib.ksapi.command.Cmdregister;
 import com.ksqeib.ksapi.command.Manage;
 import com.ksqeib.ksapi.gui.InteractiveGUIManager;
+import com.ksqeib.ksapi.gui.InteractiveMoveGUIManager;
 import com.ksqeib.ksapi.util.ActionBar;
 import com.ksqeib.ksapi.util.UtilManager;
+import com.mc6m.manage.api.PluginCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.PlayerInventory;
@@ -13,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 
 public class KsAPI extends JavaPlugin {
@@ -25,42 +28,55 @@ public class KsAPI extends JavaPlugin {
     @Override
     public void onEnable() {
         init();
-        um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
 
     }
 
     public void init() {
 //初始化
-        String[] vercalc = Bukkit.getBukkitVersion().split("-");
-        String[] vercalc2 = vercalc[0].split("\\.");
-        String[] vercalc3 = vercalc[1].split("\\.");
-        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
-        //加载
-        try {
-            serverVersion = getServerVersionType();
-        } catch (NoSuchMethodException ex) {
-            System.out.print("KSAPI版本兼容模块失效！");
-        }
-        PluginManager pm = Bukkit.getPluginManager();
-        um = new UtilManager(this);
-        um.createalwaysneed(true);
-        um.createmulNBT();
-        Cmdregister.refCommandMap();
-        Cmdregister.registercmd(this, new Manage("ksapi"));
         instance = this;
-        getServer().getPluginManager().registerEvents(new InteractiveGUIManager(),this);
-        if (pm.getPlugin("ActionBarAPI") != null) ActionBar.on = true;
-        new BukkitRunnable() {
+        new ArrayList<Integer>() {
+            {
+                if (PluginCheck.check("70", "9dc3258af8f3dd0e9f79c033872f333f")) {
+                    String[] vercalc = Bukkit.getBukkitVersion().split("-");
+                    String[] vercalc2 = vercalc[0].split("\\.");
+                    String[] vercalc3 = vercalc[1].split("\\.");
+                    serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
+                    //加载
+                    try {
+                        serverVersion = getServerVersionType();
+                    } catch (NoSuchMethodException ex) {
+                        System.out.print("KSAPI版本兼容模块失效！");
+                    }
+                    PluginManager pm = Bukkit.getPluginManager();
+                    um = new UtilManager(instance);
+                    um.createalwaysneed(true);
+                    um.createmulNBT();
+                    Cmdregister.refCommandMap();
+                    Cmdregister.registercmd(instance, new Manage("ksapi"));
+                    getServer().getPluginManager().registerEvents(new InteractiveGUIManager(), instance);
+                    getServer().getPluginManager().registerEvents(new InteractiveMoveGUIManager(), instance);
+                    if (pm.getPlugin("ActionBarAPI") != null) ActionBar.on = true;
+                    new BukkitRunnable() {
 
-            @Override
-            public void run() {
-                try {
-                    Class.forName("org.sqlite.JDBC");
-                } catch (Exception ex) {
-                    System.out.println("数据库驱动程序错误:" + ex.getMessage());
+                        @Override
+                        public void run() {
+                            try {
+                                Class.forName("org.sqlite.JDBC");
+                            } catch (Exception ex) {
+                                System.out.println("数据库驱动程序错误:" + ex.getMessage());
+                            }
+                        }
+                    }.runTaskAsynchronously(instance);
+                    um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
+                } else {
+                    System.out.println("ksAPI验证失败");
+                    Bukkit.shutdown();
+                    setEnabled(false);
                 }
             }
-        }.runTaskAsynchronously(this);
+        };
+
+
     }
 
     public static int getServerVersionType() throws NoSuchMethodException {

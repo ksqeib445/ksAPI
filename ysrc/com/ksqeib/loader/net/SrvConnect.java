@@ -1,4 +1,4 @@
-package com.ksqeib.ksapi.loader.net;
+package com.ksqeib.loader.net;
 
 import org.xbill.DNS.*;
 

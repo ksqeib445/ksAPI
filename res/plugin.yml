@@ -1,4 +1,5 @@
 name: ksAPI
 main: com.ksqeib.ksapi.KsAPI
 version: 2.5
+depend: [ksAPI-Lib, Mc6m]
 author: ksqeib

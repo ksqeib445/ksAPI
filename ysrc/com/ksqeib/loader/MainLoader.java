@@ -1,15 +1,18 @@
-package com.ksqeib.ksapi.loader;
+package com.ksqeib.loader;
 
-import com.ksqeib.ksapi.loader.memory.MConfig;
-import com.ksqeib.ksapi.loader.net.Netter;
+import com.ksqeib.ksapi.KsAPI;
+import com.ksqeib.loader.memory.MConfig;
+import com.ksqeib.loader.net.Netter;
+import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 
 
 public class MainLoader {
@@ -21,10 +24,10 @@ public class MainLoader {
     public MainLoader(MConfig mcs) {
         this.mconfig = mcs;
     }
-
-    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
-        new MainLoader(new MConfig("127.0.0.1", 37717, false, "testing", "test")).runtest();
-    }
+//
+//    public static void main(String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+//        new MainLoader(new MConfig("yz1.ksmc.fun", 30010,true, "kingdomsplus", "kingdomsplus")).runtest();
+//    }
 
     public void runtest() throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
         //创建窗口
@@ -34,7 +37,7 @@ public class MainLoader {
         port = mconfig.port;
         //src更新
         if (mconfig.src) {
-            if (UpdateConfig.srvConfig(host, port)) {
+            if (UpdateConfig.srvConfig(host, port,mconfig.teststr)) {
                 host = UpdateConfig.host;
                 port = UpdateConfig.port;
             }
@@ -48,19 +51,19 @@ public class MainLoader {
             stat = 20;
             File jar = net.getJarFile();
             String main = net.getMainClass();
-
-
-            URL url = jar.toURI().toURL();
-            URLClassLoader classLoader = new URLClassLoader(new URL[]{url}, Thread.currentThread().getContextClassLoader());
-            Class<?> mc = classLoader.loadClass(main);
-
+            try {
+                Bukkit.getPluginManager().loadPlugin(jar);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            Class<?> mc = Class.forName(main);
             Object coreObj = mc.newInstance();
+            Method coreMain = mc.getDeclaredMethod("startserver", Socket.class);
 
-            Method coreMain = mc.getDeclaredMethod("starttest", Socket.class, String.class, int.class, MConfig.class);
+            coreMain.invoke(coreObj, net.getSocket());
 
-            coreMain.invoke(coreObj, net.getSocket(), host, port, mconfig);
-
-            classLoader.close();
+        }else {
+            throw new IOException("无法链接到验证服务器"+stat);
         }
     }
 
