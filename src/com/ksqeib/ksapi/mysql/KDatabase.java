@@ -39,12 +39,13 @@ public abstract class KDatabase<T> {
     protected HashMap<String, Type> table = new HashMap<>();
     protected HashMap<String, Field> fitable = new HashMap<>();
     protected String tablename;
-    private static GsonBuilder builder = new GsonBuilder()
+    public final static GsonBuilder builder = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
             .registerTypeAdapter(Location.class, new LocationSerializer())
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
-            .registerTypeAdapter(UUID.class, new UUIDSerializer());
+            .registerTypeAdapter(UUID.class, new UUIDSerializer())
+            .registerTypeAdapter(UUIDListSerializer.class, new UUIDListSerializer());;
 
     /**
      * 注册序列化专家

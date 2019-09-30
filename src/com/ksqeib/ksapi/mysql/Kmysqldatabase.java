@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.mysql;
 
+import com.ksqeib.ksapi.manager.MysqlPoolManager;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import com.zaxxer.hikari.HikariConfig;
 import org.bukkit.Bukkit;
@@ -15,7 +16,6 @@ import java.util.*;
 
 public class Kmysqldatabase<T> extends KDatabase<T> {
     private final Type type;
-    private static HashMap<MysqlConnectobj,ConnectionPool> connectionPools=new HashMap<>();
     private ConnectionPool pool = null;
     private Boolean usual = true;
 
@@ -39,29 +39,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public HashMap<String, Type> getTable() {
         return table;
     }
-    private static ConnectionPool getPool(MysqlConnectobj mysqlConnectobj){
-        if(connectionPools.containsKey(mysqlConnectobj)){
-            return connectionPools.get(mysqlConnectobj);
-        }else {
-            MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
-            HikariConfig config = new HikariConfig();
-            ds.setURL(mysqlConnectobj.url);
-            config.setJdbcUrl(mysqlConnectobj.url);
-            ds.setUser(mysqlConnectobj.username);
-            config.setUsername(mysqlConnectobj.username);
-            ds.setPassword(mysqlConnectobj.passwd);
-            config.setPassword(mysqlConnectobj.passwd);
-            ds.setCharacterEncoding("UTF-8");
-            ds.setUseUnicode(true);
-            ds.setAutoReconnectForPools(true);
-            ds.setAutoReconnect(true);
-            ds.setAutoReconnectForConnectionPools(true);
-            config.setDataSource(ds);
-            ConnectionPool pool = new ConnectionPool(config);
-            connectionPools.put(mysqlConnectobj,pool);
-            return pool;
-        }
-    }
 
     public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
         this.type = type;
@@ -69,7 +46,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         if (pool == null) {
             String url="jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
             MysqlConnectobj mysqlConnectobj=new MysqlConnectobj(url,password,userName);
-            pool = getPool(mysqlConnectobj);
+            pool = MysqlPoolManager.getPool(mysqlConnectobj);
         }
 //        this.param=param;
         this.usual = primary;

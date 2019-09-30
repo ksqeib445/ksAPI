@@ -3,9 +3,9 @@ package com.ksqeib.ksapi.mysql;
 import org.bukkit.Bukkit;
 
 public class MysqlConnectobj {
-    String url;
-    String passwd;
-    String username;
+    public String url;
+    public String passwd;
+    public String username;
     @Override
     public boolean equals(Object obj) {
         if(!obj.getClass().equals(this.getClass()))return false;
@@ -15,6 +15,8 @@ public class MysqlConnectobj {
     }
 
     public MysqlConnectobj(String url, String passwd, String username) {
+        url=url.replace("127.0.0.1","localhost");
+        url=url.replace(":3306","");
         this.url = url;
         this.passwd = passwd;
         this.username = username;

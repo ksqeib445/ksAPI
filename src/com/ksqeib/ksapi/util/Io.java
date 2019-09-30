@@ -4,6 +4,7 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
+import com.ksqeib.ksapi.mysql.serializer.KSeri;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,7 +38,8 @@ public class Io {
 
     /**
      * 构造方法
-     * @param main 插件主类
+     *
+     * @param main    插件主类
      * @param hasdata 是否有目录树数据
      */
     protected Io(JavaPlugin main, Boolean hasdata) {
@@ -48,6 +50,7 @@ public class Io {
 
     /**
      * 构造方法
+     *
      * @param main 插件主类
      */
     protected Io(JavaPlugin main) {
@@ -86,7 +89,8 @@ public class Io {
 
     /**
      * 把String变成StringList并且保存，用于旧的消息文件更新
-     * @param in 进去的不是List的数据
+     *
+     * @param in   进去的不是List的数据
      * @param name 目录树数据名称
      */
     public void toStringListAndSave(HashMap<String, String> in, String name) {
@@ -101,7 +105,8 @@ public class Io {
 
     /**
      * 加载一个配置文件 会自动在后面添加.yml
-     * @param in 配置名
+     *
+     * @param in   配置名
      * @param isin 是否存在于jar包插件内
      */
     public void loadaConfig(String in, Boolean isin) {
@@ -113,6 +118,7 @@ public class Io {
 
     /**
      * 获取一个配置文件
+     *
      * @param in 配置名
      * @return 配置FileConfiguration
      */
@@ -123,6 +129,7 @@ public class Io {
 
     /**
      * 创建json,反射序列号专用的
+     *
      * @param json
      * @param cl
      * @param context
@@ -139,13 +146,35 @@ public class Io {
                     fi.setAccessible(true);
                     Object obj = fi.get(value);
                     if (obj != null) {
-                        json.add(fi.getName(), context.serialize(obj));
+                        KSeri zj = fi.getAnnotation(KSeri.class);
+                        if (zj == null) {
+                            json.add(fi.getName(), context.serialize(obj));
+                        } else {
+                            json.add(zj.value(), context.serialize(obj));
+                        }
                     }
                 }
 
             }
         } catch (Exception e) {
             Bukkit.getLogger().warning(value.getClass().getTypeName());
+        }
+    }
+
+    public static void onekeySetField(Class cl, Object result, JsonObject json, JsonDeserializationContext context) {
+        try {
+            HashMap<String, Type> table = new HashMap<>();
+            initTables(table, cl);
+            for (String keys : table.keySet()) {
+                //LOAD
+                Field fi = Io.getFielddeep(keys, cl, 0);
+                fi.setAccessible(true);
+                JsonElement obj = json.get(keys);
+                if (obj != null)
+                    fi.set(result, context.deserialize(obj, table.get(keys)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -178,30 +207,20 @@ public class Io {
 
     public static void initTables(HashMap<String, Type> table, Class cl) {
         for (Field fi : cl.getDeclaredFields()) {
-            if (!Modifier.isTransient((fi.getModifiers())) && !Modifier.isStatic(fi.getModifiers()))
-                table.put(fi.getName(), fi.getGenericType());
+            if (!Modifier.isTransient((fi.getModifiers())) && !Modifier.isStatic(fi.getModifiers())){
+                KSeri zj = fi.getAnnotation(KSeri.class);
+                if (zj == null) {
+                    table.put(fi.getName(), fi.getGenericType());
+                }else {
+                    table.put(zj.value(), fi.getGenericType());
+                }
+            }
         }
         if (cl.getSuperclass() != null) {
             initTables(table, cl.getSuperclass());
         }
     }
 
-    public static void onekeySetField(Class cl, Object result, JsonObject json, JsonDeserializationContext context) {
-        try {
-            HashMap<String, Type> table = new HashMap<>();
-            initTables(table, cl);
-            for (String keys : table.keySet()) {
-                //LOAD
-                Field fi = Io.getFielddeep(keys, cl, 0);
-                fi.setAccessible(true);
-                JsonElement obj = json.get(keys);
-                if (obj != null)
-                    fi.set(result, context.deserialize(obj, table.get(keys)));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private void createResouce(String path) {
         //从内部创建
@@ -237,6 +256,7 @@ public class Io {
 
     /**
      * 加载一个目录树数据
+     *
      * @param data 目录树数据id
      * @return
      */
@@ -264,6 +284,7 @@ public class Io {
 
     /**
      * 获取全部已经加载的目录树数据列表
+     *
      * @return 目录树数据列表
      */
     public List<String> getDataList() {
@@ -312,6 +333,7 @@ public class Io {
 
     /**
      * 是不是windows系统
+     *
      * @return 是不是
      */
     public static boolean isWindows() {
@@ -322,6 +344,7 @@ public class Io {
 
     /**
      * 获取一个列表的String
+     *
      * @param file 目标
      * @return
      */
@@ -335,8 +358,10 @@ public class Io {
         }
         return hash;
     }
+
     /**
      * 获取一个列表的StringList
+     *
      * @param file 目标
      * @return
      */
