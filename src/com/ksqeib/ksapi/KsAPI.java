@@ -2,9 +2,9 @@ package com.ksqeib.ksapi;
 
 import com.ksqeib.ksapi.command.Cmdregister;
 import com.ksqeib.ksapi.command.Manage;
+import com.ksqeib.ksapi.depend.DependManager;
 import com.ksqeib.ksapi.gui.InteractiveGUIManager;
 import com.ksqeib.ksapi.gui.InteractiveMoveGUIManager;
-import com.ksqeib.ksapi.util.ActionBar;
 import com.ksqeib.ksapi.util.UtilManager;
 import com.mc6m.manage.api.PluginCheck;
 import org.bukkit.Bukkit;
@@ -24,11 +24,20 @@ public class KsAPI extends JavaPlugin {
     public static KsAPI instance;
     public static int serverVersion;
     public static String serververStr;
+    public static boolean debug;
+    public static DependManager dependManager;
+
+    @Override
+    public void onLoad() {
+        String[] vercalc = Bukkit.getBukkitVersion().split("-");
+        String[] vercalc2 = vercalc[0].split("\\.");
+        String[] vercalc3 = vercalc[1].split("\\.");
+        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
+    }
 
     @Override
     public void onEnable() {
         init();
-
     }
 
     public void init() {
@@ -37,10 +46,7 @@ public class KsAPI extends JavaPlugin {
         new ArrayList<Integer>() {
             {
                 if (PluginCheck.check("70", "9dc3258af8f3dd0e9f79c033872f333f")) {
-                    String[] vercalc = Bukkit.getBukkitVersion().split("-");
-                    String[] vercalc2 = vercalc[0].split("\\.");
-                    String[] vercalc3 = vercalc[1].split("\\.");
-                    serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
+                    dependManager=new DependManager();
                     //加载
                     try {
                         serverVersion = getServerVersionType();
@@ -53,9 +59,9 @@ public class KsAPI extends JavaPlugin {
                     um.createmulNBT();
                     Cmdregister.refCommandMap();
                     Cmdregister.registercmd(instance, new Manage("ksapi"));
-                    getServer().getPluginManager().registerEvents(new InteractiveGUIManager(), instance);
-                    getServer().getPluginManager().registerEvents(new InteractiveMoveGUIManager(), instance);
-                    if (pm.getPlugin("ActionBarAPI") != null) ActionBar.on = true;
+                    pm.registerEvents(new InteractiveGUIManager(), instance);
+                    pm.registerEvents(new InteractiveMoveGUIManager(), instance);
+
                     new BukkitRunnable() {
 
                         @Override
@@ -107,5 +113,9 @@ public class KsAPI extends JavaPlugin {
     public void onDisable() {
         um.getIo().disabled();
         um.getTip().getDnS(Bukkit.getConsoleSender(), "disable", null);
+    }
+
+    public static DependManager getDependManager() {
+        return dependManager;
     }
 }

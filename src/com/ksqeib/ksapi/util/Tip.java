@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.util;
 
+import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -169,7 +170,7 @@ public class Tip {
         } else if (first.startsWith("+")) {
             if (isp) {
 //                pl.sendActionBar(first.substring(1));
-                ActionBar.sendActionBar(pl, first.substring(1));
+                KsAPI.getDependManager().sendActionBar(pl, first.substring(1));
             } else {
                 p.sendMessage(first.substring(1));
             }
@@ -208,7 +209,7 @@ public class Tip {
             //=判断
             p.sendMessage(first.substring(1));
         } else if (first.startsWith("+")) {
-            ActionBar.sendActionBar(p, first.substring(1));
+            KsAPI.getDependManager().sendActionBar(p, first.substring(1));
         } else if (first.startsWith("-")) {
             sendwithhead(p, first.substring(1));
         } else if (first.startsWith("!")) {

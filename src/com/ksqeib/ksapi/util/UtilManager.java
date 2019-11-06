@@ -28,6 +28,8 @@ public class UtilManager {
     EntityManage entityManage;
     @Getter
     InventoryControl inventoryControl;
+    @Getter
+    LocationGenerator locationGenerator;
 
     /**
      *构造方法
@@ -76,6 +78,9 @@ public class UtilManager {
         io = new Io(jp);
     }
 
+    public void createLocGenerator(){
+        locationGenerator=new LocationGenerator();
+    }
     /**
      * 创建NBT管理类
      */

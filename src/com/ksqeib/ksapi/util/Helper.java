@@ -81,9 +81,8 @@ public class Helper {
         int opleng = oppages.size();
         int comleng = compages.size();
         int allleng = opleng + comleng;
-
+        int page = 1;
         if (args.length > 1) {
-            int page = 1;
             try {
                 page = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
@@ -137,6 +136,13 @@ public class Helper {
             List<String> comPage = hY.getStringList("help." + compages.get(0));
             //发送
             SendHelp(comPage, cms, label);
+
+            if (!pe.isp(cms, pe.oppage)) {
+                //如果不是op
+                PageSend(page, comleng, cms);
+            } else {
+                PageSend(page, allleng, cms);
+            }
         }
         cms.sendMessage(hY.getString("help.last"));
     }

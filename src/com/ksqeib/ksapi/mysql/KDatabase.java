@@ -19,19 +19,25 @@ package com.ksqeib.ksapi.mysql;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ksqeib.ksapi.mysql.serializer.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.ByteArrayInputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.ksqeib.ksapi.KsAPI.um;
+
 /**
  * 数据库爹类(雾)
+ *
  * @param <T> 储存的东西的反省
  */
 public abstract class KDatabase<T> {
@@ -45,12 +51,14 @@ public abstract class KDatabase<T> {
             .registerTypeAdapter(ItemStack.class, new ItemStackSerializer())
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
-            .registerTypeAdapter(UUIDListSerializer.class, new UUIDListSerializer());;
+            .registerTypeAdapter(UUIDListSerializer.class, new UUIDListSerializer());
+    ;
 
     /**
      * 注册序列化专家
+     *
      * @param clazz 要序列化的类
-     * @param obj 序列化用的类
+     * @param obj   序列化用的类
      */
     public static void registerTypeAdapter(Class<?> clazz, Object obj) {
         synchronized (builder) {
@@ -60,6 +68,7 @@ public abstract class KDatabase<T> {
 
     /**
      * 将字节变成String
+     *
      * @param biny 字节
      * @return String
      */
@@ -79,6 +88,7 @@ public abstract class KDatabase<T> {
 
     /**
      * 关闭连接
+     *
      * @param conn 连接
      */
     public static void closeConnection(Connection conn) {
@@ -87,12 +97,67 @@ public abstract class KDatabase<T> {
                 conn.close();
             } catch (SQLException e) {
                 e.printStackTrace();
+                um.getTip().send("数据库连接关闭失败", Bukkit.getConsoleSender(), null);
             }
         }
     }
 
+    public static void closePreparedStatement(PreparedStatement preparedStatement) {
+        if (preparedStatement != null) {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                um.getTip().send("preparedStatement关闭失败", Bukkit.getConsoleSender(), null);
+            }
+        }
+    }
+
+    public static void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                um.getTip().send("ResultSet关闭失败", Bukkit.getConsoleSender(), null);
+            }
+        }
+    }
+
+    public static void closeInputStreamReader(InputStreamReader inputStreamReader) {
+        if (inputStreamReader != null) {
+            try {
+                inputStreamReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                um.getTip().send("InputStreamReader关闭失败", Bukkit.getConsoleSender(), null);
+            }
+        }
+    }
+    public static void closeBufferedReader(BufferedReader bufferedReader) {
+        if (bufferedReader != null) {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                um.getTip().send("BufferedReader关闭失败", Bukkit.getConsoleSender(), null);
+            }
+        }
+    }
+
+    public static void closeInputStream(InputStream inputStream) {
+        if (inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                um.getTip().send("inputStream关闭失败", Bukkit.getConsoleSender(), null);
+            }
+        }
+    }
     /**
      * 初始化表
+     *
      * @param cl 储存用的类
      */
     protected void initTables(Class cl) {
@@ -112,15 +177,17 @@ public abstract class KDatabase<T> {
         }
 
     }
-    public Field getFieldByMap(String name){
+
+    public Field getFieldByMap(String name) {
         return fitable.get(name);
     }
 
     /**
      * 通过某个id获取某种东西
-     * @param by 第一个id
-     * @param type 第一个数据
-     * @param sign 第二个id
+     *
+     * @param by      第一个id
+     * @param type    第一个数据
+     * @param sign    第二个id
      * @param objtype 读出来的数据类型
      * @return
      */
@@ -128,14 +195,16 @@ public abstract class KDatabase<T> {
 
     /**
      * 保存单个数据
-     * @param key 数据库id
-     * @param arg 数据id
+     *
+     * @param key   数据库id
+     * @param arg   数据id
      * @param value 数据
      */
     public abstract void saveone(String key, String arg, Object value);
 
     /**
      * 删除单段数据
+     *
      * @param key 数据库id
      * @param arg 数据id
      */
@@ -143,13 +212,15 @@ public abstract class KDatabase<T> {
 
     /**
      * 清除所有 该id字段
+     *
      * @param partname id
      */
     public abstract void clearallpart(String partname);
 
     /**
      * 加载一个字段
-     * @param key 数据库id
+     *
+     * @param key  数据库id
      * @param part 字段id
      * @return
      */
@@ -157,6 +228,7 @@ public abstract class KDatabase<T> {
 
     /**
      * 使用key加载 要求储存类必须实现 fromkeyserizable(String)
+     *
      * @param key key
      * @param def 读取不到的默认数据
      * @return
@@ -165,6 +237,7 @@ public abstract class KDatabase<T> {
 
     /**
      * 反射一级一级获取一个field
+     *
      * @param key
      * @param value
      * @param i
@@ -184,17 +257,20 @@ public abstract class KDatabase<T> {
         }
         return fi;
     }
-    public String getKey(Field value){
-        String key="";
+
+    public String getKey(Field value) {
+        String key = "";
         for (Map.Entry<String, Field> entry : fitable.entrySet()) {
-            if(value.equals(entry.getValue())){
-                key=entry.getKey();
+            if (value.equals(entry.getValue())) {
+                key = entry.getKey();
             }
         }
         return key;
     }
+
     /**
      * 反射一级一级获取一个field
+     *
      * @param key
      * @param cl
      * @param i
@@ -214,13 +290,15 @@ public abstract class KDatabase<T> {
 
     /**
      * 获取数据库字段列表
+     *
      * @return 字段列表
      */
     public abstract List<String> getColumnNames();
 
     /**
      * 加载一组数据
-     * @param key 数据酷id
+     *
+     * @param key        数据酷id
      * @param loaddelete 加载后是否删除
      * @return
      */
@@ -233,12 +311,14 @@ public abstract class KDatabase<T> {
 
     /**
      * 添加字段
+     *
      * @param name 字段名
      */
     public abstract void addDuan(String name);
 
     /**
      * 创建连接
+     *
      * @return 连接
      */
     public abstract Connection createConnection();
@@ -321,5 +401,6 @@ public abstract class KDatabase<T> {
 
         return gson.fromJson(ser, clazz);
     }
+
 
 }

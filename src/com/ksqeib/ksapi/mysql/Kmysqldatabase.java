@@ -1,8 +1,6 @@
 package com.ksqeib.ksapi.mysql;
 
 import com.ksqeib.ksapi.manager.MysqlPoolManager;
-import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
-import com.zaxxer.hikari.HikariConfig;
 import org.bukkit.Bukkit;
 
 import java.io.BufferedReader;
@@ -44,8 +42,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         this.type = type;
         this.tablename = tablename;
         if (pool == null) {
-            String url="jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
-            MysqlConnectobj mysqlConnectobj=new MysqlConnectobj(url,password,userName);
+            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+            MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
             pool = MysqlPoolManager.getPool(mysqlConnectobj);
         }
 //        this.param=param;
@@ -70,7 +68,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return this.pool.getConnection();
     }
 
-    private void initTable(Connection conn) throws SQLException {
+    private void initTable(Connection conn) {
         String createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128) PRIMARY KEY,";
         if (!usual) {
             createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128),";
@@ -86,9 +84,15 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 createString += ") ENGINE=InnoDB   DEFAULT   CHARSET=utf8;";
             }
         }
-        PreparedStatement pstmt = conn.prepareStatement(String.format(createString, this.tablename));
-        pstmt.executeUpdate();
-        pstmt.close();
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement(String.format(createString, this.tablename));
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closePreparedStatement(pstmt);
+        }
     }
 
     public void checkDuan() {
@@ -119,21 +123,11 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             conn = this.createConnection();
             pstmt = conn.prepareStatement(String.format("alter table %s drop COLUMN " + name, this.tablename));
             pstmt.executeUpdate();
-            pstmt.close();
         } catch (SQLException var15) {
             var15.printStackTrace();
         } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
     }
 
@@ -144,21 +138,11 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             conn = this.createConnection();
             pstmt = conn.prepareStatement(String.format("alter table %s ADD COLUMN " + name + " MEDIUMBLOB", this.tablename));
             pstmt.executeUpdate();
-            pstmt.close();
         } catch (SQLException var15) {
             var15.printStackTrace();
         } finally {
-            try {
-                if (pstmt != null) {
-                    pstmt.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
     }
@@ -167,11 +151,13 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         Connection conn = null;
         ArrayList<T> out = new ArrayList<>();
         if (!has(key)) return out;
+        ResultSet rs = null;
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
             /////
             Object result = null;
             while (rs.next()) {
@@ -194,27 +180,24 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
+                        closeBufferedReader(br);
+                        closeInputStreamReader(isr);
                         if (obj == null) continue;
                         Field fi = fitable.get(keys);
                         fi.set(result, obj);
                     }
+                    closeInputStream(input);
                 }
                 out.add((T) result);
             }
             if (loaddelete)
                 del(key);
-            pstmt.close();
         } catch (Exception var19) {
             var19.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var18) {
-                var18.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return out;
@@ -239,14 +222,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (pStemt != null) {
-                try {
-                    pStemt.close();
-                    closeConnection(conn);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            closePreparedStatement(pStemt);
             closeConnection(conn);
         }
         return columnNames;
@@ -256,13 +232,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public T load(String key, T def) {
         Connection conn = null;
         Object result = def;
-
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
             /////
             if (rs.next()) {
                 Class cl = Class.forName(type.getTypeName());
@@ -287,26 +264,21 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
+                        closeBufferedReader(br);
+                        closeInputStreamReader(isr);
                         if (obj == null) continue;
                         Field fi = fitable.get(keys);
                         fi.set(result, obj);
-
                     }
+                    closeInputStream(input);
                 }
             }
-
-            pstmt.close();
         } catch (Exception var19) {
             var19.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var18) {
-                var18.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return (T) result;
@@ -315,13 +287,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public T keyload(String key, T def) {
         Connection conn = null;
         Object result = def;
-
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
             /////
             if (rs.next()) {
                 Class cl = Class.forName(type.getTypeName());
@@ -337,26 +310,21 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         BufferedReader br = new BufferedReader(isr);
                         Object obj;
                         obj = this.deserialize(br.readLine(), table.get(keys));
+                        closeBufferedReader(br);
+                        closeInputStreamReader(isr);
                         if (obj == null) continue;
                         Field fi = fitable.get(keys);
                         fi.set(result, obj);
-
                     }
+                    closeInputStream(input);
                 }
             }
-
-            pstmt.close();
         } catch (Exception var19) {
             var19.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var18) {
-                var18.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return (T) result;
@@ -365,13 +333,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public Object loadonepart(String key, String part) {
         Connection conn = null;
         Object result = null;
-
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
             /////
             if (rs.next()) {
                 ///////
@@ -380,24 +349,19 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                     InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(isr);
                     String readed = br.readLine();
+                    closeBufferedReader(br);
+                    closeInputStreamReader(isr);
                     if (readed == null) return null;
                     result = this.deserialize(readed, table.get(part));
-
                 }
+                closeInputStream(input);
             }
-
-            pstmt.close();
         } catch (Exception var19) {
             var19.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var18) {
-                var18.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return result;
@@ -406,7 +370,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
 
     public String createInsert(String key, Set<String> keyset, HashMap<String, ByteArrayInputStream> binys) {
-        StringBuilder stringBuilder=new StringBuilder("INSERT INTO %s(dbkey,");
+        StringBuilder stringBuilder = new StringBuilder("INSERT INTO %s(dbkey,");
         int temp = 0;
         for (String keys : keyset) {
             //初始化数据列表
@@ -445,110 +409,86 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     @Override
     public void clearallpart(String partname) {
         Connection conn = null;
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=null", this.tablename));
+            pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=null", this.tablename));
             pstmt.executeUpdate();
-            pstmt.close();
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
     }
 
     public void delpart(String key, String arg) {
         Connection conn = null;
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
 //                update 表名 set 字段=null where 字段=某值
-            PreparedStatement pstmt = conn.prepareStatement(String.format("update %s set " + arg + "=null WHERE dbkey = ?", this.tablename));
+            pstmt = conn.prepareStatement(String.format("update %s set " + arg + "=null WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
             pstmt.executeUpdate();
-            pstmt.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
     }
 
     public void saveone(String key, String arg, Object value) {
         Connection conn = null;
-
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
             if (value != null) {
                 if (conn == null) return;
                 ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(value).getBytes(StandardCharsets.UTF_8));
                 String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?) ON DUPLICATE KEY UPDATE " + arg + " = VALUES(" + arg + ")";
-                PreparedStatement pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
+                pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
                 pstmt.setString(1, key);
                 pstmt.setBinaryStream(2, biny);
                 ///////
                 pstmt.executeUpdate();
-                pstmt.close();
             } else {
                 Bukkit.getLogger().warning("Save wrong part " + arg + " at " + key);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
     }
 
     public void del(String key) {
         Connection conn = null;
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("DELETE FROM %s WHERE dbkey = ?", this.tablename));
+//            new IOException("删除"+System.currentTimeMillis()).printStackTrace();
+
+            pstmt = conn.prepareStatement(String.format("DELETE FROM %s WHERE dbkey = ?", this.tablename));
             pstmt.setString(1, key);
             pstmt.executeUpdate();
-            pstmt.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
     }
 
     public void save(String key, T value) {
         Connection conn = null;
-
+        PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
             if (value != null) {
@@ -576,7 +516,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 Set<String> keyset = binys.keySet();
 //                Bukkit.getLogger().warning(createInsert(key,keyset,binys));
 
-                PreparedStatement pstmt = conn.prepareStatement(createInsert(key, keyset, binys));
+                pstmt = conn.prepareStatement(createInsert(key, keyset, binys));
                 pstmt.setString(1, key);
                 int c = 2;
 //                循环放入二进制
@@ -586,21 +526,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 }
                 ///////
                 pstmt.executeUpdate();
-                pstmt.close();
             } else {
                 Bukkit.getLogger().warning("Save wrong data " + key);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
     }
@@ -608,29 +541,23 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public Set<String> getKeys() {
         Set<String> keys = new HashSet();
         Connection conn = null;
-
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = this.createConnection();
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s", this.tablename));
-            ResultSet rs = pstmt.executeQuery();
+            pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s", this.tablename));
+            rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 keys.add(rs.getString("dbkey"));
             }
 
-            rs.close();
-            pstmt.close();
         } catch (SQLException var13) {
             var13.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var12) {
-                var12.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return keys;
@@ -639,28 +566,21 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public boolean has(String key) {
         boolean result = false;
         Connection conn = null;
-
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT dbkey FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
-            ResultSet rs = pstmt.executeQuery();
+            rs = pstmt.executeQuery();
             result = rs.next();
-            rs.close();
-            pstmt.close();
-            return result;
         } catch (SQLException var15) {
             var15.printStackTrace();
         } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException var14) {
-                var14.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
         }
 
         return result;
@@ -670,13 +590,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         Connection con = null;
         Object ret = null;
         PreparedStatement ps = null;
+        ResultSet rs = null;
         if (sign == null) return sign;
         try {
             con = createConnection();
             ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
             ps = con.prepareStatement("SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ?");
             ps.setBinaryStream(1, biny);
-            ResultSet rs = ps.executeQuery();
+            rs = ps.executeQuery();
 
             if (rs.next()) {
                 InputStream input = rs.getBinaryStream(1);
@@ -684,21 +605,17 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                     InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(isr);
                     ret = this.deserialize(br.readLine(), objtype);
-
+                    closeBufferedReader(br);
+                    closeInputStreamReader(isr);
                 }
+                closeInputStream(input);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (con != null)
-                    con.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            closeResultSet(rs);
+            closePreparedStatement(ps);
+            closeConnection(con);
         }
         return ret;
     }
