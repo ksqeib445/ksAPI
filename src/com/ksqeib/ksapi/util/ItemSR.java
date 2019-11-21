@@ -1,6 +1,5 @@
 package com.ksqeib.ksapi.util;
 
-import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 

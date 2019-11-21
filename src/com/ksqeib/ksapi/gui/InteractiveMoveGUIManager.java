@@ -1,6 +1,5 @@
 package com.ksqeib.ksapi.gui;
 
-import com.sun.deploy.cache.InMemoryLocalApplicationProperties;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

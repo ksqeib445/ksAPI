@@ -3,6 +3,7 @@ package com.ksqeib.ksapi.util;
 import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,8 @@ import java.util.UUID;
  * 提示类
  */
 public class Tip {
+
+    public static ConsoleCommandSender ccs = Bukkit.getConsoleSender();
     public Boolean islist;
     public HashMap<String, List<String>> lmMap;
     public HashMap<String, String> mMap;
@@ -23,12 +26,13 @@ public class Tip {
 
     /**
      * 初始化类
-     * @param io io
+     *
+     * @param io     io
      * @param islist 是否是列表的
-     * @param name 读取的信息列表名称(不会自动加.yml)
+     * @param name   读取的信息列表名称(不会自动加.yml)
      */
     protected Tip(Io io, boolean islist, String name) {
-        this.io=io;
+        this.io = io;
         this.islist = islist;
         messagefile = io.loadYamlFile(name, true);
         init();
@@ -47,6 +51,7 @@ public class Tip {
 
     /**
      * 获取一条提示信息(List会自动只获取第一条)
+     *
      * @param m 信息id
      * @return 信息
      */
@@ -62,11 +67,11 @@ public class Tip {
                 return "";
             }
         } else {
-            String mes=mMap.get(m);
+            String mes = mMap.get(m);
             if (mes == null) {
                 Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
                 return "";
-            }else{
+            } else {
                 return mes;
             }
         }
@@ -74,20 +79,21 @@ public class Tip {
 
     /**
      * 获取提示信息列表(只有list模式能用)
+     *
      * @param m 信息id
      * @return 信息列表
      */
     public List<String> getMessageList(String m) {
         if (islist) {
-            if(lmMap==null){
+            if (lmMap == null) {
                 Bukkit.getLogger().warning("严重！插件似乎未初始化完成！");
                 new Exception().printStackTrace();
                 return null;
             }
-            List<String> strings=lmMap.get(m);
-            if(strings==null){
-                Bukkit.getLogger().warning("在读取列表语言"+m+"时发生了错误");
-            }else {
+            List<String> strings = lmMap.get(m);
+            if (strings == null) {
+                Bukkit.getLogger().warning("在读取列表语言" + m + "时发生了错误");
+            } else {
                 return strings;
             }
         }
@@ -96,23 +102,26 @@ public class Tip {
 
     /**
      * 发送一条提示消息
-     * @param p 被发送者
-     * @param m 内部消息id
+     *
+     * @param p    被发送者
+     * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
     public void getDnS(CommandSender p, String m, String[] args) {
         if (!islist) {
             send(getMessage(m), p, args);
         } else {
-            for (String mes :getMessageList(m)) {
+            for (String mes : getMessageList(m)) {
                 send(mes, p, args);
             }
         }
     }
+
     /**
      * 发送一条提示消息
-     * @param p 被发送者
-     * @param m 内部消息id
+     *
+     * @param p    被发送者
+     * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
     public void getDnS(Player p, String m, String[] args) {
@@ -124,10 +133,12 @@ public class Tip {
             send(music(p, getMessage(m)), p, args);
         }
     }
+
     /**
      * 发送一条提示消息
+     *
      * @param uuid 被发送者uuid
-     * @param m 内部消息id
+     * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
     public void getDnS(UUID uuid, String m, String[] args) {
@@ -136,20 +147,33 @@ public class Tip {
 
     /**
      * 发一条全服
+     *
      * @param first 内容
-     * @param args {0} {1} {2}这种要被替换的
      */
-    public void broadcastMessage(String first, String[] args) {
+    private void broadcastMessage(String first) {
+        Bukkit.broadcastMessage(first);
         for (Player p : Bukkit.getOnlinePlayers()) {
-            send(music(p,first), p, args);
+            music(p, first);
+        }
+    }
+
+    public void broadcastMessage(String first, String[] args) {
+        if (args != null)
+            for (int i = 0; i < args.length; i++) {
+                first = first.replace("{" + i + "}", args[i]);
+            }
+        Bukkit.broadcastMessage(first);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            music(p, first);
         }
     }
 
     /**
      * 发送一条信息
+     *
      * @param first 内容
-     * @param p 被发送者
-     * @param args {0} {1} {2}这种要被替换的
+     * @param p     被发送者
+     * @param args  {0} {1} {2}这种要被替换的
      */
     public void send(String first, CommandSender p, String[] args) {
         Player pl = null;
@@ -164,39 +188,19 @@ public class Tip {
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
             }
-        if (first.startsWith("=")) {
-            //=判断
-            p.sendMessage(first.substring(1));
-        } else if (first.startsWith("+")) {
-            if (isp) {
-//                pl.sendActionBar(first.substring(1));
-                KsAPI.getDependManager().sendActionBar(pl, first.substring(1));
-            } else {
-                p.sendMessage(first.substring(1));
-            }
-        } else if (first.startsWith("!")) {
-            broadcastMessage(first.substring(1),args);
-        } else if (first.startsWith("-")) {
-            sendwithhead(p, first.substring(1));
+        if (isp) {
+            send(first, pl, null);
         } else {
-            //判断title
-            String[] bes = first.split("-;-");
-            if (bes.length > 4) {
-                if (isp) {
-                    pl.sendTitle(bes[3], bes[4], Integer.parseInt(bes[0]), Integer.parseInt(bes[1]), Integer.parseInt(bes[2]));
-                } else {
-                    p.sendMessage(bes[3] + " " + bes[4]);
-                }
-            } else {
-                sendwithhead(p, first);
-            }
+            sendToConsole(first, null);
         }
     }
+
     /**
      * 发送一条信息
+     *
      * @param first 内容
-     * @param p 被发送者
-     * @param args {0} {1} {2}这种要被替换的
+     * @param p     被发送者
+     * @param args  {0} {1} {2}这种要被替换的
      */
     public void send(String first, Player p, String[] args) {
         if (p == null) return;
@@ -213,7 +217,7 @@ public class Tip {
         } else if (first.startsWith("-")) {
             sendwithhead(p, first.substring(1));
         } else if (first.startsWith("!")) {
-            broadcastMessage(first.substring(1),args);
+            broadcastMessage(first.substring(1));
         } else {
             //判断title
             String[] bes = first.split("-;-");
@@ -225,9 +229,37 @@ public class Tip {
         }
     }
 
+    public void sendToConsole(String first, String[] args) {
+        if (first == null) return;
+        if (ccs == null) return;
+        if (args != null)
+            for (int i = 0; i < args.length; i++) {
+                first = first.replace("{" + i + "}", args[i]);
+            }
+        if (first.startsWith("=")) {
+            //=判断
+            ccs.sendMessage(first.substring(1));
+        } else if (first.startsWith("+")) {
+            ccs.sendMessage(first.substring(1));
+        } else if (first.startsWith("!")) {
+            broadcastMessage(first.substring(1));
+        } else if (first.startsWith("-")) {
+            sendwithhead(ccs, first.substring(1));
+        } else {
+            //判断title
+            String[] bes = first.split("-;-");
+            if (bes.length > 4) {
+                ccs.sendMessage(bes[3] + " " + bes[4]);
+            } else {
+                sendwithhead(ccs, first);
+            }
+        }
+    }
+
     /**
      * 带有消息头的发送
-     * @param p 被发送者
+     *
+     * @param p  被发送者
      * @param in 内容
      */
     public void sendwithhead(CommandSender p, String in) {
@@ -245,7 +277,7 @@ public class Tip {
                     p.sendMessage(get);
                 }
         } else {
-            String head=mMap.get("mhead");
+            String head = mMap.get("mhead");
             if (head == null) {
                 p.sendMessage(in);
             } else
@@ -255,13 +287,15 @@ public class Tip {
 
     /**
      * 对消息中的音乐进行处理
-     * @param p 目标玩家
+     *
+     * @param p  目标玩家
      * @param nq 内容
      * @return 处理后的消息
      */
     public String music(Player p, String nq) {
         String nh = nq;
         if (nq != null) {
+            if(nh.startsWith("!"))return nq;
             String[] nqs = nq.split("=.=");
             if (nqs != null) {
                 if (nqs.length > 3) {
@@ -276,7 +310,7 @@ public class Tip {
     /**
      * 重载
      */
-    public void reload(){
-        messagefile=io.loadYamlFile(messagefile.getCurrentPath(),true );
+    public void reload() {
+        messagefile = io.loadYamlFile(messagefile.getCurrentPath(), true);
     }
 }

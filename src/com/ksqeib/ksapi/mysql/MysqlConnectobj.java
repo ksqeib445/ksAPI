@@ -1,7 +1,5 @@
 package com.ksqeib.ksapi.mysql;
 
-import org.bukkit.Bukkit;
-
 public class MysqlConnectobj {
     public String url;
     public String passwd;

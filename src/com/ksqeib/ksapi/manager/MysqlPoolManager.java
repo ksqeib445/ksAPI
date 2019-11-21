@@ -2,10 +2,8 @@ package com.ksqeib.ksapi.manager;
 
 import com.ksqeib.ksapi.mysql.ConnectionPool;
 import com.ksqeib.ksapi.mysql.MysqlConnectobj;
-import com.mysql.jdbc.Buffer;
 import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import com.zaxxer.hikari.HikariConfig;
-import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 

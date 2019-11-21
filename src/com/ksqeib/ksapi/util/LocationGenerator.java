@@ -10,30 +10,60 @@ import java.util.Random;
 
 public class LocationGenerator {
     Random rm = new Random();
-    protected LocationGenerator(){
+
+    protected LocationGenerator() {
 
     }
 
     public Location getLoc(World w, int f, boolean nowater) {
+        Location loc = genLoc(w, f);
+        int time=0;
+        while (!canUse(loc,nowater)) {
+            loc = genLoc(w, f);
+            time++;
+            if(time>50){
+                return null;
+            }
+        }
+        return loc;
+    }
+
+    public Location genLoc(World w, int f) {
         double x = rm.nextDouble() * f;
         double z = rm.nextDouble() * f;
         Double y = (double) w.getHighestBlockYAt((int) x, (int) z);
-        Location loc = new Location(w, x, y, z);
-        Block block = w.getHighestBlockAt(loc);
-//        边界
-        if (!isInsideBorder(loc)) return getLoc(w, f, nowater);
-//        水
-        if (!nowater) return loc;
-        if ((block.getType() != Material.STATIONARY_WATER) &&
-                (block.getType() != Material.WATER) && (block.getType() != Material.WATER_LILY) &&
-                (block.getType() != Material.WATER_BUCKET)) {
-            return loc;
-        }
-        return getLoc(w, f, true);
+        return new Location(w, x, y, z);
     }
 
 
-    public Location poser(Location pos,int range) {
+    public Location poser(Location pos, int range) {
+        Location bpos=genPos(pos,range);
+        int time=0;
+        while (!canUse(bpos,true)){
+            bpos=genPos(pos,range);
+            time++;
+            if(time>50)return null;
+        }
+        return bpos;
+    }
+
+    public boolean canUse(Location loc,boolean nowater){
+
+        if (!isInsideBorder(loc)) {
+            return false;
+        }
+        Block block=loc.getBlock();
+//        水
+        if (!nowater) return true;
+        if ((block.getType() != Material.STATIONARY_WATER) &&
+                (block.getType() != Material.WATER) && (block.getType() != Material.WATER_LILY) &&
+                (block.getType() != Material.WATER_BUCKET)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Location genPos(Location pos, int range){
         //生成随机坐标
         Double x = pos.getX();
         Double z = pos.getZ();
@@ -75,16 +105,10 @@ public class LocationGenerator {
                 break;
         }
         Double y = (double) world.getHighestBlockYAt(x.intValue(), z.intValue());
-        Location bpos = new Location(world, x, y, z);
-        Location blpos = new Location(world, x, y - 1, z);
-        if (isInsideBorder(bpos) && (blpos.getBlock().getType() != Material.STATIONARY_WATER) &&
-                (blpos.getBlock().getType() != Material.WATER) && (blpos.getBlock().getType() != Material.WATER_LILY) &&
-                (blpos.getBlock().getType() != Material.WATER_BUCKET)) {
-            return bpos;
-        } else {
-            return poser(pos,range);
-        }
+        return new Location(world, x, y, z);
+
     }
+
     public boolean isInsideBorder(Location loc) {
         return loc.getWorld().getWorldBorder().isInside(loc) && KsAPI.getDependManager().isInsideBoard(loc);
     }

@@ -5,8 +5,9 @@ import com.wimbli.WorldBorder.WorldBorder;
 import org.bukkit.Location;
 
 public class WorldBoardManager {
-    public boolean checkInisdeBorder(Location loc){
-        BorderData bd= WorldBorder.plugin.getWorldBorder(loc.getWorld().getName());
+    public boolean checkInisdeBorder(Location loc) {
+        BorderData bd = WorldBorder.plugin.getWorldBorder(loc.getWorld().getName());
+        if (bd == null) return true;
         return bd.insideBorder(loc);
     }
 }

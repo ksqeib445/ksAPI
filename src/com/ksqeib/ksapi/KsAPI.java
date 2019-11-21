@@ -45,7 +45,6 @@ public class KsAPI extends JavaPlugin {
         instance = this;
         new ArrayList<Integer>() {
             {
-                if (PluginCheck.check("70", "9dc3258af8f3dd0e9f79c033872f333f")) {
                     dependManager=new DependManager();
                     //加载
                     try {
@@ -61,7 +60,7 @@ public class KsAPI extends JavaPlugin {
                     Cmdregister.registercmd(instance, new Manage("ksapi"));
                     pm.registerEvents(new InteractiveGUIManager(), instance);
                     pm.registerEvents(new InteractiveMoveGUIManager(), instance);
-
+                    dependManager.checkSoft();
                     new BukkitRunnable() {
 
                         @Override
@@ -69,16 +68,11 @@ public class KsAPI extends JavaPlugin {
                             try {
                                 Class.forName("org.sqlite.JDBC");
                             } catch (Exception ex) {
-                                System.out.println("数据库驱动程序错误:" + ex.getMessage());
+                                um.getTip().sendToConsole("数据库驱动程序错误:" + ex.getMessage(),null);
                             }
                         }
                     }.runTaskAsynchronously(instance);
                     um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
-                } else {
-                    System.out.println("ksAPI验证失败");
-                    Bukkit.shutdown();
-                    setEnabled(false);
-                }
             }
         };
 

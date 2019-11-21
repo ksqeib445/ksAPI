@@ -98,7 +98,7 @@ public class Helper {
                 SendHelp(nowPage, cms, label);
                 //发送页码
 
-                if (!pe.isp(cms, pe.oppage)) {
+                if (!pe.isPluginAdmin(cms)) {
                     //如果不是op
                     PageSend(page, comleng, cms);
                 } else {
@@ -108,8 +108,8 @@ public class Helper {
                 //当给的数字多余最后一页，打印最后一页
 
 
-                if (!pe.isp(cms, pe.oppage)) {
-                    //如果是op
+                if (!pe.isPluginAdmin(cms)) {
+                    //不是op
                     List<String> nowPage = hY.getStringList("help.page" + comleng);
                     SendHelp(nowPage, cms, label);
 
@@ -137,7 +137,7 @@ public class Helper {
             //发送
             SendHelp(comPage, cms, label);
 
-            if (!pe.isp(cms, pe.oppage)) {
+            if (!pe.isPluginAdmin(cms)) {
                 //如果不是op
                 PageSend(page, comleng, cms);
             } else {

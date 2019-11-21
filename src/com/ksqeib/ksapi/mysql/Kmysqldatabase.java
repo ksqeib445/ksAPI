@@ -586,12 +586,12 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         return result;
     }
 
-    public Object getsthbysth(String by, String type, Object sign, Class objtype) {
+    public List<?> getsthbysth(String by, String type, Object sign, Class objtype) {
         Connection con = null;
-        Object ret = null;
+        ArrayList ret=new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        if (sign == null) return sign;
+        if (sign == null) return null;
         try {
             con = createConnection();
             ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
@@ -599,12 +599,12 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             ps.setBinaryStream(1, biny);
             rs = ps.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 InputStream input = rs.getBinaryStream(1);
                 if (input != null) {
                     InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(isr);
-                    ret = this.deserialize(br.readLine(), objtype);
+                    ret.add(this.deserialize(br.readLine(), objtype));
                     closeBufferedReader(br);
                     closeInputStreamReader(isr);
                 }

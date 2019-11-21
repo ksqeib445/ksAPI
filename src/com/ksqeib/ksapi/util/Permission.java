@@ -9,7 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class Permission {
     public String pluginn;
-    String oppage = "oppage";
+    private final String admin="admin";
 
     protected Permission(JavaPlugin jp) {
         pluginn = jp.getName();
@@ -23,5 +23,12 @@ public class Permission {
         return p.isOp() || p.hasPermission(pluginn + pr);
     }
 
+    public boolean ispWithPoint(CommandSender cms,String pr){
+        return isp(cms,"."+pr);
+    }
+
+    public boolean isPluginAdmin(CommandSender cms){
+        return isp(cms,"."+admin);
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.depend;
 
+import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -15,9 +16,15 @@ public class DependManager {
     }
     public void checkSoft(){
         PluginManager pm=getServer().getPluginManager();
-        if (pm.getPlugin("ActionBarAPI") != null) actionBarManager=new ActionBarManager();
+        if (pm.getPlugin("ActionBarAPI") != null){
+            actionBarManager=new ActionBarManager();
+            KsAPI.um.getTip().sendToConsole("对接ActionBarAPI成功",null);
+        }
 //        WorldBorder
-        if (pm.getPlugin("WorldBorder") != null) worldBoardManager=new WorldBoardManager();
+        if (pm.getPlugin("WorldBorder") != null){
+            worldBoardManager=new WorldBoardManager();
+            KsAPI.um.getTip().sendToConsole("对接WorldBorder成功",null);
+        }
     }
 
     public void sendActionBar(Player p, String message) {
