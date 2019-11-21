@@ -32,11 +32,12 @@ public class Helper {
 
     /**
      * 打印帮助
-     * @param hsl 不记得了
-     * @param cms 发送者
+     *
+     * @param hsl   帮助列表
+     * @param cms   发送者
      * @param label label
      */
-    private void SendHelp(List<String> hsl, CommandSender cms, String label) {
+    private void sendHelp(List<String> hsl, CommandSender cms, String label) {
         for (int i = 0; i < hsl.size(); i++) {
             //隔一行一送
             if (!((i % 2) == 0)) {
@@ -52,28 +53,26 @@ public class Helper {
 
     /**
      * 发送页码
+     *
      * @param page 页码
      * @param leng 最大页码
-     * @param cms 发送者
+     * @param cms  发送者
      */
     private void PageSend(int page, int leng, CommandSender cms) {
         String str = hY.getString("help.page");
         String bstr = str.replace("[pagenow]", page + "").replace("[maxpage]", leng + "");
         cms.sendMessage(bstr);
-
     }
 
     /**
      * 发送帮助页
-     * @param cms 发送者
+     *
+     * @param cms   发送者
      * @param label label
-     * @param args 子参数(第二个参数为页码，第一个参数通常为help)
+     * @param args  子参数(第二个参数为页码，第一个参数通常为help)
      */
     public void HelpPage(CommandSender cms, String label, String[] args) {
-
         cms.sendMessage(hY.getString("help.head"));
-
-
         //获取页标签
         List<String> oppages = hY.getStringList("help.oppages");
         List<String> compages = hY.getStringList("help.pages");
@@ -82,69 +81,38 @@ public class Helper {
         int comleng = compages.size();
         int allleng = opleng + comleng;
         int page = 1;
+        boolean isop = pe.isPluginAdmin(cms);
         if (args.length > 1) {
             try {
                 page = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 cms.sendMessage(hY.getString("error.notnum"));
             }
-
-            if (page > 0 && page <= comleng) {
-                //如果不是最后一页
-
-                //获取这页
-                List<String> nowPage = hY.getStringList("help.page" + page);
-                //发送帮助信息
-                SendHelp(nowPage, cms, label);
-                //发送页码
-
-                if (!pe.isPluginAdmin(cms)) {
-                    //如果不是op
-                    PageSend(page, comleng, cms);
-                } else {
-                    PageSend(page, allleng, cms);
-                }
-            } else if (page > comleng) {
-                //当给的数字多余最后一页，打印最后一页
-
-
-                if (!pe.isPluginAdmin(cms)) {
-                    //不是op
-                    List<String> nowPage = hY.getStringList("help.page" + comleng);
-                    SendHelp(nowPage, cms, label);
-
-                    PageSend(page, comleng, cms);
-                } else {
-                    //若是op
-                    List<String> nowPage = hY.getStringList("help.oppage" + (allleng - comleng));
-                    if (page <= allleng) {
-                        nowPage = hY.getStringList("help.oppage" + (page - comleng));
-                    }
-                    SendHelp(nowPage, cms, label);
-                    PageSend(page, allleng, cms);
-                }
+        }
+        //获取这页
+        List<String> nowPage;
+        if (isop) {
+            if (page > allleng) {
+                page = allleng;
+            }
+            if (page > comleng) {
+                nowPage = hY.getStringList("help.oppage" + (page - comleng));
             } else {
-                //如果输入的数字清奇
-                //获取第一页
-                List<String> comPage = hY.getStringList("help." + compages.get(0));
-                //发送
-                SendHelp(comPage, cms, label);
+                nowPage = hY.getStringList("help.page" + page);
             }
         } else {
-            //如果输入的什么也不是
-            //获取第一页
-            List<String> comPage = hY.getStringList("help." + compages.get(0));
-            //发送
-            SendHelp(comPage, cms, label);
-
-            if (!pe.isPluginAdmin(cms)) {
-                //如果不是op
-                PageSend(page, comleng, cms);
-            } else {
-                PageSend(page, allleng, cms);
-            }
+            if (page > comleng) page = comleng;
+            nowPage = hY.getStringList("help.page" + page);
+        }
+        //发送帮助信息
+        sendHelp(nowPage, cms, label);
+        //发送页码
+        if (!isop) {
+            //如果不是op
+            PageSend(page, comleng, cms);
+        } else {
+            PageSend(page, allleng, cms);
         }
         cms.sendMessage(hY.getString("help.last"));
     }
-
 }
