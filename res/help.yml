@@ -1,0 +1,28 @@
+help:
+#帮助提示
+  oppages:
+  pages:
+    - page1
+    - page2
+  page1:
+    - ' help [页码]'
+    - '§e- §a获取帮助'
+    - ' tsl [输入] [输出]'
+    - '§e- §a从data文件夹读取一个yml文件重新按大小写排序后输出'
+    - ' reload [子插件名称]'
+    - '§e- §a强行重载某个子插件(可能无效)'
+  page2:
+    - ' sureload [子插件名称]'
+    - '§e- §a强行重载某个子插件可重载的配置文件(可能无效)'
+    - ' plugins'
+    - '§e- §a查看插件列表'
+    - ' commands'
+    - '§e- §a查看已注册的指令和对应插件'
+
+  page: '§a当前页码：§e [pagenow] §c共：§e [maxpage] §a页'
+  head: '§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §a§k!||§cksAPI§a§k!||§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  '
+  last: '§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  '
+  start: '§b/'
+  help: ' help [页码] §e以获取帮助'
+error:
+ notnum: '§c参数错误,请输入数字'

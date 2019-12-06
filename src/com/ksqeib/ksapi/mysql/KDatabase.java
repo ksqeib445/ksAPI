@@ -402,5 +402,7 @@ public abstract class KDatabase<T> {
         return gson.fromJson(ser, clazz);
     }
 
+    public abstract void clearDatabase();
+
 
 }

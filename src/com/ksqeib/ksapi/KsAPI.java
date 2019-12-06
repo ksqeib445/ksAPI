@@ -56,6 +56,8 @@ public class KsAPI extends JavaPlugin {
                     um = new UtilManager(instance);
                     um.createalwaysneed(true);
                     um.createmulNBT();
+                    um.getIo().loadaConfig("help",true);
+                    um.createHelper("ksapi",um.getIo().getaConfig("help"));
                     Cmdregister.refCommandMap();
                     Cmdregister.registercmd(instance, new Manage("ksapi"));
                     pm.registerEvents(new InteractiveGUIManager(), instance);

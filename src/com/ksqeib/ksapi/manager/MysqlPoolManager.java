@@ -28,8 +28,7 @@ public class MysqlPoolManager {
             ds.setAutoReconnect(true);
             ds.setAutoReconnectForConnectionPools(true);
             config.setDataSource(ds);
-            config.setMaximumPoolSize(Runtime.getRuntime().availableProcessors()*2<config.getMinimumIdle()?config.getMinimumIdle():Runtime
-            .getRuntime().availableProcessors()*2);
+            config.setMaximumPoolSize(20);
             ConnectionPool pool = new ConnectionPool(config);
             connectionPools.put(mysqlConnectobj,pool);
 //            Bukkit.getLogger().warning(mysqlConnectobj.toString());

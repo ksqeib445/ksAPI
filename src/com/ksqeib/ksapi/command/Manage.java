@@ -26,16 +26,16 @@ public class Manage extends Command {
     @Override
     public boolean execute(CommandSender cms, String label, String[] args) {
         Io io = KsAPI.um.getIo();
-        if (cms.isOp() || cms.hasPermission("ksapi.manage")) {
+        if (KsAPI.um.getPerm().isPluginAdmin(cms)) {
             if (args.length > 0) {
                 switch (args[0]) {
                     default:
                     case "about":
                         KsAPI.um.getTip().send("BY KSQEIB", cms, null);
-                        if (args.length >= 2) {
-                            KsAPI.um.getTip().send("PL:" + KsAPI.instance.getName(), cms, null);
-                            KsAPI.um.getTip().send("VER" + KsAPI.instance.getDescription().getVersion(), cms, null);
-                        }
+                        break;
+
+                    case "help":
+                        KsAPI.um.getHelper("ksapi").HelpPage(cms, label, args);
                         break;
                     case "tsl":
                         if (args.length == 3) {
@@ -150,9 +150,11 @@ public class Manage extends Command {
                             }
                         }
                 }
+            }else {
+                KsAPI.um.getHelper("ksapi").sendno(cms, label);
             }
         } else {
-            KsAPI.um.getTip().getDnS(cms, "subwrong", null);
+            KsAPI.um.getTip().send("BY KSQEIB", cms, null);
         }
         return true;
     }

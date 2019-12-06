@@ -437,4 +437,8 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         return keys;
     }
 
+    @Override
+    public void clearDatabase() {
+
+    }
 }

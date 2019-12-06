@@ -619,4 +619,22 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         }
         return ret;
     }
+
+    @Override
+    public void clearDatabase() {
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = this.createConnection();
+            pstmt = conn.prepareStatement(String.format("delete from %s", this.tablename));
+            pstmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
+        }
+
+    }
 }
