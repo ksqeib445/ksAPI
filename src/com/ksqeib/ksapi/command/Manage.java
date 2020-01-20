@@ -11,6 +11,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
@@ -19,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Manage extends Command {
+    private String[] subCommands = {"debug", "about", "tsl", "commands", "plugins", "reload", "sureload"};
+
     public Manage(String name) {
         super(name);
     }
@@ -62,8 +66,20 @@ public class Manage extends Command {
                     case "sureload":
                         if (args.length > 1) {
                             if (UtilManager.plist.containsKey(args[1])) {
-                                   UtilManager.plist.get(args[1]).reload();
-                                    cms.sendMessage(args[1] + "插件强行重载成功");
+                                UtilManager.plist.get(args[1]).reload();
+                                cms.sendMessage(args[1] + "插件强行重载成功");
+                            } else {
+                                cms.sendMessage("插件名称错误");
+                            }
+                        }
+                        break;
+                    case "sureinject":
+                        if (args.length > 1) {
+                            String n = args[1];
+                            if (UtilManager.plist.containsKey(n)) {
+                                Bukkit.getPluginManager().disablePlugin(UtilManager.plist.get(n).jp);
+
+                                cms.sendMessage(n + "插件强行重载成功");
                             } else {
                                 cms.sendMessage("插件名称错误");
                             }
@@ -132,6 +148,7 @@ public class Manage extends Command {
                                     if (args.length > 2) {
                                         KsAPI.um.getIo().loadData("item").set(args[2], p.getInventory().getItemInMainHand());
                                     }
+                                    KsAPI.um.getIo().disabled();
                                     su = true;
                                     break;
                                 case "copyinv":
@@ -142,6 +159,14 @@ public class Manage extends Command {
                                     }
                                     su = true;
                                     break;
+                                case "unbreak":
+                                    ItemStack item = new ItemStack(p.getInventory().getItemInMainHand());
+                                    ItemMeta im = item.getItemMeta();
+                                    im.setUnbreakable(true);
+                                    item.setItemMeta(im);
+                                    p.getInventory().addItem(item);
+                                    su = true;
+                                    break;
                             }
                             if (su) {
                                 KsAPI.um.getTip().send("Success", cms, null);
@@ -150,7 +175,7 @@ public class Manage extends Command {
                             }
                         }
                 }
-            }else {
+            } else {
                 KsAPI.um.getHelper("ksapi").sendno(cms, label);
             }
         } else {
@@ -158,8 +183,6 @@ public class Manage extends Command {
         }
         return true;
     }
-
-    private String[] subCommands = {"debug", "about", "tsl", "commands", "plugins", "reload","sureload"};
 
     @Override
     public List<String> tabComplete(CommandSender sender, String alias, String[] args) {

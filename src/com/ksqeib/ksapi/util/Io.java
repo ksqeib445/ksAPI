@@ -25,14 +25,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * 专门用来操纵yaml的类
  */
 public class Io {
-    private Hashtable<String, FileConfiguration> FileList = new Hashtable<>();
-    private JavaPlugin plugin;
     public Boolean hasData = false;
     public Random rm = new Random();
     public HashMap<String, FileConfiguration> configs = new HashMap<>();
     public HashMap<String, Boolean> isinconfigs = new HashMap<>();
+    private Hashtable<String, FileConfiguration> FileList = new Hashtable<>();
+    private JavaPlugin plugin;
     //注册需要的参
-
     private File DataFile;
     private String databasepath;
 
@@ -55,76 +54,6 @@ public class Io {
      */
     protected Io(JavaPlugin main) {
         this.plugin = main;
-    }
-
-    /**
-     * 初始化，如果你使用有目录树数据务必调用
-     */
-    public void init() {
-        //加载必要的文件
-        if (hasData) {
-            FileList = new Hashtable();
-            FileList.clear();
-            databasepath = "data";
-            if (plugin.getConfig().getString("datapath") != null)
-                databasepath = plugin.getConfig().getString("datapath");
-            createDir(databasepath);
-            databasepath = DataFile.getAbsolutePath();
-        }
-    }
-
-    /**
-     * 重载全部配置文件
-     */
-    public void reload() {
-        saveandcleardata();
-        for (Map.Entry<String, FileConfiguration> ac : configs.entrySet()) {
-            try {
-                ac.setValue(loadYamlFile(ac.getKey() + ".yml", isinconfigs.get(ac.getKey())));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * 把String变成StringList并且保存，用于旧的消息文件更新
-     *
-     * @param in   进去的不是List的数据
-     * @param name 目录树数据名称
-     */
-    public void toStringListAndSave(HashMap<String, String> in, String name) {
-        Set<String> ins = in.keySet();
-        List<String> keys = new ArrayList<>(ins);
-        Collections.sort(keys);
-        for (String key : keys) {
-            loadData(name).set(key, new String[]{in.get(key)});
-        }
-        saveandcleardata();
-    }
-
-    /**
-     * 加载一个配置文件 会自动在后面添加.yml
-     *
-     * @param in   配置名
-     * @param isin 是否存在于jar包插件内
-     */
-    public void loadaConfig(String in, Boolean isin) {
-        String name = in.toLowerCase();
-        configs.put(name, loadYamlFile(name + ".yml", isin));
-        isinconfigs.put(name, isin);
-
-    }
-
-    /**
-     * 获取一个配置文件
-     *
-     * @param in 配置名
-     * @return 配置FileConfiguration
-     */
-    public FileConfiguration getaConfig(String in) {
-        String name = in.toLowerCase();
-        return configs.get(name);
     }
 
     /**
@@ -207,11 +136,11 @@ public class Io {
 
     public static void initTables(HashMap<String, Type> table, Class cl) {
         for (Field fi : cl.getDeclaredFields()) {
-            if (!Modifier.isTransient((fi.getModifiers())) && !Modifier.isStatic(fi.getModifiers())){
+            if (!Modifier.isTransient((fi.getModifiers())) && !Modifier.isStatic(fi.getModifiers())) {
                 KSeri zj = fi.getAnnotation(KSeri.class);
                 if (zj == null) {
                     table.put(fi.getName(), fi.getGenericType());
-                }else {
+                } else {
                     table.put(zj.value(), fi.getGenericType());
                 }
             }
@@ -221,6 +150,209 @@ public class Io {
         }
     }
 
+    /**
+     * 是不是windows系统
+     *
+     * @return 是不是
+     */
+    public static boolean isWindows() {
+        Properties ppt = System.getProperties();
+        String systemname = ppt.getProperty("os.name");
+        return systemname.contains("Windows");
+    }
+
+    /**
+     * 获取一个列表的String
+     *
+     * @param file 目标
+     * @return
+     */
+    public static HashMap<String, String> getAll(FileConfiguration file) {
+        //读取配置
+        Set<String> lis = file.getKeys(false);
+        HashMap<String, String> hash = new HashMap<String, String>();
+        for (String string : lis) {
+            //获取全部样式
+            hash.put(string, file.getString(string).replace("&", "§"));
+        }
+        return hash;
+    }
+
+    /**
+     * 获取一个列表的StringList
+     *
+     * @param file 目标
+     * @return
+     */
+    public static HashMap<String, List<String>> getAlllist(FileConfiguration file) {
+        //读取配置
+        Set<String> lis = file.getKeys(false);
+        HashMap<String, List<String>> hash = new HashMap<String, List<String>>();
+        for (String key : lis) {
+            //获取全部样式
+            hash.put(key, file.getStringList(key));
+        }
+        return hash;
+    }
+
+    //单个读取
+    public static void loadintlist(HashMap<String, Integer> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getInt(list + "." + string));
+        }
+    }
+
+    public static void loaddoublelist(HashMap<String, Double> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getDouble(list + "." + string));
+        }
+    }
+
+    public static void loaditemlist(HashMap<String, ItemStack> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getItemStack(list + "." + string));
+        }
+    }
+
+    public static void loadstringlist(HashMap<String, String> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getString(list + "." + string.replace("&", "§")));
+        }
+    }
+
+    public static void loadbooleanlist(HashMap<String, Boolean> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getBoolean(list + "." + string));
+        }
+    }
+
+    public static int getRandom(int min, int max) {
+        if (min == max) {
+            return 0;
+        }
+        return (int) (Math.random() * (max - min + 1)) + min;
+    }
+
+    //读取
+    public static void loadintlist(ConcurrentHashMap<String, Integer> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getInt(list + "." + string));
+        }
+    }
+
+    public static void loaddoublelist(ConcurrentHashMap<String, Double> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getDouble(list + "." + string));
+        }
+    }
+
+    public static void loaditemlist(ConcurrentHashMap<String, ItemStack> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getItemStack(list + "." + string));
+        }
+    }
+
+    public static void loadstringlist(ConcurrentHashMap<String, String> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getString(list + "." + string.replace("&", "§")));
+        }
+    }
+
+    public static void loadbooleanlist(ConcurrentHashMap<String, Boolean> change, String list, FileConfiguration config) {
+        MemorySection items = (MemorySection) config.get(list);
+        Set<String> lis = items.getKeys(false);
+        for (String string : lis) {
+            change.put(string, config.getBoolean(list + "." + string));
+        }
+    }
+
+    /**
+     * 初始化，如果你使用有目录树数据务必调用
+     */
+    public void init() {
+        //加载必要的文件
+        if (hasData) {
+            FileList = new Hashtable();
+            FileList.clear();
+            databasepath = "data";
+            if (plugin.getConfig().getString("datapath") != null)
+                databasepath = plugin.getConfig().getString("datapath");
+            createDir(databasepath);
+            databasepath = DataFile.getAbsolutePath();
+        }
+    }
+
+    /**
+     * 重载全部配置文件
+     */
+    public void reload() {
+        saveandcleardata();
+        for (Map.Entry<String, FileConfiguration> ac : configs.entrySet()) {
+            try {
+                ac.setValue(loadYamlFile(ac.getKey() + ".yml", isinconfigs.get(ac.getKey())));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 把String变成StringList并且保存，用于旧的消息文件更新
+     *
+     * @param in   进去的不是List的数据
+     * @param name 目录树数据名称
+     */
+    public void toStringListAndSave(HashMap<String, String> in, String name) {
+        Set<String> ins = in.keySet();
+        List<String> keys = new ArrayList<>(ins);
+        Collections.sort(keys);
+        for (String key : keys) {
+            loadData(name).set(key, new String[]{in.get(key)});
+        }
+        saveandcleardata();
+    }
+
+    /**
+     * 加载一个配置文件 会自动在后面添加.yml
+     *
+     * @param in   配置名
+     * @param isin 是否存在于jar包插件内
+     */
+    public void loadaConfig(String in, Boolean isin) {
+        String name = in.toLowerCase();
+        configs.put(name, loadYamlFile(name + ".yml", isin));
+        isinconfigs.put(name, isin);
+
+    }
+
+    /**
+     * 获取一个配置文件
+     *
+     * @param in 配置名
+     * @return 配置FileConfiguration
+     */
+    public FileConfiguration getaConfig(String in) {
+        String name = in.toLowerCase();
+        return configs.get(name);
+    }
 
     private void createResouce(String path) {
         //从内部创建
@@ -331,153 +463,25 @@ public class Io {
         }
     }
 
-    /**
-     * 是不是windows系统
-     *
-     * @return 是不是
-     */
-    public static boolean isWindows() {
-        Properties ppt = System.getProperties();
-        String systemname = ppt.getProperty("os.name");
-        return systemname.contains("Windows");
-    }
-
-    /**
-     * 获取一个列表的String
-     *
-     * @param file 目标
-     * @return
-     */
-    public static HashMap<String, String> getAll(FileConfiguration file) {
-        //读取配置
-        Set<String> lis = file.getKeys(false);
-        HashMap<String, String> hash = new HashMap<String, String>();
-        for (String string : lis) {
-            //获取全部样式
-            hash.put(string, file.getString(string).replace("&", "§"));
-        }
-        return hash;
-    }
-
-    /**
-     * 获取一个列表的StringList
-     *
-     * @param file 目标
-     * @return
-     */
-    public static HashMap<String, List<String>> getAlllist(FileConfiguration file) {
-        //读取配置
-        Set<String> lis = file.getKeys(false);
-        HashMap<String, List<String>> hash = new HashMap<String, List<String>>();
-        for (String key : lis) {
-            //获取全部样式
-            hash.put(key, file.getStringList(key));
-        }
-        return hash;
-    }
-
-    //单个读取
-    public static void loadintlist(HashMap<String, Integer> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getInt(list + "." + string));
-        }
-    }
-
-    public static void loaddoublelist(HashMap<String, Double> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getDouble(list + "." + string));
-        }
-    }
-
-    public static void loaditemlist(HashMap<String, ItemStack> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getItemStack(list + "." + string));
-        }
-    }
-
-    public static void loadstringlist(HashMap<String, String> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getString(list + "." + string.replace("&", "§")));
-        }
-    }
-
-    public static void loadbooleanlist(HashMap<String, Boolean> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getBoolean(list + "." + string));
-        }
-    }
-
     public boolean rand(double persent, double max) {
         double thistime = rm.nextDouble() * max;
         return thistime <= persent;
     }
 
     public int randInt(int min, int max) {
-
-        int randomNum = rm.nextInt((max - min) + 1) + min;
+        int randomNum;
+        if (min > max) {
+            randomNum = rm.nextInt((min - max) + 1) + max;
+        } else if (min == max) {
+            randomNum = min;
+        } else {
+            randomNum = rm.nextInt((max - min) + 1) + min;
+        }
 
         return randomNum;
     }
 
     public boolean rand100(int prob) {
         return randInt(0, 100) <= prob;
-    }
-
-    public static int getRandom(int min, int max) {
-        if (min == max) {
-            return 0;
-        }
-        return (int) (Math.random() * (max - min + 1)) + min;
-    }
-
-    //读取
-    public static void loadintlist(ConcurrentHashMap<String, Integer> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getInt(list + "." + string));
-        }
-    }
-
-    public static void loaddoublelist(ConcurrentHashMap<String, Double> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getDouble(list + "." + string));
-        }
-    }
-
-    public static void loaditemlist(ConcurrentHashMap<String, ItemStack> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getItemStack(list + "." + string));
-        }
-    }
-
-    public static void loadstringlist(ConcurrentHashMap<String, String> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getString(list + "." + string.replace("&", "§")));
-        }
-    }
-
-    public static void loadbooleanlist(ConcurrentHashMap<String, Boolean> change, String list, FileConfiguration config) {
-        MemorySection items = (MemorySection) config.get(list);
-        Set<String> lis = items.getKeys(false);
-        for (String string : lis) {
-            change.put(string, config.getBoolean(list + "." + string));
-        }
     }
 }

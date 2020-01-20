@@ -18,6 +18,19 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     private Boolean usual = true;
 
 
+    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
+        this.type = type;
+        this.tablename = tablename;
+        if (pool == null) {
+            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+            MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
+            pool = MysqlPoolManager.getPool(mysqlConnectobj);
+        }
+//        this.param=param;
+        this.usual = primary;
+        initusual();
+    }
+
     public Type getType() {
         return type;
     }
@@ -36,19 +49,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     public HashMap<String, Type> getTable() {
         return table;
-    }
-
-    public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
-        this.type = type;
-        this.tablename = tablename;
-        if (pool == null) {
-            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
-            MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
-            pool = MysqlPoolManager.getPool(mysqlConnectobj);
-        }
-//        this.param=param;
-        this.usual = primary;
-        initusual();
     }
 
     public void initusual() {
@@ -588,7 +588,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     public List<?> getsthbysth(String by, String type, Object sign, Class objtype) {
         Connection con = null;
-        ArrayList ret=new ArrayList<>();
+        ArrayList ret = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
         if (sign == null) return null;

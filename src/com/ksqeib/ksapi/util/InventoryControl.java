@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class InventoryControl {
 
-    public  boolean hasEnoughItems(Player p, ItemStack[] itemStacks) {
+    public boolean hasEnoughItems(Player p, ItemStack[] itemStacks) {
         for (ItemStack item : itemStacks) {
             int need = item.getAmount();
             if (hasItem(p, item) < need) return false;
@@ -13,7 +13,7 @@ public class InventoryControl {
         return true;
     }
 
-    public  void delItems(Player p, ItemStack[] itemStacks) {
+    public void delItems(Player p, ItemStack[] itemStacks) {
 
         for (ItemStack item : itemStacks) {
             int need = item.getAmount();
@@ -21,7 +21,7 @@ public class InventoryControl {
         }
     }
 
-    public  int hasItem(Player p, ItemStack item) {
+    public int hasItem(Player p, ItemStack item) {
         int many = 0;
         for (int i = 0; i < p.getInventory().getSize(); i++) {
             ItemStack get = p.getInventory().getItem(i);
@@ -33,7 +33,7 @@ public class InventoryControl {
         return many;
     }
 
-    public  void delItem(Player p, ItemStack item, int amount) {
+    public void delItem(Player p, ItemStack item, int amount) {
         if (hasItem(p, item) >= amount) {
             int willamount = amount;
             for (int i = 0; i < p.getInventory().getSize(); i++) {

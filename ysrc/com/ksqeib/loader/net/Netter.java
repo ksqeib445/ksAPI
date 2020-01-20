@@ -10,10 +10,8 @@ import java.net.SocketAddress;
 import java.util.UUID;
 
 public class Netter extends NP {
-    private final static byte[] PROTOCOL_HEAD_ACK = {0x23, 0x04, 0x01, 0x34, 0x51, 0x33, 0x35, 0x18};
-
     public static final int NET_PROTOCOL_VERSION = 1;
-
+    private final static byte[] PROTOCOL_HEAD_ACK = {0x23, 0x04, 0x01, 0x34, 0x51, 0x33, 0x35, 0x18};
     private String host;
     private int port;
     private Socket socket;
@@ -48,11 +46,11 @@ public class Netter extends NP {
 
         //发起连接
         ml.stat = 2;
-        socket=new Socket();
+        socket = new Socket();
 
         SocketAddress addr = new InetSocketAddress(host, port);
         try {
-            socket.connect(addr,400);
+            socket.connect(addr, 400);
         } catch (IOException e) {
             //失败文本
 //            Bukkit.getLogger().warning("验证服务器连接失败！");

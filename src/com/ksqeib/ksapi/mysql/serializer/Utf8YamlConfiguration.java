@@ -7,13 +7,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * UTF-8格式的配置文件（就是多了几句话而已）
  */
 public class Utf8YamlConfiguration extends YamlConfiguration {
 
-    public static Charset UTF8_CHARSET = Charset.forName("UTF-8");
+    public static Charset UTF8_CHARSET = StandardCharsets.UTF_8;
 
     @Override
     public void load(File file) throws IOException, InvalidConfigurationException {

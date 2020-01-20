@@ -14,13 +14,17 @@ public class InteractiveGUI {
     private HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
 
     public InteractiveGUI(String name, int size) {
-        if(name==null||size==0)return;
+        if (name == null || size == 0) return;
         inventory = Bukkit.createInventory(null, size,
                 name);
     }
 
     public Inventory getInventory() {
         return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 
     public void setAction(int slot, Runnable runnable) {
@@ -53,9 +57,5 @@ public class InteractiveGUI {
     public Runnable getLAction(int slot) {
         if (!lactions.containsKey(slot)) return null;
         return lactions.get(slot);
-    }
-
-    public void setInventory(Inventory inventory) {
-        this.inventory = inventory;
     }
 }

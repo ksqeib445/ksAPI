@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 
-public class InteractiveGUIManager  implements Listener {
+public class InteractiveGUIManager implements Listener {
 
     protected static HashMap<UUID, InteractiveGUI> guis = new HashMap<UUID, InteractiveGUI>();
 

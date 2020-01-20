@@ -21,6 +21,7 @@ import com.google.gson.JsonSerializer;
 
 /**
  * 序列化接口
+ *
  * @param <T> 序列化的东西的泛型
  */
 public interface Serializer<T> extends JsonSerializer<T>, JsonDeserializer<T> {

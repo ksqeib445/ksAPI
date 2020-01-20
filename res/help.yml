@@ -1,5 +1,5 @@
 help:
-#帮助提示
+  #帮助提示
   oppages:
   pages:
     - page1
@@ -25,4 +25,4 @@ help:
   start: '§b/'
   help: ' help [页码] §e以获取帮助'
 error:
- notnum: '§c参数错误,请输入数字'
+  notnum: '§c参数错误,请输入数字'

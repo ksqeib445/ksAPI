@@ -9,11 +9,12 @@ import java.util.List;
  * 对物品中的{0} {1} {2}进行替换
  */
 public class ItemSR {
-    Io io;
     public static ItemSR instanse;
+    Io io;
 
     /**
      * 构造方法
+     *
      * @param io 需要一个io
      */
     protected ItemSR(Io io) {
@@ -23,7 +24,8 @@ public class ItemSR {
 
     /**
      * 进行替换
-     * @param oit 物品
+     *
+     * @param oit  物品
      * @param args 参数
      * @return 替换好的物品
      */
@@ -67,8 +69,9 @@ public class ItemSR {
 
     /**
      * 替换一组物品
+     *
      * @param items 物品列表
-     * @param args 参数
+     * @param args  参数
      * @return 替换好的物品列表
      */
     public ItemStack[] repmany(ItemStack[] items, String[] args) {

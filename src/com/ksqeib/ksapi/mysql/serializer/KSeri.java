@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
 public @interface KSeri {
     /**
      * 不能为空
+     *
      * @return 序列号时在数据库储存的id
      */
     @Nonnull

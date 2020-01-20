@@ -6,7 +6,6 @@ import com.ksqeib.ksapi.depend.DependManager;
 import com.ksqeib.ksapi.gui.InteractiveGUIManager;
 import com.ksqeib.ksapi.gui.InteractiveMoveGUIManager;
 import com.ksqeib.ksapi.util.UtilManager;
-import com.mc6m.manage.api.PluginCheck;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.PlayerInventory;
@@ -27,58 +26,20 @@ public class KsAPI extends JavaPlugin {
     public static boolean debug;
     public static DependManager dependManager;
 
-    @Override
-    public void onLoad() {
-        String[] vercalc = Bukkit.getBukkitVersion().split("-");
-        String[] vercalc2 = vercalc[0].split("\\.");
-        String[] vercalc3 = vercalc[1].split("\\.");
-        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
-    }
-
-    @Override
-    public void onEnable() {
-        init();
-    }
-
-    public void init() {
-//初始化
-        instance = this;
-        new ArrayList<Integer>() {
-            {
-                    dependManager=new DependManager();
-                    //加载
-                    try {
-                        serverVersion = getServerVersionType();
-                    } catch (NoSuchMethodException ex) {
-                        System.out.print("KSAPI版本兼容模块失效！");
-                    }
-                    PluginManager pm = Bukkit.getPluginManager();
-                    um = new UtilManager(instance);
-                    um.createalwaysneed(true);
-                    um.createmulNBT();
-                    um.getIo().loadaConfig("help",true);
-                    um.createHelper("ksapi",um.getIo().getaConfig("help"));
-                    Cmdregister.refCommandMap();
-                    Cmdregister.registercmd(instance, new Manage("ksapi"));
-                    pm.registerEvents(new InteractiveGUIManager(), instance);
-                    pm.registerEvents(new InteractiveMoveGUIManager(), instance);
-                    dependManager.checkSoft();
-                    new BukkitRunnable() {
-
-                        @Override
-                        public void run() {
-                            try {
-                                Class.forName("org.sqlite.JDBC");
-                            } catch (Exception ex) {
-                                um.getTip().sendToConsole("数据库驱动程序错误:" + ex.getMessage(),null);
-                            }
-                        }
-                    }.runTaskAsynchronously(instance);
-                    um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
+    public static void warn(UtilManager ym) {
+        for (int i = 0; i < 21; i++) {
+            if (ym.getTip() != null) {
+                ym.getTip().sendToConsole("如果插件使用中出现任何问题", null);
+                ym.getTip().sendToConsole("如读取语言出现空指针 请先删除语言文件重启服务器", null);
+                ym.getTip().sendToConsole("如版本迭代发现功能不符 请先删除旧配置文件重试", null);
+                if (ym.jp.getDescription().getAuthors().size() == 0) return;
+                StringBuilder kfz = new StringBuilder();
+                for (String name : ym.jp.getDescription().getAuthors()) {
+                    kfz.append(name).append(",");
+                }
+                ym.getTip().sendToConsole("如果无法解决 请联系插件开发者{0}", new String[]{kfz.toString()});
             }
-        };
-
-
+        }
     }
 
     public static int getServerVersionType() throws NoSuchMethodException {
@@ -105,13 +66,71 @@ public class KsAPI extends JavaPlugin {
         return sv;
     }
 
+    public static DependManager getDependManager() {
+        return dependManager;
+    }
+
+    @Override
+    public void onLoad() {
+        String[] vercalc = Bukkit.getBukkitVersion().split("-");
+        String[] vercalc2 = vercalc[0].split("\\.");
+        String[] vercalc3 = vercalc[1].split("\\.");
+        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
+    }
+
+    @Override
+    public void onEnable() {
+        init();
+    }
+
+    public void init() {
+//初始化
+        instance = this;
+        new ArrayList<Integer>() {
+            {
+                dependManager = new DependManager();
+                //加载
+                try {
+                    serverVersion = getServerVersionType();
+                } catch (NoSuchMethodException ex) {
+                    System.out.print("KSAPI版本兼容模块失效！");
+                }
+                PluginManager pm = Bukkit.getPluginManager();
+                um = new UtilManager(instance);
+                um.createalwaysneed(true);
+                um.createmulNBT();
+                um.getIo().loadaConfig("help", true);
+                um.createHelper("ksapi", um.getIo().getaConfig("help"));
+                Cmdregister.refCommandMap();
+                Cmdregister.registercmd(instance, new Manage("ksapi"));
+                pm.registerEvents(new InteractiveGUIManager(), instance);
+                pm.registerEvents(new InteractiveMoveGUIManager(), instance);
+                dependManager.checkSoft();
+                new BukkitRunnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            Class.forName("org.sqlite.JDBC");
+                        } catch (Exception ex) {
+                            um.getTip().sendToConsole("数据库驱动程序错误:" + ex.getMessage(), null);
+                        }
+                    }
+                }.runTaskAsynchronously(instance);
+                um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
+                Bukkit.getScheduler().runTaskLater(instance, () -> {
+                    warn(um);
+                }, 200L);
+                warn(um);
+            }
+        };
+
+
+    }
+
     @Override
     public void onDisable() {
         um.getIo().disabled();
         um.getTip().getDnS(Bukkit.getConsoleSender(), "disable", null);
-    }
-
-    public static DependManager getDependManager() {
-        return dependManager;
     }
 }

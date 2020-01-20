@@ -8,12 +8,12 @@ import com.zaxxer.hikari.HikariConfig;
 import java.util.HashMap;
 
 public class MysqlPoolManager {
-    private static HashMap<MysqlConnectobj,ConnectionPool> connectionPools=new HashMap<>();
+    private static HashMap<MysqlConnectobj, ConnectionPool> connectionPools = new HashMap<>();
 
-    public static ConnectionPool getPool(MysqlConnectobj mysqlConnectobj){
-        if(connectionPools.containsKey(mysqlConnectobj)){
+    public static ConnectionPool getPool(MysqlConnectobj mysqlConnectobj) {
+        if (connectionPools.containsKey(mysqlConnectobj)) {
             return connectionPools.get(mysqlConnectobj);
-        }else {
+        } else {
             MysqlConnectionPoolDataSource ds = new MysqlConnectionPoolDataSource();
             HikariConfig config = new HikariConfig();
             ds.setURL(mysqlConnectobj.url);
@@ -30,15 +30,16 @@ public class MysqlPoolManager {
             config.setDataSource(ds);
             config.setMaximumPoolSize(20);
             ConnectionPool pool = new ConnectionPool(config);
-            connectionPools.put(mysqlConnectobj,pool);
+            connectionPools.put(mysqlConnectobj, pool);
 //            Bukkit.getLogger().warning(mysqlConnectobj.toString());
             return pool;
         }
     }
-    public static ConnectionPool getPool(String address, String dbName, String userName, String password){
 
-        String url="jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
-        MysqlConnectobj mysqlConnectobj=new MysqlConnectobj(url,password,userName);
+    public static ConnectionPool getPool(String address, String dbName, String userName, String password) {
+
+        String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+        MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
         return getPool(mysqlConnectobj);
     }
 }

@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.util;
 
+import com.ksqeib.ksapi.KsAPI;
 import lombok.Getter;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 public class UtilManager {
     public static HashMap<String, UtilManager> plist = new HashMap<>();
     public JavaPlugin jp;
-    private HashMap<String, Helper> helpers = new HashMap<>();
     @Getter
     Io io;
     @Getter
@@ -29,9 +29,13 @@ public class UtilManager {
     InventoryControl inventoryControl;
     @Getter
     LocationGenerator locationGenerator;
+    @Getter
+    Debuger debuger;
+    private HashMap<String, Helper> helpers = new HashMap<>();
 
     /**
-     *构造方法
+     * 构造方法
+     *
      * @param jp 插件主类
      */
     public UtilManager(JavaPlugin jp) {
@@ -42,6 +46,7 @@ public class UtilManager {
     /**
      * 创建快速开发总是需要的
      * 会创建 Io ItemSR Tip(默认加载message.ymk Permission
+     *
      * @param hasdata io是否有目录树数据
      */
     public void createalwaysneed(Boolean hasdata) {
@@ -50,6 +55,7 @@ public class UtilManager {
         createtip(false, "message.yml");
         createperm();
     }
+
     /**
      * 创建快速开发总是需要的
      * 会创建 Io(没有目录树数据) ItemSR Tip(默认加载message.ymk Permission
@@ -63,6 +69,7 @@ public class UtilManager {
 
     /**
      * 创建一个Io
+     *
      * @param hasdata 是否有目录树数据
      */
     public void createio(Boolean hasdata) {
@@ -77,9 +84,10 @@ public class UtilManager {
         io = new Io(jp);
     }
 
-    public void createLocGenerator(){
-        locationGenerator=new LocationGenerator();
+    public void createLocGenerator() {
+        locationGenerator = new LocationGenerator(this);
     }
+
     /**
      * 创建NBT管理类
      */
@@ -87,7 +95,9 @@ public class UtilManager {
         mulNBT = new MulNBT();
     }
 
-    public void createinvControl(){inventoryControl=new InventoryControl();}
+    public void createinvControl() {
+        inventoryControl = new InventoryControl();
+    }
 
     /**
      * 创建实体管理类
@@ -96,8 +106,13 @@ public class UtilManager {
         entityManage = new EntityManage();
     }
 
+    public void createDebuger() {
+        debuger = new Debuger(this);
+    }
+
     /**
      * 创建物品管理类
+     *
      * @return 是否创建成功(没有io会创建失败)
      */
     public boolean createitemsr() {
@@ -107,13 +122,16 @@ public class UtilManager {
         }
         return false;
     }
+
     /**
      * 创建提示信息管理类
+     *
      * @return 是否创建成功(没有io会创建失败)
      */
     public boolean createtip(boolean islist, String name) {
         if (io != null) {
             tip = new Tip(io, islist, name);
+            KsAPI.warn(this);
             return true;
         }
         return false;
@@ -128,8 +146,9 @@ public class UtilManager {
 
     /**
      * 创建一个帮助者
+     *
      * @param command 命令名称
-     * @param hy help.yml
+     * @param hy      help.yml
      */
     public void createHelper(String command, FileConfiguration hy) {
         if (perm == null) {
@@ -140,6 +159,7 @@ public class UtilManager {
 
     /**
      * 获取一个帮助者
+     *
      * @param command 命令名称
      * @return 帮助者
      */
@@ -150,8 +170,13 @@ public class UtilManager {
     /**
      * 重载全部可以重载的工具类
      */
-    public void reload(){
-        if(io!=null)io.reload();
-        if(tip!=null)tip.reload();
+    public void reload() {
+        if (io != null) io.reload();
+        if (tip != null) tip.reload();
+    }
+
+    public void disable() {
+        if (io != null) io.disabled();
+        if (debuger != null) debuger.disable();
     }
 }

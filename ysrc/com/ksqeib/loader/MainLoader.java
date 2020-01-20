@@ -1,18 +1,14 @@
 package com.ksqeib.loader;
 
-import com.ksqeib.ksapi.KsAPI;
 import com.ksqeib.loader.memory.MConfig;
 import com.ksqeib.loader.net.Netter;
 import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import java.net.URLClassLoader;
-import java.util.List;
 
 
 public class MainLoader {
@@ -37,7 +33,7 @@ public class MainLoader {
         port = mconfig.port;
         //src更新
         if (mconfig.src) {
-            if (UpdateConfig.srvConfig(host, port,mconfig.teststr)) {
+            if (UpdateConfig.srvConfig(host, port, mconfig.teststr)) {
                 host = UpdateConfig.host;
                 port = UpdateConfig.port;
             }
@@ -53,7 +49,7 @@ public class MainLoader {
             String main = net.getMainClass();
             try {
                 Bukkit.getPluginManager().loadPlugin(jar);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             Class<?> mc = Class.forName(main);
@@ -62,8 +58,8 @@ public class MainLoader {
 
             coreMain.invoke(coreObj, net.getSocket());
 
-        }else {
-            throw new IOException("无法链接到验证服务器"+stat);
+        } else {
+            throw new IOException("无法链接到验证服务器" + stat);
         }
     }
 

@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 public class Cmdregister {
     private static SimpleCommandMap commandMap;
-    private static HashMap<JavaPlugin,Command> clist = new HashMap<>();
+    private static HashMap<JavaPlugin, Command> clist = new HashMap<>();
 
     /**
      * 刷新内部commandMap
@@ -19,9 +19,9 @@ public class Cmdregister {
         //反射获取commandmap
         try {
             final Class<?> c = Bukkit.getServer().getClass();
-            Field cf=c.getDeclaredField("commandMap");
+            Field cf = c.getDeclaredField("commandMap");
             cf.setAccessible(true);
-            commandMap=(SimpleCommandMap)cf.get(Bukkit.getServer());
+            commandMap = (SimpleCommandMap) cf.get(Bukkit.getServer());
         } catch (Exception e) {
             System.out.println("初始化CommandMap失败");
             e.printStackTrace();
@@ -30,16 +30,18 @@ public class Cmdregister {
 
     /**
      * 注册一个指令
-     * @param jp 插件主类
+     *
+     * @param jp  插件主类
      * @param cmd 命令
      */
     public static void registercmd(JavaPlugin jp, Command cmd) {
         commandMap.register(jp.getName(), cmd);
-        clist.put(jp,cmd);
+        clist.put(jp, cmd);
     }
 
     /**
      * 获取所有通过ksAPI注册的指令列表
+     *
      * @return 指令列表
      */
     public static HashMap<JavaPlugin, Command> getClist() {

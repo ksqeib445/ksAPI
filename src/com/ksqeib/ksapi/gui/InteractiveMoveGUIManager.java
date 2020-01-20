@@ -24,8 +24,8 @@ public class InteractiveMoveGUIManager implements Listener {
         int slot = event.getSlot();
         if (event.getCurrentItem() == null) return;
         if (!guis.containsKey(uuid)) return;
-        InteractiveMoveGUI img=guis.get(uuid);
-        if(!(slot>=img.getCmstart()||slot<=img.getCmend()))return;
+        InteractiveMoveGUI img = guis.get(uuid);
+        if (!(slot >= img.getCmstart() || slot <= img.getCmend())) return;
         event.setCancelled(true);
         if (event.getRawSlot() >= event.getInventory().getSize()) return;
         if (img.getAction(slot) != null) {
@@ -47,14 +47,14 @@ public class InteractiveMoveGUIManager implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        UUID uid=event.getPlayer().getUniqueId();
-        if(guis.containsKey(uid)){
-            InteractiveMoveGUI img=guis.get(uid);
-            Inventory inv=img.getInventory();
-            for(int i=0;i<inv.getSize();i++){
-                ItemStack item=inv.getItem(i);
-                if(item!=null){
-                    if(!(i>=img.getCmstart()||i<=img.getCmend())){
+        UUID uid = event.getPlayer().getUniqueId();
+        if (guis.containsKey(uid)) {
+            InteractiveMoveGUI img = guis.get(uid);
+            Inventory inv = img.getInventory();
+            for (int i = 0; i < inv.getSize(); i++) {
+                ItemStack item = inv.getItem(i);
+                if (item != null) {
+                    if (!(i >= img.getCmstart() || i <= img.getCmend())) {
                         event.getPlayer().getInventory().addItem(item);
                     }
                 }

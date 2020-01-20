@@ -13,6 +13,7 @@ public class ConnectionPool {
 
     /**
      * 连接池构造方法
+     *
      * @param config HikariConfig
      */
     public ConnectionPool(HikariConfig config) {
@@ -20,7 +21,6 @@ public class ConnectionPool {
     }
 
     /**
-     *
      * @return 获取一个连接
      */
     public Connection getConnection() {

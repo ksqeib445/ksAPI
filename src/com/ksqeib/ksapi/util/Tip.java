@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 
 /**
  * 提示类
@@ -44,8 +46,18 @@ public class Tip {
     public void init() {
         if (islist) {
             lmMap = Io.getAlllist(messagefile);
+            UnaryOperator<String> so = x -> x.replace("&", "§");
+            for (List<String> le : lmMap.values()) {
+                le.replaceAll(so);
+            }
         } else {
-            mMap = Io.getAll(messagefile);
+            HashMap<String, String> m1load = Io.getAll(messagefile);
+            mMap = new HashMap<>();
+            for (Map.Entry<String, String> en : m1load.entrySet()) {
+                String value = en.getValue();
+                if (value == null) continue;
+                mMap.put(en.getKey(), value.replace("&", "§"));
+            }
         }
     }
 
@@ -62,7 +74,7 @@ public class Tip {
                 Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
             }
             if (mes.size() != 0) {
-                return mes.get(0).replace("&", "§");
+                return mes.get(0);
             } else {
                 return "";
             }
@@ -295,7 +307,7 @@ public class Tip {
     public String music(Player p, String nq) {
         String nh = nq;
         if (nq != null) {
-            if(nh.startsWith("!"))return nq;
+            if (nh.startsWith("!")) return nq;
             String[] nqs = nq.split("=.=");
             if (nqs != null) {
                 if (nqs.length > 3) {

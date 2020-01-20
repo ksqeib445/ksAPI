@@ -42,9 +42,6 @@ import static com.ksqeib.ksapi.KsAPI.um;
  */
 public abstract class KDatabase<T> {
 
-    protected HashMap<String, Type> table = new HashMap<>();
-    protected HashMap<String, Field> fitable = new HashMap<>();
-    protected String tablename;
     public final static GsonBuilder builder = new GsonBuilder()
             .excludeFieldsWithModifiers(Modifier.TRANSIENT, Modifier.STATIC).enableComplexMapKeySerialization()
             .registerTypeAdapter(Location.class, new LocationSerializer())
@@ -52,7 +49,10 @@ public abstract class KDatabase<T> {
             .registerTypeAdapter(ItemStack[].class, new ItemStackArraySerializer())
             .registerTypeAdapter(UUID.class, new UUIDSerializer())
             .registerTypeAdapter(UUIDListSerializer.class, new UUIDListSerializer());
-    ;
+    protected HashMap<String, Type> table = new HashMap<>();
+    protected HashMap<String, Field> fitable = new HashMap<>();
+    protected String tablename;
+    private Gson gson;
 
     /**
      * 注册序列化专家
@@ -134,6 +134,7 @@ public abstract class KDatabase<T> {
             }
         }
     }
+
     public static void closeBufferedReader(BufferedReader bufferedReader) {
         if (bufferedReader != null) {
             try {
@@ -155,6 +156,7 @@ public abstract class KDatabase<T> {
             }
         }
     }
+
     /**
      * 初始化表
      *
@@ -358,8 +360,6 @@ public abstract class KDatabase<T> {
      * @return
      */
     public abstract Set<String> getKeys();
-
-    private Gson gson;
 
     /**
      * Serialize the object using the class type of object itself.

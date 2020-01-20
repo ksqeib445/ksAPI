@@ -19,7 +19,7 @@ public class MulNBT<T> {
         }
     }
 
-    public Object getNBTClassInstance(String name){
+    public Object getNBTClassInstance(String name) {
         Object obj = null;
         try {
             obj = getNBTClass(name).newInstance();
@@ -172,10 +172,9 @@ public class MulNBT<T> {
     }
 
     /**
-     *
-     * @param obj ComPound
+     * @param obj      ComPound
      * @param dataName 物品名
-     * @param data 一个NBTTag
+     * @param data     一个NBTTag
      */
     public void compoundset(Object obj, String dataName, Object data) {
         try {
@@ -203,10 +202,10 @@ public class MulNBT<T> {
         }
     }
 
-    public Object createNBTByType(float var1,Class type) {
-        String aftertype=type.getTypeName();
+    public Object createNBTByType(float var1, Class type) {
+        String aftertype = type.getTypeName();
         try {
-            return getNBTClass("NBTTag"+aftertype).getConstructor(type).newInstance(var1);
+            return getNBTClass("NBTTag" + aftertype).getConstructor(type).newInstance(var1);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -223,6 +222,7 @@ public class MulNBT<T> {
             return null;
         }
     }
+
     public Object getNBTTagData(Object obj) {
         try {
             Field fi = obj.getClass().getDeclaredField("data");
@@ -253,7 +253,7 @@ public class MulNBT<T> {
         return asBukkitCopy(nmsItem);
     }
 
-    public ItemStack addNBTdata(ItemStack item, String id, String data,Class type) {
+    public ItemStack addNBTdata(ItemStack item, String id, String data, Class type) {
         Object nmsItem = asNMSCopy(item);
         Object compound = (nmsItemhasTag(nmsItem)) ? nmsItemgetTag(nmsItem)
                 : getNBTTagCompoundInstance();

@@ -9,9 +9,9 @@ public class UpdateConfig {
     public static String host;
     public static int port;
 
-    public static boolean srvConfig(String host, int port,String pluginname) {
+    public static boolean srvConfig(String host, int port, String pluginname) {
         //对参数进行srv解析
-        String query = "_"+pluginname+"._tcp." + host;
+        String query = "_" + pluginname + "._tcp." + host;
         Hashtable<String, String> ret = SrvConnect.resoveSrv(query);
         if (ret != null) {
             if (ret.size() != 0) {
