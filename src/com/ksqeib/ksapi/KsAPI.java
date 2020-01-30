@@ -27,18 +27,16 @@ public class KsAPI extends JavaPlugin {
     public static DependManager dependManager;
 
     public static void warn(UtilManager ym) {
-        for (int i = 0; i < 21; i++) {
-            if (ym.getTip() != null) {
-                ym.getTip().sendToConsole("如果插件使用中出现任何问题", null);
-                ym.getTip().sendToConsole("如读取语言出现空指针 请先删除语言文件重启服务器", null);
-                ym.getTip().sendToConsole("如版本迭代发现功能不符 请先删除旧配置文件重试", null);
-                if (ym.jp.getDescription().getAuthors().size() == 0) return;
-                StringBuilder kfz = new StringBuilder();
-                for (String name : ym.jp.getDescription().getAuthors()) {
-                    kfz.append(name).append(",");
-                }
-                ym.getTip().sendToConsole("如果无法解决 请联系插件开发者{0}", new String[]{kfz.toString()});
+        if (ym.getTip() != null) {
+            ym.getTip().sendToConsole("本插件已在常规环境下进行测试", null);
+            ym.getTip().sendToConsole("如出现空指针 请先删除配置文件重启服务器", null);
+            if (ym.jp.getDescription().getAuthors().size() == 0) return;
+            StringBuilder kfz = new StringBuilder();
+            for (String name : ym.jp.getDescription().getAuthors()) {
+                kfz.append(name).append(",");
             }
+            ym.getTip().sendToConsole("如果无法解决 请联系插件开发者{0}", kfz.toString());
+            ym.getTip().sendToConsole("QQ:1603280687 加好友请注明来意", kfz.toString());
         }
     }
 

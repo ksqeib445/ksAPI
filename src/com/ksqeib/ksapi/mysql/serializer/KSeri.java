@@ -19,4 +19,5 @@ public @interface KSeri {
      */
     @Nonnull
     String value();
+    boolean base64=false;
 }

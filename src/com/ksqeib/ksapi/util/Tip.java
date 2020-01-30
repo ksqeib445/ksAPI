@@ -119,7 +119,7 @@ public class Tip {
      * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
-    public void getDnS(CommandSender p, String m, String[] args) {
+    public void getDnS(CommandSender p, String m, String... args) {
         if (!islist) {
             send(getMessage(m), p, args);
         } else {
@@ -136,7 +136,7 @@ public class Tip {
      * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
-    public void getDnS(Player p, String m, String[] args) {
+    public void getDnS(Player p, String m, String... args) {
         if (islist) {
             for (String mes : getMessageList(m)) {
                 send(music(p, mes), p, args);
@@ -153,7 +153,7 @@ public class Tip {
      * @param m    内部消息id
      * @param args {0} {1} {2}这种要被替换的
      */
-    public void getDnS(UUID uuid, String m, String[] args) {
+    public void getDnS(UUID uuid, String m, String... args) {
         getDnS(Bukkit.getPlayer(uuid), m, args);
     }
 
@@ -169,7 +169,7 @@ public class Tip {
         }
     }
 
-    public void broadcastMessage(String first, String[] args) {
+    public void broadcastMessage(String first, String... args) {
         if (args != null)
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
@@ -187,7 +187,7 @@ public class Tip {
      * @param p     被发送者
      * @param args  {0} {1} {2}这种要被替换的
      */
-    public void send(String first, CommandSender p, String[] args) {
+    public void send(String first, CommandSender p, String... args) {
         Player pl = null;
         Boolean isp = false;
         if (p instanceof Player) {
@@ -214,7 +214,7 @@ public class Tip {
      * @param p     被发送者
      * @param args  {0} {1} {2}这种要被替换的
      */
-    public void send(String first, Player p, String[] args) {
+    public void send(String first, Player p, String... args) {
         if (p == null) return;
         if (args != null) {
             for (int i = 0; i < args.length; i++) {
@@ -241,7 +241,7 @@ public class Tip {
         }
     }
 
-    public void sendToConsole(String first, String[] args) {
+    public void sendToConsole(String first, String... args) {
         if (first == null) return;
         if (ccs == null) return;
         if (args != null)
