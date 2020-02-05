@@ -72,6 +72,7 @@ public class Tip {
             List<String> mes = lmMap.get(m);
             if (mes == null) {
                 Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
+                return "";
             }
             if (mes.size() != 0) {
                 return mes.get(0);
@@ -157,26 +158,13 @@ public class Tip {
         getDnS(Bukkit.getPlayer(uuid), m, args);
     }
 
-    /**
-     * 发一条全服
-     *
-     * @param first 内容
-     */
-    private void broadcastMessage(String first) {
-        Bukkit.broadcastMessage(first);
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            music(p, first);
-        }
-    }
-
     public void broadcastMessage(String first, String... args) {
         if (args != null)
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
             }
-        Bukkit.broadcastMessage(first);
         for (Player p : Bukkit.getOnlinePlayers()) {
-            music(p, first);
+            send(music(p, first),p);;
         }
     }
 

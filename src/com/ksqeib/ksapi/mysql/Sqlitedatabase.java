@@ -77,9 +77,40 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         pstmt.close();
     }
 
+
     @Override
-    public Object getsthbysth(String by, String type, Object sign, Class objtype) {
-        return null;
+    public List<?> getsthbysth(String by, String type, Object sign, Class objtype) {
+        Connection con = null;
+        ArrayList ret = new ArrayList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        if (sign == null) return null;
+        try {
+            con = createConnection();
+            ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
+            ps = con.prepareStatement("SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ?");
+            ps.setBinaryStream(1, biny);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                InputStream input = rs.getBinaryStream(1);
+                if (input != null) {
+                    InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
+                    BufferedReader br = new BufferedReader(isr);
+                    ret.add(this.deserialize(br.readLine(), objtype));
+                    closeBufferedReader(br);
+                    closeInputStreamReader(isr);
+                }
+                closeInputStream(input);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResultSet(rs);
+            closePreparedStatement(ps);
+            closeConnection(con);
+        }
+        return ret;
     }
 
     @Override
@@ -435,6 +466,41 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
         }
 
         return keys;
+    }
+
+    @Override
+    public String getDbkeyBySth(String by, Object sign) {
+        Connection con = null;
+        String ret = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        if (sign == null) return null;
+        try {
+            con = createConnection();
+            ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(sign).getBytes(StandardCharsets.UTF_8));
+            ps = con.prepareStatement("SELECT " + type + " FROM " + tablename + " WHERE " + by + " = ? LIMIT 1");
+            ps.setBinaryStream(1, biny);
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                InputStream input = rs.getBinaryStream(1);
+                if (input != null) {
+                    InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
+                    BufferedReader br = new BufferedReader(isr);
+                    ret = br.readLine();
+                    closeBufferedReader(br);
+                    closeInputStreamReader(isr);
+                }
+                closeInputStream(input);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeResultSet(rs);
+            closePreparedStatement(ps);
+            closeConnection(con);
+        }
+        return ret;
     }
 
     @Override

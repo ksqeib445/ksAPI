@@ -179,4 +179,52 @@ public class UtilManager {
         if (io != null) io.disabled();
         if (debuger != null) debuger.disable();
     }
+
+    public static HashMap<String, UtilManager> getPlist() {
+        return plist;
+    }
+
+    public JavaPlugin getJp() {
+        return jp;
+    }
+
+    public Io getIo() {
+        return io;
+    }
+
+    public ItemSR getItemsr() {
+        return itemsr;
+    }
+
+    public Permission getPerm() {
+        return perm;
+    }
+
+    public Tip getTip() {
+        return tip;
+    }
+
+    public MulNBT getMulNBT() {
+        return mulNBT;
+    }
+
+    public EntityManage getEntityManage() {
+        return entityManage;
+    }
+
+    public InventoryControl getInventoryControl() {
+        return inventoryControl;
+    }
+
+    public LocationGenerator getLocationGenerator() {
+        return locationGenerator;
+    }
+
+    public Debuger getDebuger() {
+        return debuger;
+    }
+
+    public HashMap<String, Helper> getHelpers() {
+        return helpers;
+    }
 }

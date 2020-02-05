@@ -29,7 +29,7 @@ public class ItemSR {
      * @param args 参数
      * @return 替换好的物品
      */
-    public ItemStack rep(ItemStack oit, String[] args) {
+    public ItemStack rep(ItemStack oit, String... args) {
         ItemMeta im = oit.getItemMeta();
         //设定名字替换
         if (im.hasDisplayName()) {
@@ -49,7 +49,7 @@ public class ItemSR {
         return oit;
     }
 
-    private String reps(String str, String[] args) {
+    private String reps(String str, String... args) {
         String rp;
         if (str == null) {
             rp = "wrong";
@@ -74,7 +74,7 @@ public class ItemSR {
      * @param args  参数
      * @return 替换好的物品列表
      */
-    public ItemStack[] repmany(ItemStack[] items, String[] args) {
+    public ItemStack[] repmany(ItemStack[] items, String... args) {
         int many = items.length;
         ItemStack[] repditems = new ItemStack[many];
         for (int i = 0; i < many; i++) {

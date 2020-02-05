@@ -66,6 +66,9 @@ public abstract class KDatabase<T> {
         }
     }
 
+    public Type getPartType(String part){
+        return table.get(part);
+    }
     /**
      * 将字节变成String
      *
@@ -404,5 +407,6 @@ public abstract class KDatabase<T> {
 
     public abstract void clearDatabase();
 
+    public abstract String getDbkeyBySth(String by, Object sign);
 
 }

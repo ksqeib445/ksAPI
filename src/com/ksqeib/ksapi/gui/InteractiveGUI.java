@@ -13,7 +13,13 @@ public class InteractiveGUI {
     private HashMap<Integer, Runnable> ractions = new HashMap<Integer, Runnable>();
     private HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
 
-    public InteractiveGUI(String name, int size) {
+    public InteractiveGUI(String originalname, int size) {
+        String name = originalname;
+        if (originalname != null)
+            if (originalname.length() > 32) {
+                name = originalname.substring(0, 32);
+            }
+
         if (name == null || size == 0) return;
         inventory = Bukkit.createInventory(null, size,
                 name);
