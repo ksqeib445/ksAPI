@@ -114,6 +114,25 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
     }
 
     @Override
+    public void clearallpartToNewValue(String partname, String newv) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = this.createConnection();
+            pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=?", this.tablename));
+            pstmt.setString(1, newv);
+            pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
+        }
+
+    }
+
+    @Override
     public void saveone(String key, String arg, Object value) {
         try {
             if (value != null) {

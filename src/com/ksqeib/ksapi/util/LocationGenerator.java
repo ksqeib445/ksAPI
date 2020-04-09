@@ -2,9 +2,7 @@ package com.ksqeib.ksapi.util;
 
 import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 
 import java.util.Random;
 
@@ -40,7 +38,7 @@ public class LocationGenerator {
         while (!canUse(bpos, true)) {
             bpos = genPos(pos, range);
             time++;
-            if (time > 50) return null;
+            if (time > 50) return bpos;
         }
         return bpos;
     }
@@ -50,18 +48,15 @@ public class LocationGenerator {
         if (!isInsideBorder(loc)) {
             return false;
         }
-        Block block = loc.getBlock();
 //        水
         if (!nowater) return true;
-        return (block.getType() != Material.STATIONARY_WATER) &&
-                (block.getType() != Material.WATER) && (block.getType() != Material.WATER_LILY) &&
-                (block.getType() != Material.WATER_BUCKET);
+        return !loc.getBlock().getType().name().contains("water");
     }
 
     public Location genPos(Location pos, int range) {
         //生成随机坐标
-        Double x = pos.getX();
-        Double z = pos.getZ();
+        double x = pos.getX();
+        double z = pos.getZ();
         World world = pos.getWorld();
         int key = rm.nextInt(8);
         switch (key) {
@@ -99,7 +94,7 @@ public class LocationGenerator {
                 x -= (range * 2 + rm.nextInt(range * 2));
                 break;
         }
-        double y = world.getHighestBlockYAt(x.intValue(), z.intValue());
+        double y = world.getHighestBlockYAt((int) x, (int) z);
         return new Location(world, x, y, z);
 
     }

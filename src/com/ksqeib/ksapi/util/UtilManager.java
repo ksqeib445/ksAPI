@@ -131,7 +131,6 @@ public class UtilManager {
     public boolean createtip(boolean islist, String name) {
         if (io != null) {
             tip = new Tip(io, islist, name);
-            KsAPI.warn(this);
             return true;
         }
         return false;

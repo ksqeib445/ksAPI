@@ -5,9 +5,11 @@ import com.ksqeib.ksapi.command.Manage;
 import com.ksqeib.ksapi.depend.DependManager;
 import com.ksqeib.ksapi.gui.InteractiveGUIManager;
 import com.ksqeib.ksapi.gui.InteractiveMoveGUIManager;
+import com.ksqeib.ksapi.gui.TestCodeGUIManager;
 import com.ksqeib.ksapi.util.UtilManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class KsAPI extends JavaPlugin {
@@ -24,44 +27,23 @@ public class KsAPI extends JavaPlugin {
     public static int serverVersion;
     public static String serververStr;
     public static boolean debug;
+    public static boolean refalldatabase;
     public static DependManager dependManager;
 
-    public static void warn(UtilManager ym) {
-        if (ym.getTip() != null) {
-            ym.getTip().sendToConsole("本插件已在常规环境下进行测试", null);
-            ym.getTip().sendToConsole("如出现空指针 请先删除配置文件重启服务器", null);
-            if (ym.jp.getDescription().getAuthors().size() == 0) return;
-            StringBuilder kfz = new StringBuilder();
-            for (String name : ym.jp.getDescription().getAuthors()) {
-                kfz.append(name).append(",");
-            }
-            ym.getTip().sendToConsole("如果无法解决 请联系插件开发者{0}", kfz.toString());
-            ym.getTip().sendToConsole("QQ:1603280687 加好友请注明来意", kfz.toString());
-        }
-    }
+    public static ConcurrentHashMap<String, String> item = new ConcurrentHashMap<>();
 
     public static int getServerVersionType() throws NoSuchMethodException {
-        int sv = 0;
         Method[] m = PlayerInventory.class.getDeclaredMethods();
         for (Method e : m) {
             if (e.toGenericString().contains("getItemInMainHand")) {
-//                1.9+
-                sv = 3;
-                return sv;
+                return 3;
             }
         }
-        if (sv == 0) {
-            if (Material.getMaterial("SLIME_BLOCK") != null) {
-//                1.8
-                sv = 2;
-                return sv;
-            } else {
-//                1.7
-                sv = 1;
-                return sv;
-            }
+        if (Material.getMaterial("SLIME_BLOCK") != null) {
+            return 2;
+        } else {
+            return 1;
         }
-        return sv;
     }
 
     public static DependManager getDependManager() {
@@ -70,10 +52,12 @@ public class KsAPI extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        String[] vercalc = Bukkit.getBukkitVersion().split("-");
-        String[] vercalc2 = vercalc[0].split("\\.");
-        String[] vercalc3 = vercalc[1].split("\\.");
-        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc3[1];
+//        System.out.println(Bukkit.getBukkitVersion());
+//        String[] vercalc = Bukkit.getBukkitVersion().split("-");
+//        String[] vercalc2 = vercalc[0].split("\\.");
+////        String[] vercalc3 = vercalc[1].split("\\.");
+//        serververStr = "v" + vercalc2[0] + "_" + vercalc2[1] + "_R" + vercalc2[2];
+        serververStr = Bukkit.getServer().getClass().getPackage().getName().substring(23);
     }
 
     @Override
@@ -98,28 +82,30 @@ public class KsAPI extends JavaPlugin {
                 um.createalwaysneed(true);
                 um.createmulNBT();
                 um.getIo().loadaConfig("help", true);
+                um.getIo().loadaConfig("config", true);
                 um.createHelper("ksapi", um.getIo().getaConfig("help"));
+                FileConfiguration fc = um.getIo().getaConfig("config");
+                debug = fc.getBoolean("debug", false);
+                refalldatabase = fc.getBoolean("refalldb", false);
                 Cmdregister.refCommandMap();
                 Cmdregister.registercmd(instance, new Manage("ksapi"));
                 pm.registerEvents(new InteractiveGUIManager(), instance);
                 pm.registerEvents(new InteractiveMoveGUIManager(), instance);
+                pm.registerEvents(new TestCodeGUIManager(), instance);
                 dependManager.checkSoft();
                 new BukkitRunnable() {
-
                     @Override
                     public void run() {
                         try {
                             Class.forName("org.sqlite.JDBC");
                         } catch (Exception ex) {
-                            um.getTip().sendToConsole("数据库驱动程序错误:" + ex.getMessage(), null);
+                            um.getTip().sendToConsole("数据库驱动程序错误:" + ex.getMessage());
                         }
                     }
                 }.runTaskAsynchronously(instance);
-                um.getTip().getDnS(Bukkit.getConsoleSender(), "enable", null);
-                Bukkit.getScheduler().runTaskLater(instance, () -> {
-                    warn(um);
-                }, 200L);
-                warn(um);
+                um.getTip().getDnS(Bukkit.getConsoleSender(), "enable");
+
+//                item = getAll(um.getIo().loadYamlFile("itemname.yml", true));
             }
         };
 
@@ -129,6 +115,21 @@ public class KsAPI extends JavaPlugin {
     @Override
     public void onDisable() {
         um.getIo().disabled();
-        um.getTip().getDnS(Bukkit.getConsoleSender(), "disable", null);
+        um.getTip().getDnS(Bukkit.getConsoleSender(), "disable");
+    }
+
+    public static String getMaterialCN(Material material) {
+        String type = material.name().toLowerCase();
+        if (item.containsKey(type)) {
+            return item.get(type);
+        }
+        return material.name();
+    }
+    public ConcurrentHashMap<String, String> getAll(FileConfiguration file) {
+        ConcurrentHashMap<String, String> hash = new ConcurrentHashMap<>();
+        for (String string : file.getValues(false).keySet()) {
+            hash.put(string.toLowerCase(), file.getString(string).replace("&", "§"));
+        }
+        return hash;
     }
 }

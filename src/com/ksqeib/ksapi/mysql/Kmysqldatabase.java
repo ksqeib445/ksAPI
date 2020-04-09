@@ -22,7 +22,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         this.type = type;
         this.tablename = tablename;
         if (pool == null) {
-            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnecth=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
             MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
             pool = MysqlPoolManager.getPool(mysqlConnectobj);
         }
@@ -407,6 +407,25 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     }
 
     @Override
+    public void clearallpartToNewValue(String partname, String newv) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        try {
+            conn = this.createConnection();
+            pstmt = conn.prepareStatement(String.format("update %s set " + partname + "=?", this.tablename));
+            pstmt.setString(1, newv);
+            pstmt.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closePreparedStatement(pstmt);
+            closeConnection(conn);
+        }
+
+    }
+
+    @Override
     public void clearallpart(String partname) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -450,10 +469,9 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             if (value != null) {
                 if (conn == null) return;
                 ByteArrayInputStream biny = new ByteArrayInputStream(this.serialize(value).getBytes(StandardCharsets.UTF_8));
-                String insertstring = "INSERT INTO %s(dbkey," + arg + ") VALUES (?,?) ON DUPLICATE KEY UPDATE " + arg + " = VALUES(" + arg + ")";
-                pstmt = conn.prepareStatement(String.format(insertstring, this.tablename));
-                pstmt.setString(1, key);
-                pstmt.setBinaryStream(2, biny);
+                pstmt = conn.prepareStatement(String.format("UPDATE %s SET " + arg + " = ? WHERE dbkey = ?", this.tablename));
+                pstmt.setBinaryStream(1, biny);
+                pstmt.setString(2, key);
                 ///////
                 pstmt.executeUpdate();
             } else {
@@ -589,7 +607,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     @Override
     public String getDbkeyBySth(String by, Object sign) {
         Connection con = null;
-        String ret =null;
+        String ret = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         if (sign == null) return null;
@@ -605,7 +623,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                 if (input != null) {
                     InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
                     BufferedReader br = new BufferedReader(isr);
-                    ret=br.readLine();
+                    ret = br.readLine();
                     closeBufferedReader(br);
                     closeInputStreamReader(isr);
                 }

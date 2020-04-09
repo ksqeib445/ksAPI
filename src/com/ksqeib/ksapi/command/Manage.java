@@ -1,11 +1,14 @@
 package com.ksqeib.ksapi.command;
 
 import com.ksqeib.ksapi.KsAPI;
+import com.ksqeib.ksapi.gui.TestCodeGUI;
 import com.ksqeib.ksapi.util.Io;
 import com.ksqeib.ksapi.util.Musicg;
+import com.ksqeib.ksapi.util.Tip;
 import com.ksqeib.ksapi.util.UtilManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,8 +16,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -30,12 +36,13 @@ public class Manage extends Command {
     @Override
     public boolean execute(CommandSender cms, String label, String[] args) {
         Io io = KsAPI.um.getIo();
+        Tip tip=KsAPI.um.getTip();
         if (KsAPI.um.getPerm().isPluginAdmin(cms)) {
             if (args.length > 0) {
                 switch (args[0]) {
                     default:
                     case "about":
-                        KsAPI.um.getTip().send("BY KSQEIB", cms, null);
+                        tip.send("BY KSQEIB", cms);
                         break;
 
                     case "help":
@@ -54,12 +61,12 @@ public class Manage extends Command {
                                     Class<?> c = UtilManager.plist.get(args[1]).jp.getClass();
                                     Method me = c.getMethod("reload");
                                     me.invoke(UtilManager.plist.get(args[1]).jp);
-                                    cms.sendMessage(args[1] + "插件重载成功");
+                                    tip.send(args[1] + "插件重载成功",cms);
                                 } catch (Exception e) {
-                                    cms.sendMessage("该插件可能不支持重载");
+                                    tip.send("该插件可能不支持重载",cms);
                                 }
                             } else {
-                                cms.sendMessage("插件名称错误");
+                                tip.send("插件名称错误",cms);
                             }
                         }
                         break;
@@ -67,9 +74,9 @@ public class Manage extends Command {
                         if (args.length > 1) {
                             if (UtilManager.plist.containsKey(args[1])) {
                                 UtilManager.plist.get(args[1]).reload();
-                                cms.sendMessage(args[1] + "插件强行重载成功");
+                                tip.send(args[1] + "插件强行重载成功",cms);
                             } else {
-                                cms.sendMessage("插件名称错误");
+                                tip.send("插件名称错误",cms);
                             }
                         }
                         break;
@@ -77,47 +84,70 @@ public class Manage extends Command {
                         if (args.length > 1) {
                             String n = args[1];
                             if (UtilManager.plist.containsKey(n)) {
-                                Bukkit.getPluginManager().disablePlugin(UtilManager.plist.get(n).jp);
-
-                                cms.sendMessage(n + "插件强行重载成功");
+                                JavaPlugin jp = UtilManager.plist.get(n).jp;
+                                String where = jp.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+                                Bukkit.getPluginManager().disablePlugin(jp);
+                                try {
+                                    tip.send(n + "插件目录:"+where,cms);
+                                    Bukkit.getPluginManager().loadPlugin(new File(where));
+                                } catch (InvalidPluginException e) {
+                                    tip.send(n + "插件存在错误",cms);
+                                } catch (InvalidDescriptionException e) {
+                                    tip.send(n + "插件描述有误",cms);
+                                }
+                                tip.send(n + "插件强行物理重载成功",cms);
                             } else {
-                                cms.sendMessage("插件名称错误");
+                                tip.send("插件名称错误",cms);
                             }
                         }
                         break;
                     case "plugins":
-                        cms.sendMessage("装载的ksAPI插件有");
+                        tip.send("装载的ksAPI插件有",cms);
                         for (Map.Entry<String, UtilManager> en : UtilManager.plist.entrySet()) {
                             String name = en.getValue().jp.isEnabled() ? ChatColor.GREEN + en.getKey() : ChatColor.RED + en.getKey();
-                            cms.sendMessage(name);
+                            tip.send(name+ Color.AQUA+" VER:"+en.getValue().jp.getDescription().getVersion(),cms);
                         }
                         break;
                     case "commands":
-                        cms.sendMessage("通过ksAPI注册的指令有");
-                        cms.sendMessage("§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l ");
+                        tip.send("通过ksAPI注册的指令有",cms);
+                        tip.send("§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l ",cms);
                         for (Map.Entry<JavaPlugin, Command> entry : Cmdregister.getClist().entrySet()) {
-                            cms.sendMessage(ChatColor.GOLD + "注册插件:" + ChatColor.GRAY + entry.getKey().getDescription().getName() + ChatColor.GOLD + " VER:" + ChatColor.DARK_GRAY + entry.getKey().getDescription().getVersion());
+                            tip.send(ChatColor.GOLD + "注册插件:" + ChatColor.GRAY + entry.getKey().getDescription().getName() + ChatColor.GOLD + " VER:" + ChatColor.DARK_GRAY + entry.getKey().getDescription().getVersion(),cms);
                             Command c = entry.getValue();
                             String name = c.getName();
-                            cms.sendMessage(ChatColor.GOLD + "名称:" + ChatColor.GREEN + name);
+                            tip.send(ChatColor.GOLD + "名称:" + ChatColor.GREEN + name,cms);
                             if (c.getAliases() != null && c.getAliases().size() != 0) {
-                                cms.sendMessage(ChatColor.GOLD + "别名:");
+                                tip.send(ChatColor.GOLD + "别名:",cms);
                                 for (String ali : c.getAliases()) {
-                                    cms.sendMessage(ChatColor.GREEN + ali);
+                                    tip.send(ChatColor.GREEN + ali,cms);
                                 }
                             }
                             if (c.getDescription() != null && c.getDescription() != "")
-                                cms.sendMessage(ChatColor.GOLD + "描述:" + ChatColor.GREEN + c.getDescription());
+                                tip.send(ChatColor.GOLD + "描述:" + ChatColor.GREEN + c.getDescription(),cms);
                             if (c.getLabel() != null && !c.getLabel().equals(name))
-                                cms.sendMessage(ChatColor.GOLD + "Label:" + ChatColor.GREEN + c.getLabel());
+                                tip.send(ChatColor.GOLD + "Label:" + ChatColor.GREEN + c.getLabel(),cms);
                             if (c.getUsage() != null && !c.getUsage().equals("/" + name))
-                                cms.sendMessage(ChatColor.GOLD + "用法:" + ChatColor.GREEN + c.getUsage());
+                                tip.send(ChatColor.GOLD + "用法:" + ChatColor.GREEN + c.getUsage(),cms);
                             if (c.getPermission() != null)
-                                cms.sendMessage(ChatColor.GOLD + "权限:" + ChatColor.GREEN + c.getPermission());
+                                tip.send(ChatColor.GOLD + "权限:" + ChatColor.GREEN + c.getPermission(),cms);
                             if (c.getPermissionMessage() != null)
-                                cms.sendMessage(ChatColor.GOLD + "权限信息:" + ChatColor.GREEN + c.getPermissionMessage());
-                            cms.sendMessage("§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l ");
+                                tip.send(ChatColor.GOLD + "权限信息:" + ChatColor.GREEN + c.getPermissionMessage(),cms);
+                            tip.send("§c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l  §c§m§l  §6§m§l  §e§m§l  §a§m§l  §b§m§l ",cms);
 
+                        }
+                        break;
+                    case "test":
+                        if(cms instanceof Player){
+                            Player p = (Player) cms;
+                            TestCodeGUI testCodeGUI = new TestCodeGUI();
+                            testCodeGUI.init();
+                            testCodeGUI.setOkac(() -> {
+                                p.sendMessage("SU");
+                            });
+                            testCodeGUI.setFailac(() -> {
+                                p.sendMessage("FA");
+                            });
+                            testCodeGUI.openInventory(p);
                         }
                         break;
                     case "debug":
@@ -130,10 +160,10 @@ public class Manage extends Command {
                             if (args.length >= 4) {
                                 snedp = Bukkit.getPlayer(args[3]);
                             }
-                            Boolean su = false;
+                            boolean su = false;
                             switch (args[1].toLowerCase()) {
                                 default:
-                                    KsAPI.um.getTip().getDnS(cms, "subwrong", null);
+                                    KsAPI.um.getTip().getDnS(cms, "subwrong");
                                     break;
                                 case "disio":
                                     KsAPI.um.getIo().disabled();

@@ -45,6 +45,18 @@ public class InteractiveGUI {
         lactions.put(slot, runnable);
     }
 
+    public void removeAction(int slot){
+        actions.remove(slot);
+    }
+
+    public void removeLeftAction(int slot){
+        lactions.remove(slot);
+    }
+
+    public void removeRightAction(int slot){
+        ractions.remove(slot);
+    }
+
     public void openInventory(Player p) {
         p.openInventory(inventory);
         InteractiveGUIManager.guis.put(p.getUniqueId(), this);

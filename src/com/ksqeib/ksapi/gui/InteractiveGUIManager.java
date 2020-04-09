@@ -1,5 +1,6 @@
 package com.ksqeib.ksapi.gui;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -8,6 +9,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 
 
@@ -45,4 +47,6 @@ public class InteractiveGUIManager implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         guis.remove(event.getPlayer().getUniqueId());
     }
+
+
 }

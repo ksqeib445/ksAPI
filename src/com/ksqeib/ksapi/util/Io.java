@@ -333,11 +333,10 @@ public class Io {
     /**
      * 加载一个配置文件 会自动在后面添加.yml
      *
-     * @param in   配置名
+     * @param name   配置名
      * @param isin 是否存在于jar包插件内
      */
-    public void loadaConfig(String in, Boolean isin) {
-        String name = in.toLowerCase();
+    public void loadaConfig(String name, Boolean isin) {
         configs.put(name, loadYamlFile(name + ".yml", isin));
         isinconfigs.put(name, isin);
 
@@ -346,11 +345,10 @@ public class Io {
     /**
      * 获取一个配置文件
      *
-     * @param in 配置名
+     * @param name 配置名
      * @return 配置FileConfiguration
      */
-    public FileConfiguration getaConfig(String in) {
-        String name = in.toLowerCase();
+    public FileConfiguration getaConfig(String name) {
         return configs.get(name);
     }
 

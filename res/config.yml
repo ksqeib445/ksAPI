@@ -1,1 +1,7 @@
 debug: false
+#重设所有数据库
+refalldb: true
+refto:
+  user: 'root'
+  password: 'ksqeib'
+  ip: 'localhost'

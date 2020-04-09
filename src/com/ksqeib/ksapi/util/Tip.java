@@ -7,10 +7,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
@@ -25,6 +22,7 @@ public class Tip {
     public FileConfiguration messagefile;
     public boolean isnohead = false;
     public Io io;
+    private String filename;
 
     /**
      * 初始化类
@@ -36,6 +34,7 @@ public class Tip {
     protected Tip(Io io, boolean islist, String name) {
         this.io = io;
         this.islist = islist;
+        this.filename = name;
         messagefile = io.loadYamlFile(name, true);
         init();
     }
@@ -72,6 +71,7 @@ public class Tip {
             List<String> mes = lmMap.get(m);
             if (mes == null) {
                 Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
+                showDetial();
                 return "";
             }
             if (mes.size() != 0) {
@@ -83,10 +83,20 @@ public class Tip {
             String mes = mMap.get(m);
             if (mes == null) {
                 Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
+                showDetial();
                 return "";
             } else {
                 return mes;
             }
+        }
+    }
+
+    private void showDetial() {
+        Bukkit.getLogger().warning("细节：" + filename + " " + islist+" ");
+        try {
+            throw new NullPointerException();
+        }catch (NullPointerException e){
+            e.printStackTrace();
         }
     }
 
@@ -101,16 +111,17 @@ public class Tip {
             if (lmMap == null) {
                 Bukkit.getLogger().warning("严重！插件似乎未初始化完成！");
                 new Exception().printStackTrace();
-                return null;
+                return new ArrayList<>();
             }
             List<String> strings = lmMap.get(m);
             if (strings == null) {
                 Bukkit.getLogger().warning("在读取列表语言" + m + "时发生了错误");
+                showDetial();
             } else {
                 return strings;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -164,7 +175,8 @@ public class Tip {
                 first = first.replace("{" + i + "}", args[i]);
             }
         for (Player p : Bukkit.getOnlinePlayers()) {
-            send(music(p, first),p);;
+            send(music(p, first), p);
+            ;
         }
     }
 
@@ -182,16 +194,11 @@ public class Tip {
             pl = (Player) p;
             isp = true;
         }
-        if (first == null) return;
-        if (p == null) return;
-        if (args != null)
-            for (int i = 0; i < args.length; i++) {
-                first = first.replace("{" + i + "}", args[i]);
-            }
+        first = getString(first, p == null, args);
         if (isp) {
-            send(first, pl, null);
+            send(first, pl);
         } else {
-            sendToConsole(first, null);
+            sendToConsole(first);
         }
     }
 
@@ -203,12 +210,8 @@ public class Tip {
      * @param args  {0} {1} {2}这种要被替换的
      */
     public void send(String first, Player p, String... args) {
-        if (p == null) return;
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                first = first.replace("{" + i + "}", args[i]);
-            }
-        }
+        first = getString(first, p == null, args);
+        if (first == null) return;
         if (first.startsWith("=")) {
             //=判断
             p.sendMessage(first.substring(1));
@@ -229,13 +232,19 @@ public class Tip {
         }
     }
 
-    public void sendToConsole(String first, String... args) {
-        if (first == null) return;
-        if (ccs == null) return;
-        if (args != null)
+    private String getString(String first, boolean b, String[] args) {
+        if (first == null) return null;
+        if (b) return null;
+        if (args != null) {
             for (int i = 0; i < args.length; i++) {
                 first = first.replace("{" + i + "}", args[i]);
             }
+        }
+        return first;
+    }
+
+    public void sendToConsole(String first, String... args) {
+        first = getString(first, ccs == null, args);
         if (first.startsWith("=")) {
             //=判断
             ccs.sendMessage(first.substring(1));
@@ -297,11 +306,9 @@ public class Tip {
         if (nq != null) {
             if (nh.startsWith("!")) return nq;
             String[] nqs = nq.split("=.=");
-            if (nqs != null) {
-                if (nqs.length > 3) {
-                    p.playSound(p.getLocation(), Musicg.getSound(nqs[0]), Float.parseFloat(nqs[1]), Float.parseFloat(nqs[2]));
-                    nh = nqs[3];
-                }
+            if (nqs.length > 3) {
+                p.playSound(p.getLocation(), Musicg.getSound(nqs[0]), Float.parseFloat(nqs[1]), Float.parseFloat(nqs[2]));
+                nh = nqs[3];
             }
         }
         return nh;
@@ -311,6 +318,7 @@ public class Tip {
      * 重载
      */
     public void reload() {
-        messagefile = io.loadYamlFile(messagefile.getCurrentPath(), true);
+        messagefile = io.loadYamlFile(filename, true);
+        init();
     }
 }

@@ -240,6 +240,7 @@ public abstract class KDatabase<T> {
      */
     public abstract T keyload(String key, T def);
 
+    public abstract void clearallpartToNewValue(String partname,String newv);
     /**
      * 反射一级一级获取一个field
      *
