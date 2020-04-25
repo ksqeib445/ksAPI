@@ -21,12 +21,10 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     public Kmysqldatabase(String address, String dbName, String tablename, String userName, String password, Type type, Boolean primary, Type param) {
         this.type = type;
         this.tablename = tablename;
-        if (pool == null) {
-            String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnecth=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
-            MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
-            pool = MysqlPoolManager.getPool(mysqlConnectobj);
-        }
-//        this.param=param;
+        String url = "jdbc:mysql://" + address + "/" + dbName + "?autoReconnect=true&useUnicode=true&amp&characterEncoding=UTF-8&useSSL=false";
+        MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
+        pool = MysqlPoolManager.getPool(mysqlConnectobj);
+        //        this.param=param;
         this.usual = primary;
         initusual();
     }
@@ -521,7 +519,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                             al.put(getKey(fi), this.serialize(obj));
                         }
                     }
-
                 }
 //                转换成二进制列表
                 HashMap<String, ByteArrayInputStream> binys = new HashMap<>();
@@ -529,10 +526,8 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                     binys.put(ser, new ByteArrayInputStream(al.get(ser).getBytes(StandardCharsets.UTF_8)));
                 }
                 //ADD!
-
                 //变量名列表+二进制流列表
                 Set<String> keyset = binys.keySet();
-//                Bukkit.getLogger().warning(createInsert(key,keyset,binys));
 
                 pstmt = conn.prepareStatement(createInsert(key, keyset, binys));
                 pstmt.setString(1, key);

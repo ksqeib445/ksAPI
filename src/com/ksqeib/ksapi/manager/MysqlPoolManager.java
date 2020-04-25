@@ -6,6 +6,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource;
 import com.zaxxer.hikari.HikariConfig;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class MysqlPoolManager {
     private static HashMap<MysqlConnectobj, ConnectionPool> connectionPools = new HashMap<>();
@@ -34,6 +35,10 @@ public class MysqlPoolManager {
 //            Bukkit.getLogger().warning(mysqlConnectobj.toString());
             return pool;
         }
+    }
+
+    public static Map<MysqlConnectobj,ConnectionPool> getConnectionPools(){
+        return connectionPools;
     }
 
     public static ConnectionPool getPool(String address, String dbName, String userName, String password) {

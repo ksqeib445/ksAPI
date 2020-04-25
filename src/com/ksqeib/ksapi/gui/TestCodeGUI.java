@@ -1,15 +1,11 @@
 package com.ksqeib.ksapi.gui;
 
-import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 public class TestCodeGUI {
     private Inventory inventory;
@@ -46,7 +42,7 @@ public class TestCodeGUI {
         for (int i = 0; i < inventory.getSize(); i++) {
             inventory.setItem(i, new ItemStack(Material.STAINED_GLASS_PANE));
         }
-        inventory.setItem(loc,new ItemStack(totest));
+        inventory.setItem(loc, new ItemStack(totest));
     }
 
     public Inventory getInventory() {
@@ -98,6 +94,7 @@ public class TestCodeGUI {
     }
 
     public void openInventory(Player p) {
+        p.closeInventory();
         p.openInventory(inventory);
         TestCodeGUIManager.guis.put(p.getUniqueId(), this);
     }
