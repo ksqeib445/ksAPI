@@ -92,10 +92,10 @@ public class Tip {
     }
 
     private void showDetial() {
-        Bukkit.getLogger().warning("细节：" + filename + " " + islist+" ");
+        Bukkit.getLogger().warning("细节：" + filename + " " + islist + " ");
         try {
             throw new NullPointerException();
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
@@ -176,7 +176,16 @@ public class Tip {
             }
         for (Player p : Bukkit.getOnlinePlayers()) {
             send(music(p, first), p);
-            ;
+        }
+    }
+
+    public void getBroadcast(String in, String... args) {
+        if (islist) {
+            for (String mes : getMessageList(in)) {
+                broadcastMessage(mes, args);
+            }
+        } else {
+            broadcastMessage(getMessage(in), args);
         }
     }
 

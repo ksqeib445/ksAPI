@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -105,11 +106,13 @@ public class Manage extends Command {
                             String n = args[1];
                             if (UtilManager.plist.containsKey(n)) {
                                 JavaPlugin jp = UtilManager.plist.get(n).jp;
-                                String where = jp.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
+                                String where = jp.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
                                 Bukkit.getPluginManager().disablePlugin(jp);
                                 try {
                                     tip.send(n + "插件目录:" + where, cms);
-                                    Bukkit.getPluginManager().loadPlugin(new File(where));
+                                    Plugin target =Bukkit.getPluginManager().loadPlugin(new File(where));
+                                    target.onLoad();
+                                    target.onEnable();
                                 } catch (InvalidPluginException e) {
                                     tip.send(n + "插件存在错误", cms);
                                 } catch (InvalidDescriptionException e) {
@@ -215,6 +218,23 @@ public class Manage extends Command {
                                     im.setUnbreakable(true);
                                     item.setItemMeta(im);
                                     p.getInventory().addItem(item);
+                                    su = true;
+                                    break;
+                                case "nbttest":
+                                    ItemStack hand = new ItemStack(p.getInventory().getItemInMainHand());
+                                    hand=KsAPI.um.getMulNBT().addNBTdata(hand,"fuck","艹","String",String.class);
+                                    hand=KsAPI.um.getMulNBT().addNBTdata(hand,"dd",2d,"Double",double.class);
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"fuck")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"dd")));
+                                    p.sendMessage((String)KsAPI.um.getMulNBT().getNBTdata(hand,"fuck"));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand,"dd")));
+                                    hand=KsAPI.um.getMulNBT().removeNBTdata(hand,"fuck");
+                                    hand=KsAPI.um.getMulNBT().removeNBTdata(hand,"dd");
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"fuck")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"dd")));
+                                    p.sendMessage((String)KsAPI.um.getMulNBT().getNBTdata(hand,"fuck"));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand,"dd")));
+                                    p.getInventory().addItem(hand);
                                     su = true;
                                     break;
                             }
