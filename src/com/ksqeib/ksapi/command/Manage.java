@@ -12,7 +12,6 @@ import com.ksqeib.ksapi.util.UtilManager;
 import fun.ksmc.util.MemMgmt;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -38,6 +37,14 @@ public class Manage extends Command {
         super(name);
     }
 
+    /**
+     * ks内部作用的管理指令
+     *
+     * @param cms
+     * @param label
+     * @param args
+     * @return
+     */
     @Override
     public boolean execute(CommandSender cms, String label, String[] args) {
         Io io = KsAPI.um.getIo();
@@ -49,13 +56,13 @@ public class Manage extends Command {
                     case "info":
 
                         Runtime run = Runtime.getRuntime();
-                        tip.send("运行中的bukkit线程数量: "+Bukkit.getScheduler().getPendingTasks().size(),cms);
-                        tip.send("bukkit工作线程数量: "+Bukkit.getScheduler().getActiveWorkers().size(),cms);
-                        tip.send("处理器数量: "+run.availableProcessors(),cms);
-                        tip.send("空闲内存: "+MemMgmt.getMemSize(run.freeMemory()),cms);
-                        tip.send("内存占用: " + MemMgmt.getMemSize(run.totalMemory())+"/"+MemMgmt.getMemSize(run.maxMemory()), cms);
-                        tip.send("线程数: " + Thread.getAllStackTraces().keySet().size(),cms);
-                        tip.send("["+MemMgmt.getMemoryBar(50, run)+"]", cms);
+                        tip.send("运行中的bukkit线程数量: " + Bukkit.getScheduler().getPendingTasks().size(), cms);
+                        tip.send("bukkit工作线程数量: " + Bukkit.getScheduler().getActiveWorkers().size(), cms);
+                        tip.send("处理器数量: " + run.availableProcessors(), cms);
+                        tip.send("空闲内存: " + MemMgmt.getMemSize(run.freeMemory()), cms);
+                        tip.send("内存分配: " + MemMgmt.getMemSize(run.totalMemory()) + "/" + MemMgmt.getMemSize(run.maxMemory()), cms);
+                        tip.send("线程数: " + Thread.getAllStackTraces().keySet().size(), cms);
+                        tip.send("[" + MemMgmt.getMemoryBar(50, run) + "]", cms);
                         tip.send("BY KSQEIB", cms);
                         break;
 
@@ -63,10 +70,10 @@ public class Manage extends Command {
                         KsAPI.um.getHelper("ksapi").HelpPage(cms, label, args);
                         break;
                     case "mysql":
-                        Map<MysqlConnectobj, ConnectionPool> connectionPoolMap= MysqlPoolManager.getConnectionPools();
-                        tip.send("当前连接池数量:"+connectionPoolMap.size(),cms);
-                        for(Map.Entry<MysqlConnectobj,ConnectionPool> en:connectionPoolMap.entrySet()){
-                            tip.send(en.getKey().toString(),cms);
+                        Map<MysqlConnectobj, ConnectionPool> connectionPoolMap = MysqlPoolManager.getConnectionPools();
+                        tip.send("当前连接池数量:" + connectionPoolMap.size(), cms);
+                        for (Map.Entry<MysqlConnectobj, ConnectionPool> en : connectionPoolMap.entrySet()) {
+                            tip.send(en.getKey().toString(), cms);
                         }
                         break;
                     case "tsl":
@@ -110,7 +117,7 @@ public class Manage extends Command {
                                 Bukkit.getPluginManager().disablePlugin(jp);
                                 try {
                                     tip.send(n + "插件目录:" + where, cms);
-                                    Plugin target =Bukkit.getPluginManager().loadPlugin(new File(where));
+                                    Plugin target = Bukkit.getPluginManager().loadPlugin(new File(where));
                                     target.onLoad();
                                     target.onEnable();
                                 } catch (InvalidPluginException e) {
@@ -128,7 +135,7 @@ public class Manage extends Command {
                         tip.send("装载的ksAPI插件有", cms);
                         for (Map.Entry<String, UtilManager> en : UtilManager.plist.entrySet()) {
                             String name = en.getValue().jp.isEnabled() ? ChatColor.GREEN + en.getKey() : ChatColor.RED + en.getKey();
-                            tip.send(name + Color.AQUA + " VER:" + en.getValue().jp.getDescription().getVersion(), cms);
+                            tip.send(name + ChatColor.AQUA + " VER:" + en.getValue().jp.getDescription().getVersion(), cms);
                         }
                         break;
                     case "commands":
@@ -185,18 +192,21 @@ public class Manage extends Command {
                             }
                             boolean su = false;
                             switch (args[1].toLowerCase()) {
-                                default:
+                                default: {
                                     KsAPI.um.getTip().getDnS(cms, "subwrong");
                                     break;
-                                case "disio":
+                                }
+                                case "disio": {
                                     KsAPI.um.getIo().disabled();
                                     su = true;
                                     break;
-                                case "printmusic":
+                                }
+                                case "printmusic": {
                                     Musicg.printlisttofile(KsAPI.um.getIo());
                                     su = true;
                                     break;
-                                case "setitem":
+                                }
+                                case "setitem": {
                                     KsAPI.um.getIo().loadData("item").set("hand", p.getInventory().getItemInMainHand());
                                     if (args.length > 2) {
                                         KsAPI.um.getIo().loadData("item").set(args[2], p.getInventory().getItemInMainHand());
@@ -204,7 +214,8 @@ public class Manage extends Command {
                                     KsAPI.um.getIo().disabled();
                                     su = true;
                                     break;
-                                case "copyinv":
+                                }
+                                case "copyinv": {
                                     Inventory inv = snedp.getOpenInventory().getTopInventory();
                                     FileConfiguration yaml = KsAPI.um.getIo().loadData(args[2]);
                                     for (int i = 0; i < inv.getSize(); i++) {
@@ -212,7 +223,8 @@ public class Manage extends Command {
                                     }
                                     su = true;
                                     break;
-                                case "unbreak":
+                                }
+                                case "unbreak": {
                                     ItemStack item = new ItemStack(p.getInventory().getItemInMainHand());
                                     ItemMeta im = item.getItemMeta();
                                     im.setUnbreakable(true);
@@ -220,28 +232,42 @@ public class Manage extends Command {
                                     p.getInventory().addItem(item);
                                     su = true;
                                     break;
-                                case "nbttest":
+                                }
+                                case "nbttest": {
                                     ItemStack hand = new ItemStack(p.getInventory().getItemInMainHand());
-                                    hand=KsAPI.um.getMulNBT().addNBTdata(hand,"fuck","艹","String",String.class);
-                                    hand=KsAPI.um.getMulNBT().addNBTdata(hand,"dd",2d,"Double",double.class);
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"fuck")));
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"dd")));
-                                    p.sendMessage((String)KsAPI.um.getMulNBT().getNBTdata(hand,"fuck"));
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand,"dd")));
-                                    hand=KsAPI.um.getMulNBT().removeNBTdata(hand,"fuck");
-                                    hand=KsAPI.um.getMulNBT().removeNBTdata(hand,"dd");
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"fuck")));
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand,"dd")));
-                                    p.sendMessage((String)KsAPI.um.getMulNBT().getNBTdata(hand,"fuck"));
-                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand,"dd")));
+                                    hand = KsAPI.um.getMulNBT().addNBTdata(hand, "cr", "test");
+                                    hand = KsAPI.um.getMulNBT().addNBTdata(hand, "fuck", "艹", "String", String.class);
+                                    hand = KsAPI.um.getMulNBT().addNBTdata(hand, "dd", 2d, "Double", double.class);
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "cr")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "fuck")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "dd")));
+                                    p.sendMessage((String) KsAPI.um.getMulNBT().getNBTdata(hand, "cr"));
+                                    p.sendMessage((String) KsAPI.um.getMulNBT().getNBTdata(hand, "fuck"));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand, "dd")));
+                                    hand = KsAPI.um.getMulNBT().removeNBTdata(hand, "cr");
+                                    hand = KsAPI.um.getMulNBT().removeNBTdata(hand, "fuck");
+                                    hand = KsAPI.um.getMulNBT().removeNBTdata(hand, "dd");
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "cr")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "fuck")));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().hasNBTdataType(hand, "dd")));
+                                    p.sendMessage((String) KsAPI.um.getMulNBT().getNBTdata(hand, "cr"));
+                                    p.sendMessage((String) KsAPI.um.getMulNBT().getNBTdata(hand, "fuck"));
+                                    p.sendMessage(String.valueOf(KsAPI.um.getMulNBT().getNBTdata(hand, "dd")));
                                     p.getInventory().addItem(hand);
                                     su = true;
                                     break;
+                                }
+                                case "nbtinfo": {
+                                    ItemStack hand = new ItemStack(p.getInventory().getItemInMainHand());
+                                    soutNbtBaseName(KsAPI.um.getMulNBT().getNbtTagCompound(hand), cms, "!!!!!!!!");
+                                    su = true;
+                                    break;
+                                }
                             }
                             if (su) {
-                                KsAPI.um.getTip().send("Success", cms, null);
+                                KsAPI.um.getTip().send("Success", cms);
                             } else {
-                                KsAPI.um.getTip().send("Fail", cms, null);
+                                KsAPI.um.getTip().send("Fail", cms);
                             }
                         }
                 }
@@ -249,9 +275,30 @@ public class Manage extends Command {
                 KsAPI.um.getHelper("ksapi").sendno(cms, label);
             }
         } else {
-            KsAPI.um.getTip().send("BY KSQEIB", cms, null);
+            KsAPI.um.getTip().send("BY KSQEIB", cms);
         }
         return true;
+    }
+
+    private void soutNbtBaseName(Object obj, CommandSender cms, String disname) {
+        String name = obj.getClass().getSimpleName();
+        if (name.equalsIgnoreCase("NBTTagCompound")) {
+            cms.sendMessage("===========" + disname + "===============");
+            Map getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
+            getmap.forEach((k, v) -> {
+                soutNbtBaseName(v, cms, k.toString());
+            });
+            cms.sendMessage("===========" + disname + "===============");
+        } else {
+            Object get = KsAPI.um.getMulNBT().getNBTTagData(obj);
+            if (get instanceof List) {
+                cms.sendMessage(disname + ":");
+                for (Object getobj : (List) get) {
+                    soutNbtBaseName(getobj, cms, "-");
+                }
+            } else
+                cms.sendMessage(disname + ":" + name + ":" + get.toString());
+        }
     }
 
     @Override

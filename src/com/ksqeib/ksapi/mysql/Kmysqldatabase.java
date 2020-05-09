@@ -104,13 +104,14 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         for (String name : needadd) {
             addDuan(name);
         }
-//        for (String name : table.keySet()) {
-//            duans.remove(name);
-//        }
-//        duans.remove("dbkey");
-//        for (String willdel : duans) {
-//            delDuan(willdel);
-//        }
+//        无用字段清理
+        for (String name : table.keySet()) {
+            duans.remove(name);
+        }
+        duans.remove("dbkey");
+        for (String willdel : duans) {
+            delDuan(willdel);
+        }
 
     }
 
@@ -229,7 +230,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
 
     public T load(String key, T def) {
         Connection conn = null;
-        Object result = def;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
@@ -240,19 +240,6 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             rs = pstmt.executeQuery();
             /////
             if (rs.next()) {
-                Class cl = Class.forName(type.getTypeName());
-                if (cl.getConstructors().length > 0) {
-                    //new Instance
-                    for (Constructor c : cl.getDeclaredConstructors()) {
-                        if (c.getParameterCount() != 0) continue;
-                        if (Modifier.isPrivate(c.getModifiers())) {
-                            c.setAccessible(true);
-                            result = c.newInstance();
-                        } else if (Modifier.isPublic(c.getModifiers())) {
-                            result = c.newInstance();
-                        }
-                    }
-                }
                 ///////
                 for (String keys : table.keySet()) {
                     //LOAD
@@ -266,7 +253,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
                         closeInputStreamReader(isr);
                         if (obj == null) continue;
                         Field fi = fitable.get(keys);
-                        fi.set(result, obj);
+                        fi.set(def, obj);
                     }
                     closeInputStream(input);
                 }
@@ -279,7 +266,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
             closeConnection(conn);
         }
 
-        return (T) result;
+        return (T) def;
     }
 
     public T keyload(String key, T def) {

@@ -6,8 +6,10 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 暴力的nbt管理类，不多 bb
@@ -112,6 +114,12 @@ public class MulNBT<T> {
         return getNBTClass("NBTBase");
     }
 
+    /**
+     * 判断nms物品是否有NBT标签
+     *
+     * @param obj NMSItemStack
+     * @return NBTTagCompound
+     */
     public Boolean nmsItemhasTag(Object obj) {
         try {
             return (Boolean) getItemSatckClass().getMethod("hasTag").invoke(obj, null);
@@ -121,6 +129,12 @@ public class MulNBT<T> {
         }
     }
 
+    /**
+     * 获取NMS物品的NBT标签
+     *
+     * @param obj NMS物品
+     * @return
+     */
     public Object nmsItemgetTag(Object obj) {
         try {
             return getItemSatckClass().getMethod("getTag").invoke(obj, null);
@@ -130,6 +144,12 @@ public class MulNBT<T> {
         }
     }
 
+    /**
+     * 设置NMS物品的NBT标签
+     *
+     * @param obj NMS物品
+     * @param tag NBTTagCompound
+     */
     public void nmsItemsetTag(Object obj, Object tag) {
         try {
             getItemSatckClass().getMethod("setTag", getNBTTagCompoundClass()).invoke(obj, tag);
@@ -142,6 +162,14 @@ public class MulNBT<T> {
         return createNBTByType(data, type, data.getClass());
     }
 
+    /**
+     * 建立一个对应类型的NBTBase
+     *
+     * @param data      数据
+     * @param type      类型
+     * @param typeclass 对应类型的基本类型class
+     * @return NBTBase
+     */
     public Object createNBTByType(Object data, String type, Class typeclass) {
         try {
             return getNBTClass("NBTTag" + type).getConstructor(typeclass).newInstance(data);
@@ -151,38 +179,63 @@ public class MulNBT<T> {
         }
     }
 
+    /**
+     * 强行获取NBTTag的数据 可以与getNBTMap(ItemStack item)搭配使用
+     *
+     * @param obj NBTTag对象
+     * @return NBTBase中的数据
+     */
     public Object getNBTTagData(Object obj) {
         try {
-            return getFieldData(obj, "data");
-        } catch (NoSuchFieldException e) {
-            try {
-                return getFieldData(obj, "b");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return null;
+            for (Field fi : obj.getClass().getDeclaredFields()) {
+                if (Modifier.isFinal(fi.getModifiers()) || Modifier.isStatic(fi.getModifiers())) continue;
+                boolean todo = false;
+                if (fi.getName().equalsIgnoreCase("data") || fi.getName().equalsIgnoreCase("list") || fi.getName().equalsIgnoreCase("b")) {
+                    todo = true;
+                }
+                if (todo) {
+                    fi.setAccessible(true);
+                    return fi.get(obj);
+                }
             }
+            return null;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public Object getFieldData(Object obj, String name) throws NoSuchFieldException, IllegalAccessException {
-        Field fi = obj.getClass().getDeclaredField(name);
-        fi.setAccessible(true);
-        return fi.get(obj);
-    }
-
-    private Map getNBTTagCompundMap(Object obj) {
+    public Map getNBTTagCompundMap(Object obj) {
         try {
             Field fi = obj.getClass().getDeclaredField("map");
             fi.setAccessible(true);
-            return (Map) fi.get(obj);
+            Map get = (Map) fi.get(obj);
+//            if (!(get instanceof ConcurrentHashMap)) {
+////                防止异步
+//                return replaceNBTTagCompundMap(obj);
+//            }
+            return get;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
+//    private Map replaceNBTTagCompundMap(Object obj) {
+//        ConcurrentHashMap cmap = new ConcurrentHashMap();
+//        try {
+//            Field fi = obj.getClass().getDeclaredField("map");
+//            fi.setAccessible(true);
+//            Map get = (Map) fi.get(obj);
+//            if (get.size() != 0) {
+//                get.forEach((a, b) -> cmap.put(a, b));
+//            }
+//            fi.set(obj, cmap);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return cmap;
+//    }
 
     private Object getNBTBaseofNBTTagCompound(String dataName, Object obj) {
         try {
@@ -193,7 +246,14 @@ public class MulNBT<T> {
         return null;
     }
 
-    private Map getNBTMap(ItemStack item) {
+    /**
+     * 只能读 不能修改 修改无效 用于获取NBT列表
+     * Map String,NBTBase 不建议强转 使用getNBTTagData获取NBTBase中的数据
+     *
+     * @param item 传入的物品
+     * @return 含有NBTBase的Map
+     */
+    public Map getNBTMap(ItemStack item) {
         Object nmsItem = asNMSCopy(item);
         Object compound = (nmsItemhasTag(nmsItem)) ? nmsItemgetTag(nmsItem)
                 : null;
@@ -201,27 +261,34 @@ public class MulNBT<T> {
         return getNBTTagCompundMap(compound);
     }
 
+    /**
+     * 是否有所请求的NBT标签
+     *
+     * @param item 物品
+     * @param type 标签
+     * @return
+     */
     public boolean hasNBTdataType(ItemStack item, String type) {
         return getNBTMap(item).containsKey(type);
     }
 
+    /**
+     * 添加NBT数据
+     *
+     * @param item 物品
+     * @param type NBTID
+     * @param data 数据
+     * @return 添加后的物品
+     */
     public ItemStack addNBTdata(ItemStack item, String type, String data) {
-        Object nmsItem = asNMSCopy(item);
-        boolean have = nmsItemhasTag(nmsItem);
-        Object compound = have ? nmsItemgetTag(nmsItem)
-                : getNBTTagCompoundInstance();
-        if (!have) {
-            nmsItemsetTag(nmsItem, compound);
-        }
-        getNBTTagCompundMap(compound).put(type, createNBTByType(data, "String"));
-        return asBukkitCopy(nmsItem);
+        return addNBTdata(item, type, data, "String", String.class);
     }
 
     /**
-     * @param item 传入的物品
-     * @param id   修改的NBTID
-     * @param data 数据
-     * @param type 数据类型
+     * @param item      传入的物品
+     * @param id        修改的NBTID
+     * @param data      数据
+     * @param type      数据类型
      * @param typeclass 数据类型的基本class
      * @return
      */
@@ -237,15 +304,29 @@ public class MulNBT<T> {
         return asBukkitCopy(nmsItem);
     }
 
-    public String getNBTdataStr(ItemStack item, String type) {
+    public Object getNbtTagCompound(ItemStack item) {
         Object nmsItem = asNMSCopy(item);
-        if (!nmsItemhasTag(nmsItem)) return null;
-        Object itemtag = nmsItemgetTag(nmsItem);
-        Object nbtbase = getNBTBaseofNBTTagCompound(type, itemtag);
-        if (nbtbase == null) return null;
-        return (String) getNBTTagData(nbtbase);
+        return nmsItemhasTag(nmsItem) ? nmsItemgetTag(nmsItem) : getNBTTagCompoundInstance();
     }
 
+    /**
+     * 获取物品的String类型数据
+     *
+     * @param item 物品
+     * @param type NBTID
+     * @return 数据
+     */
+    public String getNBTdataStr(ItemStack item, String type) {
+        return (String) getNBTdata(item, type);
+    }
+
+    /**
+     * 获取NBT数据 直接返回对应的数据类型
+     *
+     * @param item 物品
+     * @param type NBTID
+     * @return 数据(需要强转
+     */
     public Object getNBTdata(ItemStack item, String type) {
         Object nmsItem = asNMSCopy(item);
         if (!nmsItemhasTag(nmsItem)) return null;
@@ -255,6 +336,13 @@ public class MulNBT<T> {
         return getNBTTagData(nbtbase);
     }
 
+    /**
+     * 移除NBT标签
+     *
+     * @param item 物品
+     * @param type NBTID
+     * @return 删除后的物品
+     */
     public ItemStack removeNBTdata(ItemStack item, String type) {
         Object nmsItem = asNMSCopy(item);
         Object compound = (nmsItemhasTag(nmsItem)) ? nmsItemgetTag(nmsItem)

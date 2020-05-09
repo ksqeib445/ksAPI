@@ -92,7 +92,7 @@ public class Tip {
     }
 
     private void showDetial() {
-        Bukkit.getLogger().warning("细节：" + filename + " " + islist + " ");
+        Bukkit.getLogger().warning("细节：" + messagefile.getRoot().getCurrentPath() + " " + islist + " ");
         try {
             throw new NullPointerException();
         } catch (NullPointerException e) {
@@ -109,8 +109,7 @@ public class Tip {
     public List<String> getMessageList(String m) {
         if (islist) {
             if (lmMap == null) {
-                Bukkit.getLogger().warning("严重！插件似乎未初始化完成！");
-                new Exception().printStackTrace();
+                new NullPointerException("插件似乎未初始化完成").printStackTrace();
                 return new ArrayList<>();
             }
             List<String> strings = lmMap.get(m);

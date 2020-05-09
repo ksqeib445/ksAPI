@@ -11,10 +11,9 @@ public class DependManager {
     ActionBarManager actionBarManager = null;
     WorldBoardManager worldBoardManager = null;
 
-    public DependManager() {
-
-    }
-
+    /**
+     * 检查前置
+     */
     public void checkSoft() {
         PluginManager pm = getServer().getPluginManager();
         if (pm.getPlugin("ActionBarAPI") != null) {
@@ -28,10 +27,20 @@ public class DependManager {
         }
     }
 
+    /**
+     * 发送ActionBar
+     * @param p 玩家
+     * @param message 内容
+     */
     public void sendActionBar(Player p, String message) {
         if (actionBarManager != null) actionBarManager.sendActionBar(p, message);
     }
 
+    /**
+     * 判断是否在世界边界内
+     * @param loc 坐标
+     * @return
+     */
     public boolean isInsideBoard(Location loc) {
         if (worldBoardManager == null) return true;
         return worldBoardManager.checkInisdeBorder(loc);

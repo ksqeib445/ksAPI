@@ -13,6 +13,11 @@ public class InteractiveGUI {
     private HashMap<Integer, Runnable> ractions = new HashMap<Integer, Runnable>();
     private HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
 
+    /**
+     * 互动gui
+     * @param originalname 名称 不能大于32
+     * @param size 大小 可以不填手动设定界面类型
+     */
     public InteractiveGUI(String originalname, int size) {
         String name = originalname;
         if (originalname != null)
@@ -25,14 +30,27 @@ public class InteractiveGUI {
                 name);
     }
 
+    /**
+     * 获取界面的背包
+     * @return
+     */
     public Inventory getInventory() {
         return inventory;
     }
 
+    /**
+     * 设置界面的背包
+     * @param inventory
+     */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
     }
 
+    /**
+     * 设置动作(包括左和右
+     * @param slot 格子
+     * @param runnable 对应的动作
+     */
     public void setAction(int slot, Runnable runnable) {
         actions.put(slot, runnable);
     }
