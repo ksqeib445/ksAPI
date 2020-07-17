@@ -285,16 +285,16 @@ public class Manage extends Command {
         if (name.equalsIgnoreCase("NBTTagCompound")) {
             cms.sendMessage("===========" + disname + "===============");
             Map getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
-            getmap.forEach((k, v) -> {
-                soutNbtBaseName(v, cms, k.toString());
-            });
+            getmap.forEach((k, v) -> soutNbtBaseName(v, cms, k.toString()));
             cms.sendMessage("===========" + disname + "===============");
         } else {
             Object get = KsAPI.um.getMulNBT().getNBTTagData(obj);
             if (get instanceof List) {
                 cms.sendMessage(disname + ":");
+                int i = 0;
                 for (Object getobj : (List) get) {
-                    soutNbtBaseName(getobj, cms, "-");
+                    soutNbtBaseName(getobj, cms, "-" + i);
+                    i++;
                 }
             } else
                 cms.sendMessage(disname + ":" + name + ":" + get.toString());

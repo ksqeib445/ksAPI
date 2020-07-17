@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Io {
     public Boolean hasData = false;
-    public Random rm = new Random();
+    public Random rm = ThreadLocalRandom.current();
     public HashMap<String, FileConfiguration> configs = new HashMap<>();
     public HashMap<String, Boolean> isinconfigs = new HashMap<>();
     private Hashtable<String, FileConfiguration> FileList = new Hashtable<>();
@@ -333,7 +334,7 @@ public class Io {
     /**
      * 加载一个配置文件 会自动在后面添加.yml
      *
-     * @param name   配置名
+     * @param name 配置名
      * @param isin 是否存在于jar包插件内
      */
     public void loadaConfig(String name, Boolean isin) {

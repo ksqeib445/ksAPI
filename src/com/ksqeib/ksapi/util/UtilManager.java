@@ -13,23 +13,14 @@ import java.util.HashMap;
 public class UtilManager {
     public static HashMap<String, UtilManager> plist = new HashMap<>();
     public JavaPlugin jp;
-    @Getter
     Io io;
-    @Getter
     ItemSR itemsr;
-    @Getter
     Permission perm;
-    @Getter
     Tip tip;
-    @Getter
     MulNBT mulNBT;
-    @Getter
     EntityManage entityManage;
-    @Getter
     InventoryControl inventoryControl;
-    @Getter
     LocationGenerator locationGenerator;
-    @Getter
     Debuger debuger;
     private HashMap<String, Helper> helpers = new HashMap<>();
 
