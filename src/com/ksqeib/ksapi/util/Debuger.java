@@ -17,8 +17,8 @@ public class Debuger {
                 mF.deleteOnExit();
             });
             if (um.getTip() != null) {
-                File mF = new File(um.getTip().messagefile.getCurrentPath());
-                mF.deleteOnExit();
+//                File mF = new File(um.getTip().messagefile.getCurrentPath());
+//                mF.deleteOnExit();
             }
         }
     }

@@ -43,7 +43,7 @@ public class UtilManager {
     public void createalwaysneed(Boolean hasdata) {
         createio(hasdata);
         createitemsr();
-        createtip(false, "message.yml");
+        createtip("message.yml");
         createperm();
     }
 
@@ -54,7 +54,7 @@ public class UtilManager {
     public void createalwaysneed() {
         createio(false);
         createitemsr();
-        createtip(false, "message.yml");
+        createtip("message.yml");
         createperm();
     }
 
@@ -119,9 +119,18 @@ public class UtilManager {
      *
      * @return 是否创建成功(没有io会创建失败)
      */
+    @Deprecated
     public boolean createtip(boolean islist, String name) {
         if (io != null) {
             tip = new Tip(io, islist, name);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean createtip(String name) {
+        if (io != null) {
+            tip = new Tip(io, name);
             return true;
         }
         return false;

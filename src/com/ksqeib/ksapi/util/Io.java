@@ -57,6 +57,10 @@ public class Io {
         this.plugin = main;
     }
 
+    public String getPluginName(){
+        return plugin.getName();
+    }
+
     /**
      * 创建json,反射序列号专用的
      *
@@ -365,6 +369,10 @@ public class Io {
     }
 
     public FileConfiguration loadYamlFile(String str, Boolean isin) {
+        return YamlConfiguration.loadConfiguration(loadPluginFile(str, isin));
+    }
+
+    public File loadPluginFile(String str, Boolean isin) {
         //加载资源的方法
 
         File mF;
@@ -381,8 +389,7 @@ public class Io {
                 e.printStackTrace();
             }
         }
-        return YamlConfiguration.loadConfiguration(mF);
-
+        return mF;
     }
 
     /**

@@ -5,7 +5,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
@@ -13,13 +17,12 @@ import java.util.function.UnaryOperator;
  * 提示类
  */
 public class Tip {
-    public Boolean islist;
-    public HashMap<String, List<String>> lmMap;
-    public HashMap<String, String> mMap;
-    public FileConfiguration messagefile;
     public boolean isnohead = false;
     public Io io;
+    private String head;
     private String filename;
+    private LinkedHashMap<String, Object> tips = new LinkedHashMap<>();
+    private static final UnaryOperator<String> repcolor = x -> x.replace("&", "§");
 
     /**
      * 初始化类
@@ -30,9 +33,13 @@ public class Tip {
      */
     protected Tip(Io io, boolean islist, String name) {
         this.io = io;
-        this.islist = islist;
         this.filename = name;
-        messagefile = io.loadYamlFile(name, true);
+        init();
+    }
+
+    protected Tip(Io io, String name) {
+        this.io = io;
+        this.filename = name;
         init();
     }
 
@@ -40,19 +47,54 @@ public class Tip {
      * 初始化(创建后会自动调用)
      */
     public void init() {
-        if (islist) {
-            lmMap = Io.getAlllist(messagefile);
-            UnaryOperator<String> so = x -> x.replace("&", "§");
-            for (List<String> le : lmMap.values()) {
-                le.replaceAll(so);
-            }
+        File file = io.loadPluginFile(filename, true);
+        Yaml yaml = new Yaml();
+        LinkedHashMap<String, Object> tip = null;
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            tip = yaml.load(fileInputStream);
+        } catch (IOException ie) {
+            ie.printStackTrace();
+        }
+        if (tip == null) return;
+        initMap(tip, true, new StringBuilder());
+        if (tips.containsKey("mhead")) {
+            head = getMessage("mhead");
         } else {
-            HashMap<String, String> m1load = Io.getAll(messagefile);
-            mMap = new HashMap<>();
-            for (Map.Entry<String, String> en : m1load.entrySet()) {
-                String value = en.getValue();
-                if (value == null) continue;
-                mMap.put(en.getKey(), value.replace("&", "§"));
+            head = null;
+        }
+    }
+
+    private List<String> translateList(List<?> list) {
+        if (list.size() == 0) return new ArrayList<>();
+//                转换
+        List<String> listb = new ArrayList<>();
+        for (Object obj : list) {
+            listb.add(String.valueOf(obj));
+        }
+        listb.replaceAll(repcolor);
+        return listb;
+    }
+
+    private void initMap(Map<?, ?> map, boolean root, StringBuilder sb) {
+        for (Map.Entry<?, ?> en : map.entrySet()) {
+            if (en.getValue() instanceof List<?>) {
+                List<String> val = translateList((List<?>) en.getValue());
+                if (root) {
+                    tips.put(String.valueOf(en.getKey()), val);
+                } else {
+                    sb.append(en.getKey());
+                    tips.put(String.valueOf(en.getKey()), val);
+                }
+            } else if (en.getValue() instanceof Map<?, ?>) {
+                initMap((Map<?, ?>) en.getValue(), false, new StringBuilder(sb.append(en.getKey()).append(".").toString()));
+            } else {
+                String val = String.valueOf(en.getValue()).replace("&", "§");
+                if (root) {
+                    tips.put(String.valueOf(en.getKey()), val);
+                } else {
+                    sb.append(en.getKey());
+                    tips.put(sb.toString(), val);
+                }
             }
         }
     }
@@ -64,32 +106,26 @@ public class Tip {
      * @return 信息
      */
     public String getMessage(String m) {
-        if (islist) {
-            List<String> mes = lmMap.get(m);
-            if (mes == null) {
-                Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
-                showDetial();
-                return "";
-            }
+        if (!tips.containsKey(m)) {
+            Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
+            showDetial();
+            return "";
+        }
+        Object val = tips.get(m);
+        if (val instanceof List<?>) {
+            List<String> mes = (List<String>) val;
             if (mes.size() != 0) {
                 return mes.get(0);
             } else {
                 return "";
             }
         } else {
-            String mes = mMap.get(m);
-            if (mes == null) {
-                Bukkit.getLogger().warning("在读取语言" + m + "时发生了一个空指针！");
-                showDetial();
-                return "";
-            } else {
-                return mes;
-            }
+            return String.valueOf(val);
         }
     }
 
     private void showDetial() {
-        Bukkit.getLogger().warning("细节：" + messagefile.getRoot().getCurrentPath() + " " + islist + " ");
+        Bukkit.getLogger().warning("细节：" + io.getPluginName() + " " + filename);
         try {
             throw new NullPointerException();
         } catch (NullPointerException e) {
@@ -98,26 +134,21 @@ public class Tip {
     }
 
     /**
-     * 获取提示信息列表(只有list模式能用)
+     * 获取提示信息列表(混合使用)
      *
      * @param m 信息id
      * @return 信息列表
      */
     public List<String> getMessageList(String m) {
-        if (islist) {
-            if (lmMap == null) {
-                new NullPointerException("插件似乎未初始化完成").printStackTrace();
-                return new ArrayList<>();
-            }
-            List<String> strings = lmMap.get(m);
-            if (strings == null) {
-                Bukkit.getLogger().warning("在读取列表语言" + m + "时发生了错误");
-                showDetial();
-            } else {
-                return strings;
-            }
+        if (tips == null) {
+            new NullPointerException("插件似乎未初始化完成").printStackTrace();
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+        if (!tips.containsKey(m)) {
+            Bukkit.getLogger().warning("在读取列表语言" + m + "时发生了错误");
+            showDetial();
+        }
+        return (List<String>) tips.get(m);
     }
 
     /**
@@ -128,12 +159,30 @@ public class Tip {
      * @param args {0} {1} {2}这种要被替换的
      */
     public void getDnS(CommandSender p, String m, String... args) {
-        if (!islist) {
-            send(getMessage(m), p, args);
-        } else {
-            for (String mes : getMessageList(m)) {
+        objsend(tips.get(m), p, args);
+    }
+
+    private void objsend(Object get, CommandSender p, String... args) {
+        if (get instanceof String) {
+            send((String) get, p, args);
+        } else if (get instanceof List<?>) {
+            for (String mes : (List<String>) get) {
                 send(mes, p, args);
             }
+        } else {
+            showDetial();
+        }
+    }
+
+    private void objsendWithMusic(Object get, Player p, String... args) {
+        if (get instanceof String) {
+            send(music(p, (String) get), p, args);
+        } else if (get instanceof List<?>) {
+            for (String mes : (List<String>) get) {
+                send(music(p, mes), p, args);
+            }
+        } else {
+            showDetial();
         }
     }
 
@@ -145,13 +194,7 @@ public class Tip {
      * @param args {0} {1} {2}这种要被替换的
      */
     public void getDnS(Player p, String m, String... args) {
-        if (islist) {
-            for (String mes : getMessageList(m)) {
-                send(music(p, mes), p, args);
-            }
-        } else {
-            send(music(p, getMessage(m)), p, args);
-        }
+        objsendWithMusic(tips.get(m), p, args);
     }
 
     /**
@@ -176,12 +219,15 @@ public class Tip {
     }
 
     public void getBroadcast(String in, String... args) {
-        if (islist) {
-            for (String mes : getMessageList(in)) {
+        Object get = tips.get(in);
+        if (get instanceof String) {
+            broadcastMessage((String) get, args);
+        } else if (get instanceof List<?>) {
+            for (String mes : (List<String>) get) {
                 broadcastMessage(mes, args);
             }
         } else {
-            broadcastMessage(getMessage(in), args);
+            showDetial();
         }
     }
 
@@ -279,25 +325,10 @@ public class Tip {
      */
     public void sendwithhead(CommandSender p, String in) {
         if (isnohead) return;
-        if (islist) {
-            List<String> head = lmMap.get("mhead");
-            if (head == null) {
-                p.sendMessage(in);
-            } else
-                for (int i = 0; i < head.size(); i++) {
-                    String get = head.get(i);
-                    if (i == head.size() - 1) {
-                        get += in;
-                    }
-                    p.sendMessage(get);
-                }
-        } else {
-            String head = mMap.get("mhead");
-            if (head == null) {
-                p.sendMessage(in);
-            } else
-                p.sendMessage(head + in);
-        }
+        if (head == null) {
+            p.sendMessage(in);
+        } else
+            p.sendMessage(head + in);
     }
 
     /**
@@ -324,7 +355,6 @@ public class Tip {
      * 重载
      */
     public void reload() {
-        messagefile = io.loadYamlFile(filename, true);
         init();
     }
 }

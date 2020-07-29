@@ -284,7 +284,7 @@ public class Manage extends Command {
         String name = obj.getClass().getSimpleName();
         if (name.equalsIgnoreCase("NBTTagCompound")) {
             cms.sendMessage("===========" + disname + "===============");
-            Map getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
+            Map<?,?> getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
             getmap.forEach((k, v) -> soutNbtBaseName(v, cms, k.toString()));
             cms.sendMessage("===========" + disname + "===============");
         } else {
@@ -292,7 +292,7 @@ public class Manage extends Command {
             if (get instanceof List) {
                 cms.sendMessage(disname + ":");
                 int i = 0;
-                for (Object getobj : (List) get) {
+                for (Object getobj : (List<?>) get) {
                     soutNbtBaseName(getobj, cms, "-" + i);
                     i++;
                 }
