@@ -302,7 +302,39 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
 
     @Override
     public T load(String key, T def) {
-        return null;
+        Object result = def;
+
+        try {
+//            LIMIT 1
+            PreparedStatement pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt.setString(1, key);
+            ResultSet rs = pstmt.executeQuery();
+            /////
+            if (rs.next()) {
+                ///////
+                for (String keys : table.keySet()) {
+                    //LOAD
+                    InputStream input = rs.getBinaryStream(keys);
+                    if (input != null) {
+                        InputStreamReader isr = new InputStreamReader(input, StandardCharsets.UTF_8);
+                        BufferedReader br = new BufferedReader(isr);
+                        Object obj;
+                        obj = this.deserialize(br.readLine(), table.get(keys));
+                        if (obj == null) continue;
+                        Field fi = getFielddeep(keys, Class.forName(type.getTypeName()), 0);
+                        fi.setAccessible(true);
+                        fi.set(result, obj);
+
+                    }
+                }
+            }
+
+            pstmt.close();
+        } catch (Exception var19) {
+            var19.printStackTrace();
+        }
+
+        return (T) result;
     }
 
     public String createInsert(String key, Set<String> keyset, HashMap<String, ByteArrayInputStream> binys) {

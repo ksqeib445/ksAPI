@@ -3,7 +3,6 @@ package com.ksqeib.ksapi.util;
 import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -14,8 +13,6 @@ import java.util.function.UnaryOperator;
  * 提示类
  */
 public class Tip {
-
-    public static ConsoleCommandSender ccs = Bukkit.getConsoleSender();
     public Boolean islist;
     public HashMap<String, List<String>> lmMap;
     public HashMap<String, String> mMap;
@@ -197,7 +194,7 @@ public class Tip {
      */
     public void send(String first, CommandSender p, String... args) {
         Player pl = null;
-        Boolean isp = false;
+        boolean isp = false;
         if (p instanceof Player) {
             pl = (Player) p;
             isp = true;
@@ -252,7 +249,8 @@ public class Tip {
     }
 
     public void sendToConsole(String first, String... args) {
-        first = getString(first, ccs == null, args);
+        CommandSender ccs = Bukkit.getConsoleSender();
+        first = getString(first, false, args);
         if (first.startsWith("=")) {
             //=判断
             ccs.sendMessage(first.substring(1));

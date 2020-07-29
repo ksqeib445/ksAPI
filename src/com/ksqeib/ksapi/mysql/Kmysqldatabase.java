@@ -67,9 +67,9 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
     }
 
     private void initTable(Connection conn) {
-        String createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128) PRIMARY KEY,";
+        String createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128) BINARY PRIMARY KEY,";
         if (!usual) {
-            createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128),";
+            createString = "CREATE TABLE IF NOT EXISTS %s (dbkey CHAR(128) BINARY,";
         }
         int i = 0;
         for (String name : table.keySet()) {
@@ -154,7 +154,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         PreparedStatement pstmt = null;
         try {
             conn = this.createConnection();
-            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ?", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey collate utf8_bin = ?", this.tablename));
             pstmt.setString(1, key);
             rs = pstmt.executeQuery();
             /////
@@ -235,7 +235,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey collate utf8_bin = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             rs = pstmt.executeQuery();
             /////
@@ -277,7 +277,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT * FROM %s WHERE dbkey collate utf8_bin = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             rs = pstmt.executeQuery();
             /////
@@ -323,7 +323,7 @@ public class Kmysqldatabase<T> extends KDatabase<T> {
         try {
             conn = this.createConnection();
 //            LIMIT 1
-            pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey = ? LIMIT 1", this.tablename));
+            pstmt = conn.prepareStatement(String.format("SELECT " + part + " FROM %s WHERE dbkey collate utf8_bin = ? LIMIT 1", this.tablename));
             pstmt.setString(1, key);
             rs = pstmt.executeQuery();
             /////
