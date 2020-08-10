@@ -64,4 +64,8 @@ public class MysqlPoolManager {
         MysqlConnectobj mysqlConnectobj = new MysqlConnectobj(url, password, userName);
         return getPool(mysqlConnectobj);
     }
+
+    public static void onDisable(){
+        connectionPools.values().forEach(ConnectionPool::closePool);
+    }
 }

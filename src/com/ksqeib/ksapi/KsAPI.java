@@ -6,6 +6,7 @@ import com.ksqeib.ksapi.depend.DependManager;
 import com.ksqeib.ksapi.gui.InteractiveGUIManager;
 import com.ksqeib.ksapi.gui.InteractiveMoveGUIManager;
 import com.ksqeib.ksapi.gui.TestCodeGUIManager;
+import com.ksqeib.ksapi.manager.MysqlPoolManager;
 import com.ksqeib.ksapi.util.UtilManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -116,6 +117,7 @@ public class KsAPI extends JavaPlugin {
     public void onDisable() {
         um.getIo().disabled();
         um.getTip().getDnS(Bukkit.getConsoleSender(), "disable");
+        MysqlPoolManager.onDisable();
     }
 
     public static String getMaterialCN(Material material) {

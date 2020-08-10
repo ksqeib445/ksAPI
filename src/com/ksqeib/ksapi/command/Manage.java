@@ -26,6 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -263,6 +264,21 @@ public class Manage extends Command {
                                     su = true;
                                     break;
                                 }
+                                case "addlore": {
+                                    ItemStack hand = new ItemStack(p.getInventory().getItemInMainHand());
+                                    ItemMeta im = hand.getItemMeta();
+                                    List<String> lore = im.getLore();
+                                    if (lore == null) lore = new ArrayList<>();
+                                    lore.forEach(p::sendMessage);
+                                    if (args.length > 2) {
+                                        lore.add(0, "§0 " + args[2].replace("&", "§"));
+                                    }
+                                    im.setLore(lore);
+                                    hand.setItemMeta(im);
+                                    p.getInventory().addItem(hand);
+                                    su = true;
+                                    break;
+                                }
                             }
                             if (su) {
                                 KsAPI.um.getTip().send("Success", cms);
@@ -284,7 +300,7 @@ public class Manage extends Command {
         String name = obj.getClass().getSimpleName();
         if (name.equalsIgnoreCase("NBTTagCompound")) {
             cms.sendMessage("===========" + disname + "===============");
-            Map<?,?> getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
+            Map<?, ?> getmap = KsAPI.um.getMulNBT().getNBTTagCompundMap(obj);
             getmap.forEach((k, v) -> soutNbtBaseName(v, cms, k.toString()));
             cms.sendMessage("===========" + disname + "===============");
         } else {

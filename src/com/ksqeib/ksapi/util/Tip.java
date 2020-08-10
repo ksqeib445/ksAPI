@@ -83,7 +83,7 @@ public class Tip {
                     tips.put(String.valueOf(en.getKey()), val);
                 } else {
                     sb.append(en.getKey());
-                    tips.put(String.valueOf(en.getKey()), val);
+                    tips.put(sb.toString(), val);
                 }
             } else if (en.getValue() instanceof Map<?, ?>) {
                 initMap((Map<?, ?>) en.getValue(), false, new StringBuilder(sb.append(en.getKey()).append(".").toString()));

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2018-2020 ksqeib. All rights reserved.
+ * @author ksqeib <ksqeib@dalao.ink> <https://github.com/ksqeib445>
+ * @create 2020/07/30 15:35:50
+ *
+ * ksAPI/ksAPI/ConnectionPool.java
+ */
+
 package com.ksqeib.ksapi.mysql;
 
 import com.zaxxer.hikari.HikariConfig;
@@ -5,9 +13,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 
-/**
- * 连接池，以前是龙猫写的，现在就是一个套了HikariPool的类
- */
 public class ConnectionPool {
     private HikariDataSource ds;
 
@@ -30,5 +35,12 @@ public class ConnectionPool {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * @return 获取一个连接
+     */
+    public void closePool(){
+        ds.close();
     }
 }
