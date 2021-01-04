@@ -33,7 +33,7 @@ public class KsAPI extends JavaPlugin {
 
     public static ConcurrentHashMap<String, String> item = new ConcurrentHashMap<>();
 
-    public static int getServerVersionType() throws NoSuchMethodException {
+    public static int getServerVersionType() {
         Method[] m = PlayerInventory.class.getDeclaredMethods();
         for (Method e : m) {
             if (e.toGenericString().contains("getItemInMainHand")) {
@@ -73,11 +73,7 @@ public class KsAPI extends JavaPlugin {
             {
                 dependManager = new DependManager();
                 //加载
-                try {
-                    serverVersion = getServerVersionType();
-                } catch (NoSuchMethodException ex) {
-                    System.out.print("KSAPI版本兼容模块失效！");
-                }
+                serverVersion = getServerVersionType();
                 PluginManager pm = Bukkit.getPluginManager();
                 um = new UtilManager(instance);
                 um.createalwaysneed(true);
@@ -127,6 +123,7 @@ public class KsAPI extends JavaPlugin {
         }
         return material.name();
     }
+
     public ConcurrentHashMap<String, String> getAll(FileConfiguration file) {
         ConcurrentHashMap<String, String> hash = new ConcurrentHashMap<>();
         for (String string : file.getValues(false).keySet()) {

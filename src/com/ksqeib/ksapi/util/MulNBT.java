@@ -1,21 +1,19 @@
 package com.ksqeib.ksapi.util;
 
 import com.ksqeib.ksapi.KsAPI;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 暴力的nbt管理类，不多 bb
  */
 public class MulNBT<T> {
-
     public Class<?> getNBTClass(String name) {
         try {
             return Class.forName("net.minecraft.server." + KsAPI.serververStr + "." + name);
@@ -64,6 +62,10 @@ public class MulNBT<T> {
 
     public Class<?> getCraftItemStackClass() {
         return getBukkitClass("inventory.CraftItemStack");
+    }
+
+    public Class<?> getCraftMetaItemStackClass() {
+        return getBukkitClass("inventory.CraftMetaItem");
     }
 
     private Object asNMSCopy(Object object) {
@@ -179,6 +181,15 @@ public class MulNBT<T> {
         }
     }
 
+    public Object createNBTByType(String type) {
+        try {
+            return getNBTClass("NBTTag" + type).getConstructor().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * 强行获取NBTTag的数据 可以与getNBTMap(ItemStack item)搭配使用
      *
@@ -187,11 +198,23 @@ public class MulNBT<T> {
      */
     public Object getNBTTagData(Object obj) {
         try {
+            String classname = obj.getClass().getSimpleName();
             for (Field fi : obj.getClass().getDeclaredFields()) {
                 if (Modifier.isFinal(fi.getModifiers()) || Modifier.isStatic(fi.getModifiers())) continue;
                 boolean todo = false;
-                if (fi.getName().equalsIgnoreCase("data") || fi.getName().equalsIgnoreCase("list") || fi.getName().equalsIgnoreCase("b")) {
-                    todo = true;
+                switch (classname) {
+                    default:
+                        if (fi.getName().equalsIgnoreCase("data")) todo = true;
+                        break;
+                    case "NBTTagList":
+                        if (fi.getName().equalsIgnoreCase("list")) todo = true;
+                        break;
+                    case "NBTTagCompound":
+                        if (fi.getName().equalsIgnoreCase("map")) todo = true;
+                        break;
+                    case "NBTTagLongArray":
+                        if (fi.getName().equalsIgnoreCase("b")) todo = true;
+                        break;
                 }
                 if (todo) {
                     fi.setAccessible(true);
@@ -269,7 +292,8 @@ public class MulNBT<T> {
      * @return
      */
     public boolean hasNBTdataType(ItemStack item, String type) {
-        return getNBTMap(item).containsKey(type);
+        if (item.getType() == Material.AIR) return false;
+        return getMapByMeta(item).containsKey(type);
     }
 
     /**
@@ -288,8 +312,8 @@ public class MulNBT<T> {
      * @param item      传入的物品
      * @param id        修改的NBTID
      * @param data      数据
-     * @param type      数据类型
-     * @param typeclass 数据类型的基本class
+     * @param type      数据类型 Byte ByteArray Compound(需要get) Double End(未知) Float Int IntArray List Long LongArray Short String 均为基本类型
+     * @param typeclass 数据类型的基本class 如String.class
      * @return
      */
     public ItemStack addNBTdata(ItemStack item, String id, Object data, String type, Class typeclass) {
@@ -301,6 +325,18 @@ public class MulNBT<T> {
             nmsItemsetTag(nmsItem, compound);
         }
         getNBTTagCompundMap(compound).put(id, createNBTByType(data, type, typeclass));
+        return asBukkitCopy(nmsItem);
+    }
+
+    public ItemStack addNBTTag(ItemStack item, String id, Object tag) {
+        Object nmsItem = asNMSCopy(item);
+        boolean have = nmsItemhasTag(nmsItem);
+        Object compound = have ? nmsItemgetTag(nmsItem)
+                : getNBTTagCompoundInstance();
+        if (!have) {
+            nmsItemsetTag(nmsItem, compound);
+        }
+        getNBTTagCompundMap(compound).put(id, tag);
         return asBukkitCopy(nmsItem);
     }
 
@@ -328,12 +364,20 @@ public class MulNBT<T> {
      * @return 数据(需要强转
      */
     public Object getNBTdata(ItemStack item, String type) {
-        Object nmsItem = asNMSCopy(item);
-        if (!nmsItemhasTag(nmsItem)) return null;
-        Object itemtag = nmsItemgetTag(nmsItem);
-        Object nbtbase = getNBTBaseofNBTTagCompound(type, itemtag);
-        if (nbtbase == null) return null;
-        return getNBTTagData(nbtbase);
+//        Object nmsItem = asNMSCopy(item);
+//        if (!nmsItemhasTag(nmsItem)) return null;
+//        Object itemtag = nmsItemgetTag(nmsItem);
+//        Object nbtbase = getNBTBaseofNBTTagCompound(type, itemtag);
+//        if (nbtbase == null) return null;
+//        return getNBTTagData(nbtbase);
+        Object itemtag = getNBTTag(item, type);
+        if (itemtag == null) return null;
+        return getNBTTagData(itemtag);
+    }
+
+    public Object getNBTTag(ItemStack item, String type) {
+        if (!hasNBTdataType(item, type)) return null;
+        return getMapByMeta(item).get(type);
     }
 
     /**
@@ -352,19 +396,21 @@ public class MulNBT<T> {
         return asBukkitCopy(nmsItem);
     }
 
-    private Object doMethod(Object obj, String methodName, Object... args) {
-        try {
-            Class<?>[] types = new Class<?>[args.length];
-            Object[] objs = new Object[args.length];
-            for (int i = 0; i < args.length; i++) {
-                types[i] = args[i].getClass();
-                objs[i] = args[i];
-            }
-            Method method = obj.getClass().getMethod(methodName, types);
-            return method.invoke(obj, objs);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-        }
-        return null;
+    public Map getMapByMeta(ItemStack item) {
+        return getCraftMetalItemMap(item.getItemMeta());
     }
 
+    public Map getCraftMetalItemMap(ItemMeta itemMeta) {
+        if (itemMeta == null) return new HashMap();
+        try {
+
+            Field fi = getCraftMetaItemStackClass().getDeclaredField("unhandledTags");
+            fi.setAccessible(true);
+            Map get = (Map) fi.get(itemMeta);
+            return get;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

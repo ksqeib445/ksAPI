@@ -10,6 +10,7 @@ import com.ksqeib.ksapi.util.Musicg;
 import com.ksqeib.ksapi.util.Tip;
 import com.ksqeib.ksapi.util.UtilManager;
 import fun.ksmc.util.MemMgmt;
+import net.minecraft.server.v1_12_R1.NBTBase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -25,6 +26,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -31,4 +31,7 @@ public class Permission {
         return isp(cms, "." + admin);
     }
 
+    public void setPluginn(String pluginn) {
+        this.pluginn = pluginn;
+    }
 }

@@ -3,7 +3,6 @@ package com.ksqeib.ksapi.util;
 import com.ksqeib.ksapi.KsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.yaml.snakeyaml.Yaml;
 
@@ -56,7 +55,7 @@ public class Tip {
             ie.printStackTrace();
         }
         if (tip == null) return;
-        initMap(tip, true, new StringBuilder());
+        initMap(tip, true, "");
         if (tips.containsKey("mhead")) {
             head = getMessage("mhead");
         } else {
@@ -75,25 +74,27 @@ public class Tip {
         return listb;
     }
 
-    private void initMap(Map<?, ?> map, boolean root, StringBuilder sb) {
+    private void initMap(Map<?, ?> map, boolean root, String dir) {
         for (Map.Entry<?, ?> en : map.entrySet()) {
             if (en.getValue() instanceof List<?>) {
                 List<String> val = translateList((List<?>) en.getValue());
                 if (root) {
                     tips.put(String.valueOf(en.getKey()), val);
                 } else {
-                    sb.append(en.getKey());
-                    tips.put(sb.toString(), val);
+                    tips.put(dir + en.getKey(), val);
                 }
             } else if (en.getValue() instanceof Map<?, ?>) {
-                initMap((Map<?, ?>) en.getValue(), false, new StringBuilder(sb.append(en.getKey()).append(".").toString()));
+                if (root) {
+                    initMap((Map<?, ?>) en.getValue(), false, en.getKey() + ".");
+                } else {
+                    initMap((Map<?, ?>) en.getValue(), false, dir + en.getKey() + ".");
+                }
             } else {
                 String val = String.valueOf(en.getValue()).replace("&", "§");
                 if (root) {
                     tips.put(String.valueOf(en.getKey()), val);
                 } else {
-                    sb.append(en.getKey());
-                    tips.put(sb.toString(), val);
+                    tips.put(dir + en.getKey(), val);
                 }
             }
         }
