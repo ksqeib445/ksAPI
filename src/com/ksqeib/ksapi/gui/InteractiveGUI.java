@@ -8,15 +8,18 @@ import java.util.HashMap;
 
 public class InteractiveGUI {
 
-    private Inventory inventory;
-    private HashMap<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
-    private HashMap<Integer, Runnable> ractions = new HashMap<Integer, Runnable>();
-    private HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
+    protected Inventory inventory;
+    protected Runnable closeAction = null;
+    protected HashMap<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
+    protected HashMap<Integer, Runnable> ractions = new HashMap<Integer, Runnable>();
+    protected HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
+    protected boolean lock = false;
 
     /**
      * 互动gui
+     *
      * @param originalname 名称 不能大于32
-     * @param size 大小 可以不填手动设定界面类型
+     * @param size         大小 可以不填手动设定界面类型
      */
     public InteractiveGUI(String originalname, int size) {
         String name = originalname;
@@ -32,6 +35,7 @@ public class InteractiveGUI {
 
     /**
      * 获取界面的背包
+     *
      * @return
      */
     public Inventory getInventory() {
@@ -40,6 +44,7 @@ public class InteractiveGUI {
 
     /**
      * 设置界面的背包
+     *
      * @param inventory
      */
     public void setInventory(Inventory inventory) {
@@ -48,7 +53,8 @@ public class InteractiveGUI {
 
     /**
      * 设置动作(包括左和右
-     * @param slot 格子
+     *
+     * @param slot     格子
      * @param runnable 对应的动作
      */
     public void setAction(int slot, Runnable runnable) {
@@ -63,15 +69,15 @@ public class InteractiveGUI {
         lactions.put(slot, runnable);
     }
 
-    public void removeAction(int slot){
+    public void removeAction(int slot) {
         actions.remove(slot);
     }
 
-    public void removeLeftAction(int slot){
+    public void removeLeftAction(int slot) {
         lactions.remove(slot);
     }
 
-    public void removeRightAction(int slot){
+    public void removeRightAction(int slot) {
         ractions.remove(slot);
     }
 
@@ -93,5 +99,21 @@ public class InteractiveGUI {
     public Runnable getLAction(int slot) {
         if (!lactions.containsKey(slot)) return null;
         return lactions.get(slot);
+    }
+
+    public void setLock(boolean lock) {
+        this.lock = lock;
+    }
+
+    public boolean isLock() {
+        return lock;
+    }
+
+    public void setCloseAction(Runnable closeAction) {
+        this.closeAction = closeAction;
+    }
+
+    public void removeCloseAction() {
+        this.closeAction = null;
     }
 }

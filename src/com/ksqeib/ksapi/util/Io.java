@@ -250,7 +250,6 @@ public class Io {
     public void loadaConfig(String name, Boolean isin) {
         configs.put(name, loadYamlFile(name + ".yml", isin));
         isinconfigs.put(name, isin);
-
     }
 
     /**

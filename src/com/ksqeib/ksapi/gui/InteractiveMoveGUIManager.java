@@ -17,17 +17,21 @@ import java.util.UUID;
 
 public class InteractiveMoveGUIManager implements Listener {
 
-    protected static HashMap<UUID, InteractiveMoveGUI> guis = new HashMap<UUID, InteractiveMoveGUI>();
+    protected static HashMap<UUID, InteractiveMoveGUI> guis = new HashMap<>();
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
         Player p = (Player) event.getWhoClicked();
         UUID uuid = p.getUniqueId();
-        if (!invokeComp(event.getClickedInventory(),guis.get(uuid).getInventory())) return;
+        if (!guis.containsKey(uuid)) return;
+        if (!invokeComp(event.getClickedInventory(), guis.get(uuid).getInventory())) return;
         int slot = event.getSlot();
         if (event.getCurrentItem() == null) return;
-        if (!guis.containsKey(uuid)) return;
         InteractiveMoveGUI img = guis.get(uuid);
+        if (img.isLock()) {
+            event.setCancelled(true);
+            return;
+        }
         if (img.isCanMove(slot)) return;
         event.setCancelled(true);
         if (event.getRawSlot() >= event.getInventory().getSize()) return;
@@ -51,27 +55,27 @@ public class InteractiveMoveGUIManager implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         UUID uid = event.getPlayer().getUniqueId();
-        if (guis.containsKey(uid)) {
-            InteractiveMoveGUI img = guis.get(uid);
-            Inventory inv = img.getInventory();
-            for (int i = 0; i < inv.getSize(); i++) {
-                ItemStack item = inv.getItem(i);
-                if (item != null) {
-                    if (img.isCanMove(i)) {
-                        event.getPlayer().getInventory().addItem(item);
-                    }
-                }
-            }
-            guis.remove(uid);
+        InteractiveMoveGUI img = guis.remove(uid);
+        if (img == null) return;
+        Inventory inv = img.getInventory();
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null) continue;
+            if (!img.isCanMove(i)) continue;
+            inv.setItem(i, null);
+            event.getPlayer().getInventory().addItem(item);
         }
+        if (img.closeAction != null) img.closeAction.run();
     }
-    public boolean invokeComp(Inventory a,Inventory b){
+
+    private boolean invokeComp(Inventory a, Inventory b) {
+        if (a == null || b == null) return false;
         try {
-            Class<?> cl=Class.forName("org.bukkit.craftbukkit." + KsAPI.serververStr + ".inventory.CraftInventory");
-            Field fi=cl.getDeclaredField("inventory");
+            Class<?> cl = Class.forName("org.bukkit.craftbukkit." + KsAPI.serververStr + ".inventory.CraftInventory");
+            Field fi = cl.getDeclaredField("inventory");
             fi.setAccessible(true);
-            return fi.get(a)==fi.get(b);
-        }catch (Exception e){
+            return fi.get(a) == fi.get(b);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;

@@ -1,6 +1,5 @@
 package com.ksqeib.ksapi.gui;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -9,13 +8,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
 import java.util.HashMap;
-import java.util.Random;
 import java.util.UUID;
 
 
 public class InteractiveGUIManager implements Listener {
 
-    protected static HashMap<UUID, InteractiveGUI> guis = new HashMap<UUID, InteractiveGUI>();
+    protected static HashMap<UUID, InteractiveGUI> guis = new HashMap<>();
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
@@ -26,26 +24,31 @@ public class InteractiveGUIManager implements Listener {
         if (!guis.containsKey(uuid)) return;
         event.setCancelled(true);
         if (event.getRawSlot() >= event.getInventory().getSize()) return;
-        if (guis.get(uuid).getAction(slot) != null) {
-            guis.get(uuid).getAction(slot).run();
+        InteractiveGUI gui = guis.get(uuid);
+        if (gui.isLock()) return;
+        if (gui.getAction(slot) != null) {
+            gui.getAction(slot).run();
             return;
         }
         if (event.getClick().isLeftClick()) {
-            if (guis.get(uuid).getLAction(slot) != null) {
-                guis.get(uuid).getLAction(slot).run();
+            if (gui.getLAction(slot) != null) {
+                gui.getLAction(slot).run();
             }
         }
 
         if (event.getClick().isRightClick()) {
-            if (guis.get(uuid).getRAction(slot) != null) {
-                guis.get(uuid).getRAction(slot).run();
+            if (gui.getRAction(slot) != null) {
+                gui.getRAction(slot).run();
             }
         }
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
-        guis.remove(event.getPlayer().getUniqueId());
+        InteractiveGUI gui = guis.remove(event.getPlayer().getUniqueId());
+        if (gui == null) return;
+        if (gui.closeAction != null)
+            gui.closeAction.run();
     }
 
 

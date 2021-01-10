@@ -328,6 +328,18 @@ public class MulNBT<T> {
         return asBukkitCopy(nmsItem);
     }
 
+    public ItemStack addMulNBTdata(ItemStack item, Map<String, Object> nbttags) {
+        Object nmsItem = asNMSCopy(item);
+        boolean have = nmsItemhasTag(nmsItem);
+        Object compound = have ? nmsItemgetTag(nmsItem)
+                : getNBTTagCompoundInstance();
+        if (!have) {
+            nmsItemsetTag(nmsItem, compound);
+        }
+        nbttags.forEach((k, v) -> getNBTTagCompundMap(compound).put(k, v));
+        return asBukkitCopy(nmsItem);
+    }
+
     public ItemStack addNBTTag(ItemStack item, String id, Object tag) {
         Object nmsItem = asNMSCopy(item);
         boolean have = nmsItemhasTag(nmsItem);
