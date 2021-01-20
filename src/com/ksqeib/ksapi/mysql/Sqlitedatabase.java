@@ -74,7 +74,7 @@ public class Sqlitedatabase<T> extends KDatabase<T> {
 //        System.out.println(createString);
         Statement pstmt = conn.createStatement();
         pstmt.execute(createString);
-        pstmt.close();
+        pstmt.close(); 
     }
 
 

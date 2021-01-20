@@ -33,13 +33,15 @@ public class Tip {
     protected Tip(Io io, boolean islist, String name) {
         this.io = io;
         this.filename = name;
-        init();
+        if (name != null)
+            init();
     }
 
     protected Tip(Io io, String name) {
         this.io = io;
         this.filename = name;
-        init();
+        if (name != null)
+            init();
     }
 
     /**
@@ -47,6 +49,11 @@ public class Tip {
      */
     public void init() {
         File file = io.loadPluginFile(filename, true);
+        init(file);
+    }
+
+    public void init(File file) {
+        tips.clear();
         Yaml yaml = new Yaml();
         LinkedHashMap<String, Object> tip = null;
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
