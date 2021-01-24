@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -37,7 +38,6 @@ public class InteractiveMoveGUIManager implements Listener {
         if (event.getRawSlot() >= event.getInventory().getSize()) return;
         if (img.getAction(slot) != null) {
             img.getAction(slot).run();
-            return;
         }
         if (event.getClick().isLeftClick()) {
             if (img.getLAction(slot) != null) {
@@ -48,6 +48,11 @@ public class InteractiveMoveGUIManager implements Listener {
         if (event.getClick().isRightClick()) {
             if (img.getRAction(slot) != null) {
                 img.getRAction(slot).run();
+            }
+        }
+        if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            if (img.getShiftAction(slot) != null) {
+                img.getShiftAction(slot).run();
             }
         }
     }

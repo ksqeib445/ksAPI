@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
@@ -28,7 +29,6 @@ public class InteractiveGUIManager implements Listener {
         if (gui.isLock()) return;
         if (gui.getAction(slot) != null) {
             gui.getAction(slot).run();
-            return;
         }
         if (event.getClick().isLeftClick()) {
             if (gui.getLAction(slot) != null) {
@@ -39,6 +39,12 @@ public class InteractiveGUIManager implements Listener {
         if (event.getClick().isRightClick()) {
             if (gui.getRAction(slot) != null) {
                 gui.getRAction(slot).run();
+            }
+        }
+
+        if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            if (gui.getShiftAction(slot) != null) {
+                gui.getShiftAction(slot).run();
             }
         }
     }

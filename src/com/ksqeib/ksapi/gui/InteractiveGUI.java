@@ -13,6 +13,7 @@ public class InteractiveGUI {
     protected HashMap<Integer, Runnable> actions = new HashMap<Integer, Runnable>();
     protected HashMap<Integer, Runnable> ractions = new HashMap<Integer, Runnable>();
     protected HashMap<Integer, Runnable> lactions = new HashMap<Integer, Runnable>();
+    protected HashMap<Integer, Runnable> shiftActions = new HashMap<Integer, Runnable>();
     protected boolean lock = false;
 
     /**
@@ -69,6 +70,10 @@ public class InteractiveGUI {
         lactions.put(slot, runnable);
     }
 
+    public void setShiftAction(int slot, Runnable runnable) {
+        shiftActions.put(slot, runnable);
+    }
+
     public void removeAction(int slot) {
         actions.remove(slot);
     }
@@ -79,6 +84,10 @@ public class InteractiveGUI {
 
     public void removeRightAction(int slot) {
         ractions.remove(slot);
+    }
+
+    public void removeShiftAction(int slot) {
+        shiftActions.remove(slot);
     }
 
     public void openInventory(Player p) {
@@ -99,6 +108,11 @@ public class InteractiveGUI {
     public Runnable getLAction(int slot) {
         if (!lactions.containsKey(slot)) return null;
         return lactions.get(slot);
+    }
+
+    public Runnable getShiftAction(int slot) {
+        if (!shiftActions.containsKey(slot)) return null;
+        return shiftActions.get(slot);
     }
 
     public void setLock(boolean lock) {
